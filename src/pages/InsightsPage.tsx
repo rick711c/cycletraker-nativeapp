@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, Card, Icon, useTheme } from 'react-native-paper';
+import { Text, Card, useTheme } from 'react-native-paper';
+import Icon from '../components/ui/Icon';
 import { MobileLayout } from '../components/layout/MobileLayout';
 import { useCycleStore } from '../hooks/useCycleStore';
 

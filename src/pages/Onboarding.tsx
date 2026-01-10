@@ -15,8 +15,8 @@ import {
   Card,
   TextInput,
   useTheme,
-  Icon,
 } from 'react-native-paper';
+import Icon from '../components/ui/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { format, subDays } from 'date-fns';
 

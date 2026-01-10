@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { Text, Card, Button, TextInput, useTheme, Snackbar, Icon, Portal } from 'react-native-paper';
+import { Text, Card, Button, TextInput, useTheme, Snackbar, Portal } from 'react-native-paper';
+import Icon from '../components/ui/Icon';
 import { format } from 'date-fns';
 import { MobileLayout } from '../components/layout/MobileLayout';
 import { useCycleStore } from '../hooks/useCycleStore';

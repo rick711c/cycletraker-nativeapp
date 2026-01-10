@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Surface, FAB, Text, useTheme, Icon } from 'react-native-paper';
+import { Surface, FAB, Text, useTheme } from 'react-native-paper';
+import Icon from '../ui/Icon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // Assuming React Navigation
 import { useNavigation, useRoute } from '@react-navigation/native'; 
@@ -29,25 +30,29 @@ export function BottomNav() {
           if (item.isCenter) {
             return (
               <View key={item.label} style={styles.centerButtonContainer}>
-                <FAB
-                  icon={item.icon}
-                  style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-                  color={theme.colors.onPrimary}
-                  onPress={() => navigation.navigate(item.route as never)}
-                  mode="elevated"
-                />
+                    <FAB
+                      icon={() => <Icon icon={item.icon} size={24} color={theme.colors.onPrimary} />}
+                      style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+                      onPress={() => navigation.navigate(item.route as never)}
+                      mode="elevated"
+                    />
               </View>
             );
           }
 
           return (
-            <TouchableOpacity
-              key={item.label}
-              style={styles.tab}
-              onPress={() => navigation.navigate(item.route as never)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: isActive }}
-            >
+              <TouchableOpacity
+                key={item.label}
+                style={styles.tab}
+                onPress={() => {
+                  // Debug: ensure press handler is firing
+                  // eslint-disable-next-line no-console
+                  console.log('BottomNav press:', item.route);
+                  navigation.navigate(item.route as never);
+                }}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isActive }}
+              >
               <Icon icon={item.icon} size={24} color={color} />
               <Text
                 variant="labelSmall"

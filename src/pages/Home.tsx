@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, Icon, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
+import Icon from '../components/ui/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { CycleRing } from '../components/cycle/CycleRing';
 import { DailyInsight } from '../components/cycle/DailyInsight';

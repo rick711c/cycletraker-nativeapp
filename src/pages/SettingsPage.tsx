@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Text, Card, Switch, Divider, Avatar, Icon, useTheme, Snackbar, Portal } from 'react-native-paper';
+import { Text, Card, Switch, Divider, Avatar, useTheme, Snackbar, Portal } from 'react-native-paper';
+import Icon from '../components/ui/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { MobileLayout } from '../components/layout/MobileLayout';
 import { useCycleStore } from '../hooks/useCycleStore';

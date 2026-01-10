@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text, Icon } from 'react-native-paper';
+import { Card, Text } from 'react-native-paper';
+import Icon from '../ui/Icon';
 
 // --- Types & Data ---
 
