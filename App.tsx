@@ -57,7 +57,10 @@ export default function App() {
         <PaperProvider theme={theme}>
           <NavigationContainer>
             <StatusBar barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.colors.background} />
-            <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
+            <Stack.Navigator
+              initialRouteName="Home"
+              screenOptions={{ headerShown: false, animation: 'none' }}
+            >
               <Stack.Screen name="Home" component={Home} />
               <Stack.Screen name="Onboarding" component={Onboarding} />
               <Stack.Screen name="Calendar" component={CalendarPage} />
