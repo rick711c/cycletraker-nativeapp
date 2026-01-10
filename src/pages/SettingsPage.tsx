@@ -4,6 +4,8 @@ import { Text, Card, Switch, Divider, Avatar, Icon, useTheme, Snackbar, Portal }
 import { useNavigation } from '@react-navigation/native';
 import { MobileLayout } from '../components/layout/MobileLayout';
 import { useCycleStore } from '../hooks/useCycleStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 
 export default function SettingsPage() {
