@@ -6,7 +6,6 @@ import Svg, { Path, Circle } from 'react-native-svg';
 
 export type CyclePhase = 'menstruation' | 'follicular' | 'ovulation' | 'luteal';
 
-
 const phaseLabels: Record<CyclePhase, string> = {
   menstruation: 'Period',
   follicular: 'Follicular',
@@ -21,11 +20,11 @@ interface CycleRingProps {
   periodLength: number;
 }
 
-export function CycleRing({ 
-  dayInCycle, 
-  cycleLength, 
-  currentPhase, 
-  periodLength 
+export function CycleRing({
+  dayInCycle,
+  cycleLength,
+  currentPhase,
+  periodLength,
 }: CycleRingProps) {
   const theme = useTheme();
 
@@ -36,10 +35,26 @@ export function CycleRing({
   const phases = useMemo(() => {
     const ovulationDay = cycleLength - 14;
     return [
-      { phase: 'menstruation' as CyclePhase, start: 0, end: periodLength / cycleLength },
-      { phase: 'follicular' as CyclePhase, start: periodLength / cycleLength, end: (ovulationDay - 1) / cycleLength },
-      { phase: 'ovulation' as CyclePhase, start: (ovulationDay - 1) / cycleLength, end: (ovulationDay + 3) / cycleLength },
-      { phase: 'luteal' as CyclePhase, start: (ovulationDay + 3) / cycleLength, end: 1 },
+      {
+        phase: 'menstruation' as CyclePhase,
+        start: 0,
+        end: periodLength / cycleLength,
+      },
+      {
+        phase: 'follicular' as CyclePhase,
+        start: periodLength / cycleLength,
+        end: (ovulationDay - 1) / cycleLength,
+      },
+      {
+        phase: 'ovulation' as CyclePhase,
+        start: (ovulationDay - 1) / cycleLength,
+        end: (ovulationDay + 3) / cycleLength,
+      },
+      {
+        phase: 'luteal' as CyclePhase,
+        start: (ovulationDay + 3) / cycleLength,
+        end: 1,
+      },
     ];
   }, [cycleLength, periodLength]);
 
@@ -52,7 +67,7 @@ export function CycleRing({
           viewBox="0 0 100 100"
           style={{ transform: [{ rotate: '-90deg' }] }}
         >
-          {phases.map((segment) => {
+          {phases.map(segment => {
             const startAngle = segment.start * 360;
             const endAngle = segment.end * 360;
             const sweepAngle = endAngle - startAngle;
@@ -70,51 +85,55 @@ export function CycleRing({
             return (
               <Path
                 key={segment.phase}
-                  d={`M 50 50 L ${x1} ${y1} A 45 45 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
-                  fill={cyclePhaseColors[segment.phase]}
-                  opacity={segment.phase === currentPhase ? 1 : 0.28}
+                d={`M 50 50 L ${x1} ${y1} A 45 45 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
+                fill={cyclePhaseColors[segment.phase]}
+                opacity={segment.phase === currentPhase ? 1 : 0.28}
               />
             );
           })}
-            <Circle cx="50" cy="50" r="35" fill={theme.colors.surface} />
-            <Circle
-              cx="50"
-              cy="50"
-              r="45"
-              fill="none"
-              stroke={theme.colors.outline}
-              strokeWidth="2"
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
-            />
+          <Circle cx="50" cy="50" r="35" fill={theme.colors.surface} />
+          <Circle
+            cx="50"
+            cy="50"
+            r="45"
+            fill="none"
+            stroke={theme.colors.outline}
+            strokeWidth="2"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+          />
         </Svg>
 
         <View style={styles.centerContent}>
-          <Text 
-            variant="displayMedium" 
+          <Text
+            variant="displayMedium"
             style={{ fontWeight: '700', color: theme.colors.onSurface }}
           >
             {dayInCycle}
           </Text>
-          <Text 
-            variant="bodyMedium" 
+          <Text
+            variant="bodyMedium"
             style={{ color: theme.colors.onSurfaceVariant, fontWeight: '500' }}
           >
             Day of cycle
           </Text>
-          
+
           <Chip
             mode="flat"
             style={[
               styles.chip,
               // Use a subtle translucent tint based on the phase color; fall back to surfaceVariant
-              { backgroundColor: `${(cyclePhaseColors[currentPhase] ?? theme.colors.primary)}20` }
+              {
+                backgroundColor: `${
+                  cyclePhaseColors[currentPhase] ?? theme.colors.primary
+                }20`,
+              },
             ]}
             textStyle={{
               color: cyclePhaseColors[currentPhase] ?? theme.colors.primary,
               fontWeight: '600',
-              fontSize: 12,
+              fontSize: 10,
             }}
             compact
           >
@@ -148,8 +167,8 @@ const styles = StyleSheet.create({
   },
   chip: {
     marginTop: 8,
-    height: 24,
+    // height: 24,
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  },
 });
