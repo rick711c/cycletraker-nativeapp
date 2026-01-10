@@ -22,7 +22,7 @@ export function BottomNav() {
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-      <Surface style={styles.bar} elevation={4}>
+      <Surface style={[styles.bar, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.outline }]} elevation={4}>
         {navItems.map((item, index) => {
           const isActive = route.name === item.route;
           const color = isActive ? theme.colors.primary : theme.colors.onSurfaceVariant;
@@ -56,7 +56,7 @@ export function BottomNav() {
               <Icon icon={item.icon} size={24} color={color} />
               <Text
                 variant="labelSmall"
-                style={[styles.label, { color }]}
+                style={[styles.label, { color, fontWeight: isActive ? '700' : '500' }]}
                 numberOfLines={1}
               >
                 {item.label}

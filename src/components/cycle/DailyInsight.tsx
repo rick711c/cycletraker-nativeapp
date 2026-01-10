@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text } from 'react-native-paper';
+import { Card, Text, useTheme } from 'react-native-paper';
+import { cyclePhaseColors } from '../../theme/muiTheme';
 import Icon from '../ui/Icon';
 
 // --- Types & Data ---
@@ -43,12 +44,9 @@ const insights: Record<CyclePhase, { title: string; description: string; tip: st
 
 export function DailyInsight({ phase, dayInCycle }: DailyInsightProps) {
   const insight = insights[phase];
-
-  // Colors converted from HSL for React Native compatibility
-  // hsl(355, 100%, 97%) -> #FFF0F1
-  // hsl(349, 89%, 60%) -> #F23D66
-  const highlightColor = '#F23D66'; 
-  const cardBackgroundColor = '#FFF0F1'; 
+  const theme = useTheme();
+  const highlightColor = cyclePhaseColors[phase] ?? theme.colors.primary;
+  const cardBackgroundColor = theme.colors.surfaceVariant;
 
   return (
     <View style={styles.container}>
@@ -68,16 +66,16 @@ export function DailyInsight({ phase, dayInCycle }: DailyInsightProps) {
           </View>
 
           {/* Title & Description */}
-          <Text variant="titleLarge" style={styles.title}>
+          <Text variant="titleLarge" style={[styles.title, { color: theme.colors.onSurface }] }>
             {insight.title}
           </Text>
-          <Text variant="bodyMedium" style={styles.description}>
+          <Text variant="bodyMedium" style={[styles.description, { color: theme.colors.onSurfaceVariant }] }>
             {insight.description}
           </Text>
 
           {/* Tip Box */}
-          <View style={styles.tipBox}>
-            <Text variant="bodyMedium" style={{ color: '#000000' }}>
+          <View style={[styles.tipBox, { backgroundColor: theme.colors.surface }]}> 
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
               💡 {insight.tip}
             </Text>
           </View>
@@ -106,14 +104,13 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: '700',
     marginBottom: 4,
-    color: '#000000',
+    // color set dynamically from theme
   },
   description: {
     marginBottom: 16,
-    color: '#666666',
+    // color set dynamically from theme
   },
   tipBox: {
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
     borderRadius: 8,
     padding: 12,
   },

@@ -3,7 +3,7 @@ import { enableScreens } from 'react-native-screens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
-import { View, Text, StatusBar } from 'react-native';
+import { View, Text, StatusBar, useColorScheme } from 'react-native';
 import Home from './src/pages/Home';
 import Onboarding from './src/pages/Onboarding';
 import CalendarPage from './src/pages/CalendarPage';
@@ -12,7 +12,7 @@ import InsightsPage from './src/pages/InsightsPage';
 import SettingsPage from './src/pages/SettingsPage';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { floraTheme } from './src/theme/muiTheme';
+import { floraLightTheme, floraDarkTheme } from './src/theme/muiTheme';
 
 const Stack = createNativeStackNavigator();
 
@@ -48,12 +48,15 @@ class ErrorBoundary extends React.Component<any, { error: Error | null }> {
 }
 
 export default function App() {
+  const scheme = useColorScheme();
+  const theme = scheme === 'dark' ? floraDarkTheme : floraLightTheme;
+
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
-        <PaperProvider theme={floraTheme}>
+        <PaperProvider theme={theme}>
           <NavigationContainer>
-            <StatusBar barStyle="dark-content" backgroundColor={floraTheme.colors.background} />
+            <StatusBar barStyle={theme.dark ? 'light-content' : 'dark-content'} backgroundColor={theme.colors.background} />
             <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
               <Stack.Screen name="Home" component={Home} />
               <Stack.Screen name="Onboarding" component={Onboarding} />

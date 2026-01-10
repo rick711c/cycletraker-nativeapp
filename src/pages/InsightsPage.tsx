@@ -4,21 +4,7 @@ import { Text, Card, useTheme } from 'react-native-paper';
 import Icon from '../components/ui/Icon';
 import { MobileLayout } from '../components/layout/MobileLayout';
 import { useCycleStore } from '../hooks/useCycleStore';
-
-// Constants
-// You can move these to a central theme file later
-const cyclePhaseColors = {
-  menstruation: '#FF5252',
-  follicular: '#448AFF',
-  ovulation: '#69F0AE',
-  luteal: '#FFAB40',
-};
-
-const chartColors = {
-  chart2: '#E91E63',
-  chart3: '#9C27B0',
-  chart4: '#00BCD4',
-};
+import { chartColors, cyclePhaseColors } from '../theme/muiTheme';
 
 export default function InsightsPage() {
   const theme = useTheme();
@@ -171,12 +157,12 @@ export default function InsightsPage() {
         </Card>
 
         {/* Health Tip */}
-        <Card style={[styles.sectionCard, { backgroundColor: '#FFF0F1' }]}>
+        <Card style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceVariant }]}>
           <Card.Content>
-            <Text variant="titleMedium" style={[styles.sectionTitle, { color: '#000000' }]}>
+            <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               💡 Health Tip
             </Text>
-            <Text variant="bodyMedium" style={{ color: '#666666' }}>
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
               Tracking your cycle consistently helps identify patterns and potential health issues early.
               Try to log at least your period dates and major symptoms for the most accurate insights.
             </Text>

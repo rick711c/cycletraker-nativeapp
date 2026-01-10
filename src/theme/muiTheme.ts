@@ -1,4 +1,4 @@
-import { MD3LightTheme, configureFonts } from 'react-native-paper';
+import { MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
 
 // --- Color Palette (Converted from HSL to Hex) ---
 
@@ -54,37 +54,69 @@ const fontConfig = {
 
 // --- Theme Definition ---
 
-export const floraTheme = {
+// Light theme (based on MD3 Light)
+export const floraLightTheme = {
   ...MD3LightTheme,
   fonts: configureFonts({ config: fontConfig }),
-  roundness: 3, // Matches borderRadius: 12 approx (MD3 base is 4, 3*4=12)
+  roundness: 3,
   colors: {
     ...MD3LightTheme.colors,
     primary: primaryMain,
     onPrimary: '#FFFFFF',
     primaryContainer: primaryContrast,
     onPrimaryContainer: primaryMain,
-    
+
     secondary: secondaryMain,
     onSecondary: '#FFFFFF',
-    secondaryContainer: secondaryContrast, // Using paper bg as container approx
+    secondaryContainer: secondaryContrast,
     onSecondaryContainer: secondaryMain,
-    
+
     background: backgroundDefault,
     onBackground: textPrimary,
-    
+
     surface: backgroundPaper,
     onSurface: textPrimary,
-    surfaceVariant: '#EDEEF0', // Slightly darker than surface for cards/inputs
-    onSurfaceVariant: '#44444F', // Muted text
-    
+    surfaceVariant: '#EDEEF0',
+    onSurfaceVariant: '#44444F',
+
     error: errorMain,
     onError: '#FFFFFF',
-    
+
     outline: dividerColor,
     outlineVariant: dividerColor,
-    
-    // Custom properties often mapped to elevation/elevation levels in Paper,
-    // but specific palette slots can be used for custom logic
+  },
+};
+
+// Dark theme (based on MD3 Dark)
+// Use the same brand primary color but with darker backgrounds and lighter text
+export const floraDarkTheme = {
+  ...MD3DarkTheme,
+  fonts: configureFonts({ config: fontConfig }),
+  roundness: 3,
+  colors: {
+    ...MD3DarkTheme.colors,
+    primary: primaryMain,
+    onPrimary: '#000000',
+    primaryContainer: '#2B2B2B',
+    onPrimaryContainer: primaryMain,
+
+    secondary: secondaryMain,
+    onSecondary: '#FFFFFF',
+    secondaryContainer: '#2B2B2B',
+    onSecondaryContainer: secondaryMain,
+
+    background: '#0B0B0C',
+    onBackground: '#EFEFF1',
+
+    surface: '#121214',
+    onSurface: '#EFEFF1',
+    surfaceVariant: '#1E1E20',
+    onSurfaceVariant: '#C6C6CC',
+
+    error: errorMain,
+    onError: '#000000',
+
+    outline: '#2A2A2D',
+    outlineVariant: '#2A2A2D',
   },
 };
