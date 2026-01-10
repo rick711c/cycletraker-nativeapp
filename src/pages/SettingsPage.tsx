@@ -190,7 +190,7 @@ export default function SettingsPage() {
                   <View style={[styles.itemRow, { paddingVertical: 8 }]}>
                     <View style={styles.itemLeft}>
                       <View style={[styles.iconContainer, { backgroundColor: iconBg }]}>
-                        <Icon source={item.icon} size={20} color={iconColor} />
+                        <Icon icon={item.icon} size={20} color={iconColor} />
                       </View>
                       <View style={styles.textContainer}>
                         <Text variant="bodyLarge" style={{ fontWeight: '500', color: textColor }}>
@@ -211,7 +211,7 @@ export default function SettingsPage() {
                     )}
                     
                     {(item.type === 'link' || item.type === 'danger') && (
-                      <Icon source="chevron-right" size={24} color={theme.colors.onSurfaceVariant} />
+                      <Icon icon="chevron-right" size={24} color={theme.colors.onSurfaceVariant} />
                     )}
                   </View>
                 );
@@ -236,7 +236,7 @@ export default function SettingsPage() {
         {/* App Info */}
         <View style={styles.footer}>
           <View style={styles.brandContainer}>
-            <Icon source="flower" size={20} color={theme.colors.primary} />
+            <Icon icon="flower" size={20} color={theme.colors.primary} />
             <Text variant="titleMedium" style={styles.brandText}>
               Flora
             </Text>

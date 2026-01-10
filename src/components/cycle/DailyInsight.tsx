@@ -57,7 +57,7 @@ export function DailyInsight({ phase, dayInCycle }: DailyInsightProps) {
           {/* Header */}
           <View style={styles.headerRow}>
             {/* Note: Ensure you have an icon set loaded or use a valid Paper icon name */}
-            <Icon source="creation" size={18} color={highlightColor} />
+            <Icon icon="creation" size={18} color={highlightColor} />
             <Text
               variant="labelLarge"
               style={{ color: highlightColor, fontWeight: '600', marginLeft: 8 }}

@@ -93,7 +93,7 @@ export default function LogPage() {
         <Card style={styles.card}>
           <Card.Content>
             <View style={styles.sectionHeader}>
-              <Icon source="water" size={20} color={theme.colors.primary} />
+              <Icon icon="water" size={20} color={theme.colors.primary} />
               <Text variant="titleMedium" style={styles.sectionTitle}>
                 Flow
               </Text>

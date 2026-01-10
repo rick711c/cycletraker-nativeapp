@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Button, Text, useTheme } from 'react-native-paper';
 import { format } from 'date-fns';
-import { useCycleStore } from '@/hooks/useCycleStore'; // Ensure this path matches your project
+import { useCycleStore } from '../../hooks/useCycleStore';
 
 // Note: 'notistack' is web-only. 
 // For React Native, consider using 'react-native-snackbar' or 'react-native-toast-message'.

@@ -41,7 +41,7 @@ export default function Home() {
         <View style={styles.header}>
           <View style={styles.brandContainer}>
             {/* 'flower' is a common MaterialCommunityIcon equivalent to LocalFlorist */}
-            <Icon source="flower" size={28} color={theme.colors.primary} />
+            <Icon icon="flower" size={28} color={theme.colors.primary} />
             <Text variant="headlineSmall" style={styles.brandText}>
               Flora
             </Text>

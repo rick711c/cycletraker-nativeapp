@@ -71,7 +71,7 @@ export function UpcomingEvents({ stats }: UpcomingEventsProps) {
                   { backgroundColor: `${event.color}15` }, // 15 = ~8% opacity hex code
                 ]}
               >
-                <Icon source={event.icon} size={20} color={event.color} />
+                <Icon icon={event.icon} size={20} color={event.color} />
               </View>
               
               <Text variant="bodyMedium" style={styles.label}>

@@ -48,7 +48,7 @@ export function BottomNav() {
               accessibilityRole="button"
               accessibilityState={{ selected: isActive }}
             >
-              <Icon source={item.icon} size={24} color={color} />
+              <Icon icon={item.icon} size={24} color={color} />
               <Text
                 variant="labelSmall"
                 style={[styles.label, { color }]}

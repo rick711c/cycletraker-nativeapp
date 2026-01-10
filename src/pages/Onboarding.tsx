@@ -1,13 +1,28 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-import { Text, Button, IconButton, ProgressBar, Card, TextInput, useTheme, Icon } from 'react-native-paper';
+import {
+  View,
+  StyleSheet,
+  Image,
+  ScrollView,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
+import {
+  Text,
+  Button,
+  IconButton,
+  ProgressBar,
+  Card,
+  TextInput,
+  useTheme,
+  Icon,
+} from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { format, subDays } from 'date-fns';
-import { useCycleStore } from '@/hooks/useCycleStore';
 
 // If this asset import fails in your RN setup, replace with: { uri: 'https://placeholder.url/image.jpg' }
 // or require('../assets/hero-flowers.png')
-import heroFlowers from '@/assets/hero-flowers.png';
+import { useCycleStore } from '../hooks/useCycleStore';
 
 type Step = 'welcome' | 'lastPeriod' | 'cycleLength' | 'periodLength' | 'goal';
 
@@ -22,7 +37,7 @@ export default function Onboarding() {
   const navigation = useNavigation();
   const theme = useTheme();
   const { setOnboarded, updateSettings } = useCycleStore();
-  
+
   const [step, setStep] = useState<Step>('welcome');
   const [data, setData] = useState<OnboardingData>({
     lastPeriodDate: format(subDays(new Date(), 14), 'yyyy-MM-dd'),
@@ -41,7 +56,13 @@ export default function Onboarding() {
     });
   };
 
-  const steps: Step[] = ['welcome', 'lastPeriod', 'cycleLength', 'periodLength', 'goal'];
+  const steps: Step[] = [
+    'welcome',
+    'lastPeriod',
+    'cycleLength',
+    'periodLength',
+    'goal',
+  ];
   const currentIndex = steps.indexOf(step);
   // Progress value in Paper is 0 to 1
   const progressValue = currentIndex / (steps.length - 1);
@@ -61,27 +82,44 @@ export default function Onboarding() {
   };
 
   const goals = [
-    { id: 'track', label: 'Track my cycle', emoji: '📅', description: 'Understand your body better' },
-    { id: 'conceive', label: 'Try to conceive', emoji: '👶', description: 'Optimize fertility window' },
-    { id: 'pregnancy', label: 'Track pregnancy', emoji: '🤰', description: 'Monitor your journey' },
+    {
+      id: 'track',
+      label: 'Track my cycle',
+      emoji: '📅',
+      description: 'Understand your body better',
+    },
+    {
+      id: 'conceive',
+      label: 'Try to conceive',
+      emoji: '👶',
+      description: 'Optimize fertility window',
+    },
+    {
+      id: 'pregnancy',
+      label: 'Track pregnancy',
+      emoji: '🤰',
+      description: 'Monitor your journey',
+    },
   ] as const;
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       {/* Header with image */}
       <View style={styles.imageContainer}>
         <Image
-          source={heroFlowers} 
+          source={require('../assets/hero-flowers.png')}
           style={styles.heroImage}
           resizeMode="cover"
         />
         {/* Overlay to fade image */}
         <View style={styles.imageOverlay} />
-        
+
         {/* Brand Overlay */}
         <View style={styles.brandOverlay}>
           <View style={styles.brandContent}>
-            <Icon source="flower" size={32} color={theme.colors.primary} />
+            <Icon icon="flower" size={32} color={theme.colors.primary} />
             <Text variant="headlineMedium" style={styles.brandText}>
               Flora
             </Text>
@@ -92,7 +130,11 @@ export default function Onboarding() {
       {/* Progress */}
       {step !== 'welcome' && (
         <View style={styles.progressContainer}>
-          <ProgressBar progress={progressValue} color={theme.colors.primary} style={styles.progressBar} />
+          <ProgressBar
+            progress={progressValue}
+            color={theme.colors.primary}
+            style={styles.progressBar}
+          />
         </View>
       )}
 
@@ -103,8 +145,15 @@ export default function Onboarding() {
             <Text variant="headlineMedium" style={styles.title}>
               Welcome to Flora
             </Text>
-            <Text variant="bodyLarge" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
-              Your personal cycle companion. Let's set up your profile to give you accurate predictions.
+            <Text
+              variant="bodyLarge"
+              style={[
+                styles.subtitle,
+                { color: theme.colors.onSurfaceVariant },
+              ]}
+            >
+              Your personal cycle companion. Let's set up your profile to give
+              you accurate predictions.
             </Text>
             <Button
               mode="contained"
@@ -124,7 +173,13 @@ export default function Onboarding() {
             <Text variant="headlineSmall" style={styles.title}>
               When did your last period start?
             </Text>
-            <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+            <Text
+              variant="bodyMedium"
+              style={[
+                styles.subtitle,
+                { color: theme.colors.onSurfaceVariant },
+              ]}
+            >
               This helps us predict your cycle accurately.
             </Text>
             {/* Note: In a real app, use a dedicated DatePicker library here */}
@@ -133,7 +188,7 @@ export default function Onboarding() {
               label="Last period start date"
               placeholder="YYYY-MM-DD"
               value={data.lastPeriodDate}
-              onChangeText={(text) => setData({ ...data, lastPeriodDate: text })}
+              onChangeText={text => setData({ ...data, lastPeriodDate: text })}
               style={styles.input}
               right={<TextInput.Icon icon="calendar" />}
             />
@@ -145,24 +200,42 @@ export default function Onboarding() {
             <Text variant="headlineSmall" style={styles.title}>
               Average cycle length?
             </Text>
-            <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+            <Text
+              variant="bodyMedium"
+              style={[
+                styles.subtitle,
+                { color: theme.colors.onSurfaceVariant },
+              ]}
+            >
               From the first day of one period to the first day of the next.
             </Text>
-            
+
             <View style={styles.counterContainer}>
               <View style={styles.counterRow}>
                 <IconButton
                   mode="outlined"
                   icon="minus"
                   onPress={() =>
-                    setData({ ...data, averageCycleLength: Math.max(21, data.averageCycleLength - 1) })
+                    setData({
+                      ...data,
+                      averageCycleLength: Math.max(
+                        21,
+                        data.averageCycleLength - 1,
+                      ),
+                    })
                   }
                 />
                 <View style={styles.counterText}>
-                  <Text variant="displayMedium" style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
+                  <Text
+                    variant="displayMedium"
+                    style={{ color: theme.colors.primary, fontWeight: 'bold' }}
+                  >
                     {data.averageCycleLength}
                   </Text>
-                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                  <Text
+                    variant="bodyMedium"
+                    style={{ color: theme.colors.onSurfaceVariant }}
+                  >
                     days
                   </Text>
                 </View>
@@ -170,11 +243,23 @@ export default function Onboarding() {
                   mode="outlined"
                   icon="plus"
                   onPress={() =>
-                    setData({ ...data, averageCycleLength: Math.min(40, data.averageCycleLength + 1) })
+                    setData({
+                      ...data,
+                      averageCycleLength: Math.min(
+                        40,
+                        data.averageCycleLength + 1,
+                      ),
+                    })
                   }
                 />
               </View>
-              <Text variant="bodySmall" style={[styles.helperText, { color: theme.colors.onSurfaceVariant }]}>
+              <Text
+                variant="bodySmall"
+                style={[
+                  styles.helperText,
+                  { color: theme.colors.onSurfaceVariant },
+                ]}
+              >
                 Most cycles are between 21-35 days
               </Text>
             </View>
@@ -186,24 +271,42 @@ export default function Onboarding() {
             <Text variant="headlineSmall" style={styles.title}>
               How long does your period last?
             </Text>
-            <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+            <Text
+              variant="bodyMedium"
+              style={[
+                styles.subtitle,
+                { color: theme.colors.onSurfaceVariant },
+              ]}
+            >
               Average number of days you experience bleeding.
             </Text>
-            
+
             <View style={styles.counterContainer}>
               <View style={styles.counterRow}>
                 <IconButton
                   mode="outlined"
                   icon="minus"
                   onPress={() =>
-                    setData({ ...data, averagePeriodLength: Math.max(2, data.averagePeriodLength - 1) })
+                    setData({
+                      ...data,
+                      averagePeriodLength: Math.max(
+                        2,
+                        data.averagePeriodLength - 1,
+                      ),
+                    })
                   }
                 />
                 <View style={styles.counterText}>
-                  <Text variant="displayMedium" style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
+                  <Text
+                    variant="displayMedium"
+                    style={{ color: theme.colors.primary, fontWeight: 'bold' }}
+                  >
                     {data.averagePeriodLength}
                   </Text>
-                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                  <Text
+                    variant="bodyMedium"
+                    style={{ color: theme.colors.onSurfaceVariant }}
+                  >
                     days
                   </Text>
                 </View>
@@ -211,11 +314,23 @@ export default function Onboarding() {
                   mode="outlined"
                   icon="plus"
                   onPress={() =>
-                    setData({ ...data, averagePeriodLength: Math.min(10, data.averagePeriodLength + 1) })
+                    setData({
+                      ...data,
+                      averagePeriodLength: Math.min(
+                        10,
+                        data.averagePeriodLength + 1,
+                      ),
+                    })
                   }
                 />
               </View>
-              <Text variant="bodySmall" style={[styles.helperText, { color: theme.colors.onSurfaceVariant }]}>
+              <Text
+                variant="bodySmall"
+                style={[
+                  styles.helperText,
+                  { color: theme.colors.onSurfaceVariant },
+                ]}
+              >
                 Typically between 3-7 days
               </Text>
             </View>
@@ -227,11 +342,17 @@ export default function Onboarding() {
             <Text variant="headlineSmall" style={styles.title}>
               What's your goal?
             </Text>
-            <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+            <Text
+              variant="bodyMedium"
+              style={[
+                styles.subtitle,
+                { color: theme.colors.onSurfaceVariant },
+              ]}
+            >
               We'll personalize your experience based on your needs.
             </Text>
             <View style={styles.goalsContainer}>
-              {goals.map((goal) => {
+              {goals.map(goal => {
                 const isSelected = data.goal === goal.id;
                 return (
                   <Card
@@ -240,19 +361,29 @@ export default function Onboarding() {
                     style={[
                       styles.goalCard,
                       {
-                        borderColor: isSelected ? theme.colors.primary : theme.colors.outlineVariant,
+                        borderColor: isSelected
+                          ? theme.colors.primary
+                          : theme.colors.outlineVariant,
                         borderWidth: 2,
-                        backgroundColor: isSelected ? theme.colors.primaryContainer + '20' : theme.colors.surface, // Mock alpha
-                      }
+                        backgroundColor: isSelected
+                          ? theme.colors.primaryContainer + '20'
+                          : theme.colors.surface, // Mock alpha
+                      },
                     ]}
                   >
                     <Card.Content style={styles.goalContent}>
                       <Text style={styles.goalEmoji}>{goal.emoji}</Text>
                       <View style={styles.goalText}>
-                        <Text variant="titleMedium" style={{ fontWeight: '600' }}>
+                        <Text
+                          variant="titleMedium"
+                          style={{ fontWeight: '600' }}
+                        >
                           {goal.label}
                         </Text>
-                        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                        <Text
+                          variant="bodySmall"
+                          style={{ color: theme.colors.onSurfaceVariant }}
+                        >
                           {goal.description}
                         </Text>
                       </View>
@@ -268,20 +399,22 @@ export default function Onboarding() {
       {/* Footer Navigation */}
       {step !== 'welcome' && (
         <View style={styles.footer}>
-          <Button 
-            mode="outlined" 
-            onPress={goBack} 
+          <Button
+            mode="outlined"
+            onPress={goBack}
             style={styles.footerButton}
             icon="chevron-left"
           >
             Back
           </Button>
-          <Button 
-            mode="contained" 
-            onPress={goNext} 
+          <Button
+            mode="contained"
+            onPress={goNext}
             style={styles.footerButton}
-            icon={step === 'goal' ? undefined : "chevron-right"}
-            contentStyle={{ flexDirection: step === 'goal' ? 'row' : 'row-reverse' }}
+            icon={step === 'goal' ? undefined : 'chevron-right'}
+            contentStyle={{
+              flexDirection: step === 'goal' ? 'row' : 'row-reverse',
+            }}
           >
             {step === 'goal' ? 'Complete' : 'Next'}
           </Button>
@@ -348,8 +481,8 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     marginBottom: 8,
-    textAlign: 'center', // Default for welcome, override for others? 
-                        // Actually web uses left align for steps, center for welcome.
+    textAlign: 'center', // Default for welcome, override for others?
+    // Actually web uses left align for steps, center for welcome.
   },
   subtitle: {
     marginBottom: 24,

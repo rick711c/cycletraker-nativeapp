@@ -107,7 +107,7 @@ export default function InsightsPage() {
                     { backgroundColor: `${stat.color}15` }, // Hex opacity (~8%)
                   ]}
                 >
-                  <Icon source={stat.icon} size={20} color={stat.color} />
+                  <Icon icon={stat.icon} size={20} color={stat.color} />
                 </View>
                 <Text variant="headlineSmall" style={styles.statValue}>
                   {stat.value}
