@@ -1,16 +1,11 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Chip, useTheme } from 'react-native-paper';
+import { cyclePhaseColors } from '../../theme/muiTheme';
 import Svg, { Path, Circle } from 'react-native-svg';
 
 export type CyclePhase = 'menstruation' | 'follicular' | 'ovulation' | 'luteal';
 
-export const cyclePhaseColors: Record<CyclePhase, string> = {
-  menstruation: '#FF5252',
-  follicular: '#448AFF',
-  ovulation: '#69F0AE',
-  luteal: '#FFAB40',
-};
 
 const phaseLabels: Record<CyclePhase, string> = {
   menstruation: 'Period',
@@ -75,24 +70,24 @@ export function CycleRing({
             return (
               <Path
                 key={segment.phase}
-                d={`M 50 50 L ${x1} ${y1} A 45 45 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
-                fill={cyclePhaseColors[segment.phase]}
-                opacity={segment.phase === currentPhase ? 1 : 0.3}
+                  d={`M 50 50 L ${x1} ${y1} A 45 45 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
+                  fill={cyclePhaseColors[segment.phase]}
+                  opacity={segment.phase === currentPhase ? 1 : 0.28}
               />
             );
           })}
-          <Circle cx="50" cy="50" r="35" fill="hsl(0, 0%, 98%)" />
-          <Circle
-            cx="50"
-            cy="50"
-            r="45"
-            fill="none"
-            stroke="hsl(240, 5%, 10%)"
-            strokeWidth="2"
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            strokeLinecap="round"
-          />
+            <Circle cx="50" cy="50" r="35" fill={theme.colors.surface} />
+            <Circle
+              cx="50"
+              cy="50"
+              r="45"
+              fill="none"
+              stroke={theme.colors.outline}
+              strokeWidth="2"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+            />
         </Svg>
 
         <View style={styles.centerContent}>
@@ -113,10 +108,11 @@ export function CycleRing({
             mode="flat"
             style={[
               styles.chip,
-              { backgroundColor: `${cyclePhaseColors[currentPhase]}20` }
+              // Use a subtle translucent tint based on the phase color; fall back to surfaceVariant
+              { backgroundColor: `${(cyclePhaseColors[currentPhase] ?? theme.colors.primary)}20` }
             ]}
             textStyle={{
-              color: cyclePhaseColors[currentPhase],
+              color: cyclePhaseColors[currentPhase] ?? theme.colors.primary,
               fontWeight: '600',
               fontSize: 12,
             }}
