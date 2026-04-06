@@ -1,0 +1,24 @@
+/**
+ * Settings Sagas — handle updateSettingsRequest
+ */
+
+import { call, put, takeLatest } from 'redux-saga/effects';
+import { PayloadAction } from '@reduxjs/toolkit';
+
+import { upsertSettings } from '../../db/settingsApi';
+import { updateSettingsRequest, updateSettings, setError } from '../cycleSlice';
+import { UserSettings } from '../../types/cycle';
+
+function* handleUpdateSettings(action: PayloadAction<Partial<UserSettings>>) {
+  try {
+    const saved: UserSettings = yield call(upsertSettings, action.payload);
+    // Update Redux cache with merged result from SQLite
+    yield put(updateSettings(saved));
+  } catch (err: any) {
+    yield put(setError(err?.message ?? 'Failed to save settings'));
+  }
+}
+
+export function* watchUpdateSettings() {
+  yield takeLatest(updateSettingsRequest, handleUpdateSettings);
+}

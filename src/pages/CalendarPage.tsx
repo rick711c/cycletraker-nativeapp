@@ -14,7 +14,8 @@ import {
   endOfWeek,
 } from 'date-fns';
 import { MobileLayout } from '../components/layout/MobileLayout';
-import { useCycleStore } from '../hooks/useCycleStore';
+import { useAppSelector } from '../store';
+import { selectDayLogs, selectSettings, getPhaseForDate } from '../store/cycleSlice';
 import { CyclePhase } from '../types/cycle';
 
 
@@ -37,7 +38,8 @@ const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const { getPhaseForDate, dayLogs } = useCycleStore();
+  const dayLogs = useAppSelector(selectDayLogs);
+  const settings = useAppSelector(selectSettings);
   const theme = useTheme();
 
   const days = useMemo(() => {
@@ -54,7 +56,7 @@ export default function CalendarPage() {
   const getDayStatus = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     const log = dayLogs.find((l) => l.date === dateStr);
-    const phase = getPhaseForDate(dateStr);
+    const phase = getPhaseForDate(settings, dateStr);
     return { log, phase };
   };
 

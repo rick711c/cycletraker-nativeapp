@@ -8,14 +8,15 @@ import { DailyInsight } from '../components/cycle/DailyInsight';
 import { QuickActions } from '../components/cycle/QuickActions';
 import { UpcomingEvents } from '../components/cycle/UpcomingEvents';
 import { MobileLayout } from '../components/layout/MobileLayout';
-import { useCycleStore } from '../hooks/useCycleStore';
-
-// Import your converted components
+import { useAppSelector } from '../store';
+import { selectIsOnboarded, selectCycleStats } from '../store/cycleSlice';
 
 export default function Home() {
   const theme = useTheme();
   const navigation = useNavigation();
-  const { isOnboarded, getCycleStats } = useCycleStore();
+  const isOnboarded = useAppSelector(selectIsOnboarded);
+  const stats = useAppSelector(selectCycleStats);
+
 
   // React Native navigation redirection pattern
   useEffect(() => {
@@ -33,7 +34,6 @@ export default function Home() {
     return null; // Render nothing while redirecting
   }
 
-  const stats = getCycleStats();
 
   return (
     <MobileLayout>

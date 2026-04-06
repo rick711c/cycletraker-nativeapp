@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Button, Text, useTheme } from 'react-native-paper';
 import { format } from 'date-fns';
-import { useCycleStore } from '../../hooks/useCycleStore';
+import { useAppSelector, useAppDispatch } from '../../store';
+import { selectCycles, startPeriodRequest, endPeriodRequest } from '../../store/cycleSlice';
 
 // Note: 'notistack' is web-only. 
 // For React Native, consider using 'react-native-snackbar' or 'react-native-toast-message'.
@@ -10,20 +11,19 @@ import { useCycleStore } from '../../hooks/useCycleStore';
 
 export function QuickActions() {
   const theme = useTheme();
-  const { startPeriod, endPeriod, dayLogs, cycles } = useCycleStore();
+  const dispatch = useAppDispatch();
+  const cycles = useAppSelector(selectCycles);
   
   const today = format(new Date(), 'yyyy-MM-dd');
-  // const todayLog = dayLogs.find((l) => l.date === today); // logic preserved from original
   const currentCycle = cycles[cycles.length - 1];
   const isPeriodActive = currentCycle && !currentCycle.endDate;
 
   const handlePeriodToggle = () => {
     if (isPeriodActive) {
-      endPeriod();
-      // Replace with your toast library, e.g., Snackbar.show({ text: 'Period ended...' });
+      dispatch(endPeriodRequest());
       console.log('Period ended - Take care of yourself! 💕');
     } else {
-      startPeriod();
+      dispatch(startPeriodRequest());
       console.log('Period started - Tracking your cycle 🌸');
     }
   };

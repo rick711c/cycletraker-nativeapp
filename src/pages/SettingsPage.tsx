@@ -4,7 +4,8 @@ import { Text, Card, Switch, Divider, Avatar, useTheme, Snackbar, Portal } from 
 import Icon from '../components/ui/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { MobileLayout } from '../components/layout/MobileLayout';
-import { useCycleStore } from '../hooks/useCycleStore';
+import { useAppSelector, useAppDispatch } from '../store';
+import { selectSettings, updateSettingsRequest, setOnboarded } from '../store/cycleSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -12,7 +13,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function SettingsPage() {
   const navigation = useNavigation();
   const theme = useTheme();
-  const { settings, updateSettings, setOnboarded } = useCycleStore();
+  const dispatch = useAppDispatch();
+  const settings = useAppSelector(selectSettings);
   
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -34,8 +36,7 @@ export default function SettingsPage() {
           onPress: async () => {
             try {
               await AsyncStorage.clear();
-              setOnboarded(false);
-              // Reset navigation stack
+              dispatch(setOnboarded(false));
               navigation.reset({
                 index: 0,
                 routes: [{ name: 'Onboarding' as never }],
@@ -59,7 +60,7 @@ export default function SettingsPage() {
           description: 'Get notified before your period',
           type: 'toggle' as const,
           value: settings.notificationsEnabled,
-          onChange: () => updateSettings({ notificationsEnabled: !settings.notificationsEnabled }),
+          onChange: () => dispatch(updateSettingsRequest({ notificationsEnabled: !settings.notificationsEnabled })),
         },
       ],
     },

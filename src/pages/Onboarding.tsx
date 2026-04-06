@@ -6,6 +6,8 @@ import {
   ScrollView,
   Dimensions,
   TouchableOpacity,
+  Modal,
+  Pressable,
 } from 'react-native';
 import {
   Text,
@@ -15,14 +17,18 @@ import {
   Card,
   TextInput,
   useTheme,
+  Surface,
 } from 'react-native-paper';
+import { Calendar } from 'react-native-calendars';
 import Icon from '../components/ui/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { format, subDays } from 'date-fns';
 
 // If this asset import fails in your RN setup, replace with: { uri: 'https://placeholder.url/image.jpg' }
 // or require('../assets/hero-flowers.png')
-import { useCycleStore } from '../hooks/useCycleStore';
+import { useAppDispatch } from '../store';
+import { setOnboarded, updateSettingsRequest } from '../store/cycleSlice';
+
 
 type Step = 'welcome' | 'lastPeriod' | 'cycleLength' | 'periodLength' | 'goal';
 
@@ -36,9 +42,10 @@ interface OnboardingData {
 export default function Onboarding() {
   const navigation = useNavigation();
   const theme = useTheme();
-  const { setOnboarded, updateSettings } = useCycleStore();
+  const dispatch = useAppDispatch();
 
   const [step, setStep] = useState<Step>('welcome');
+  const [showCalendar, setShowCalendar] = useState(false);
   const [data, setData] = useState<OnboardingData>({
     lastPeriodDate: format(subDays(new Date(), 14), 'yyyy-MM-dd'),
     averageCycleLength: 28,
@@ -47,9 +54,8 @@ export default function Onboarding() {
   });
 
   const handleComplete = () => {
-    updateSettings(data);
-    setOnboarded(true);
-    // Reset navigation stack to Home to prevent going back to Onboarding
+    dispatch(updateSettingsRequest(data));
+    dispatch(setOnboarded(true));
     navigation.reset({
       index: 0,
       routes: [{ name: 'Home' as never }],
@@ -85,19 +91,19 @@ export default function Onboarding() {
     {
       id: 'track',
       label: 'Track my cycle',
-      emoji: '📅',
+      icon: 'calendar-heart',
       description: 'Understand your body better',
     },
     {
       id: 'conceive',
       label: 'Try to conceive',
-      emoji: '👶',
+      icon: 'baby-carriage',
       description: 'Optimize fertility window',
     },
     {
       id: 'pregnancy',
       label: 'Track pregnancy',
-      emoji: '🤰',
+      icon: 'human-pregnant',
       description: 'Monitor your journey',
     },
   ] as const;
@@ -158,10 +164,9 @@ export default function Onboarding() {
             <Button
               mode="contained"
               onPress={goNext}
-              contentStyle={styles.buttonContent}
+              contentStyle={[styles.buttonContent, { flexDirection: 'row-reverse' }]}
               style={styles.fullWidthButton}
               icon="chevron-right"
-              contentStyle={{ flexDirection: 'row-reverse' }} // Put icon on right
             >
               Get Started
             </Button>
@@ -175,23 +180,65 @@ export default function Onboarding() {
             </Text>
             <Text
               variant="bodyMedium"
-              style={[
-                styles.subtitle,
-                { color: theme.colors.onSurfaceVariant },
-              ]}
+              style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
             >
               This helps us predict your cycle accurately.
             </Text>
-            {/* Note: In a real app, use a dedicated DatePicker library here */}
-            <TextInput
-              mode="outlined"
-              label="Last period start date"
-              placeholder="YYYY-MM-DD"
-              value={data.lastPeriodDate}
-              onChangeText={text => setData({ ...data, lastPeriodDate: text })}
-              style={styles.input}
-              right={<TextInput.Icon icon="calendar" />}
-            />
+
+            {/* Date field — tap to toggle calendar */}
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => setShowCalendar(prev => !prev)}
+              style={[
+                styles.dateField,
+                {
+                  borderColor: showCalendar ? theme.colors.primary : theme.colors.outline,
+                  backgroundColor: theme.colors.surface,
+                },
+              ]}
+            >
+              <Text style={{ color: theme.colors.onSurfaceVariant, fontSize: 12, marginBottom: 2 }}>
+                Last period start date
+              </Text>
+              <View style={styles.dateFieldRow}>
+                <Text style={{ color: theme.colors.onSurface, fontSize: 16 }}>
+                  {data.lastPeriodDate}
+                </Text>
+                <Icon name="calendar-month" size={22} color={theme.colors.primary} />
+              </View>
+            </TouchableOpacity>
+
+            {/* Inline Calendar — shown/hidden by toggle */}
+            {showCalendar && (
+              <View style={[styles.inlineCalendar, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline }]}>
+                <Calendar
+                  current={data.lastPeriodDate}
+                  maxDate={new Date().toISOString().split('T')[0]}
+                  onDayPress={day => {
+                    setData({ ...data, lastPeriodDate: day.dateString });
+                    setShowCalendar(false);
+                  }}
+                  markedDates={{
+                    [data.lastPeriodDate]: {
+                      selected: true,
+                      selectedColor: theme.colors.primary,
+                    },
+                  }}
+                  theme={{
+                    backgroundColor: theme.colors.surface,
+                    calendarBackground: theme.colors.surface,
+                    textSectionTitleColor: theme.colors.onSurfaceVariant,
+                    selectedDayBackgroundColor: theme.colors.primary,
+                    selectedDayTextColor: '#fff',
+                    todayTextColor: theme.colors.primary,
+                    dayTextColor: theme.colors.onSurface,
+                    arrowColor: theme.colors.primary,
+                    monthTextColor: theme.colors.onSurface,
+                    textDisabledColor: theme.colors.outlineVariant,
+                  }}
+                />
+              </View>
+            )}
           </View>
         )}
 
@@ -372,7 +419,11 @@ export default function Onboarding() {
                     ]}
                   >
                     <Card.Content style={styles.goalContent}>
-                      <Text style={styles.goalEmoji}>{goal.emoji}</Text>
+                      <Icon
+                        name={goal.icon}
+                        size={32}
+                        color={isSelected ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                      />
                       <View style={styles.goalText}>
                         <Text
                           variant="titleMedium"
@@ -542,5 +593,42 @@ const styles = StyleSheet.create({
   },
   footerButton: {
     flex: 1,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  calendarContainer: {
+    width: '100%',
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 8,
+  },
+  calendarTitle: {
+    fontWeight: '600',
+    padding: 16,
+    paddingBottom: 8,
+  },
+  dateField: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 4,
+  },
+  dateFieldRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 2,
+  },
+  inlineCalendar: {
+    borderWidth: 1,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginTop: 4,
   },
 });

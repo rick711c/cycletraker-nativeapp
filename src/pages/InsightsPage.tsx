@@ -3,13 +3,15 @@ import { View, StyleSheet } from 'react-native';
 import { Text, Card, useTheme } from 'react-native-paper';
 import Icon from '../components/ui/Icon';
 import { MobileLayout } from '../components/layout/MobileLayout';
-import { useCycleStore } from '../hooks/useCycleStore';
+import { useAppSelector } from '../store';
+import { selectCycleStats, selectCycles, selectDayLogs } from '../store/cycleSlice';
 import { chartColors, cyclePhaseColors } from '../theme/muiTheme';
 
 export default function InsightsPage() {
   const theme = useTheme();
-  const { getCycleStats, cycles, dayLogs } = useCycleStore();
-  const stats = getCycleStats();
+  const stats = useAppSelector(selectCycleStats);
+  const cycles = useAppSelector(selectCycles);
+  const dayLogs = useAppSelector(selectDayLogs);
 
   const insights = useMemo(() => {
     const completedCycles = cycles.filter((c) => c.length);

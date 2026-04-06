@@ -4,7 +4,8 @@ import { Text, Card, Button, TextInput, useTheme, Snackbar, Portal } from 'react
 import Icon from '../components/ui/Icon';
 import { format } from 'date-fns';
 import { MobileLayout } from '../components/layout/MobileLayout';
-import { useCycleStore } from '../hooks/useCycleStore';
+import { useAppSelector, useAppDispatch } from '../store';
+import { selectDayLogs, addDayLogRequest } from '../store/cycleSlice';
 import { FlowIntensity, Mood, PhysicalSymptom, DayLog } from '../types/cycle';
 
 
@@ -39,10 +40,10 @@ const symptomOptions: { id: PhysicalSymptom; label: string; emoji: string }[] = 
 
 export default function LogPage() {
   const theme = useTheme();
+  const dispatch = useAppDispatch();
   const today = format(new Date(), 'yyyy-MM-dd');
-  const { getDayLog, addDayLog } = useCycleStore();
-  
-  const existingLog = getDayLog(today);
+  const dayLogs = useAppSelector(selectDayLogs);
+  const existingLog = dayLogs.find(l => l.date === today);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
 
   const [log, setLog] = useState<DayLog>(
@@ -74,7 +75,7 @@ export default function LogPage() {
   };
 
   const handleSave = () => {
-    addDayLog(log);
+    dispatch(addDayLogRequest(log));
     setSnackbarVisible(true);
   };
 
