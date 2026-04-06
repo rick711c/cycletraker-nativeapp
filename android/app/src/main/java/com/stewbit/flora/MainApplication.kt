@@ -1,4 +1,4 @@
-package com.cycletraker
+package com.stewbit.flora
 
 import android.app.Application
 import com.facebook.react.PackageList

@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "cycletraker.app"
-               BlueprintName = "cycletraker"
-               ReferencedContainer = "container:cycletraker.xcodeproj">
+               BuildableName = "Flora.app"
+               BlueprintName = "Flora"
+               ReferencedContainer = "container:Flora.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "cycletrakerTests.xctest"
-               BlueprintName = "cycletrakerTests"
-               ReferencedContainer = "container:cycletraker.xcodeproj">
+               BuildableName = "FloraTests.xctest"
+               BlueprintName = "FloraTests"
+               ReferencedContainer = "container:Flora.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "cycletraker.app"
-            BlueprintName = "cycletraker"
-            ReferencedContainer = "container:cycletraker.xcodeproj">
+            BuildableName = "Flora.app"
+            BlueprintName = "Flora"
+            ReferencedContainer = "container:Flora.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "cycletraker.app"
-            BlueprintName = "cycletraker"
-            ReferencedContainer = "container:cycletraker.xcodeproj">
+            BuildableName = "Flora.app"
+            BlueprintName = "Flora"
+            ReferencedContainer = "container:Flora.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
