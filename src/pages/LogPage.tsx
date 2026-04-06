@@ -92,177 +92,177 @@ export default function LogPage() {
             </Text>
           </View>
 
-        {/* Flow Section */}
-        <Card style={styles.card}>
-          <Card.Content>
-            <View style={styles.sectionHeader}>
-              <Icon icon="water" size={20} color={theme.colors.primary} />
-              <Text variant="titleMedium" style={styles.sectionTitle}>
-                Flow
-              </Text>
-            </View>
-            <View style={styles.gridRow}>
-              {flowOptions.map((option) => {
-                const isSelected = log.flowIntensity === option.id;
-                return (
-                  <TouchableOpacity
-                    key={option.id}
-                    onPress={() =>
-                      setLog((prev) => ({
-                        ...prev,
-                        isPeriod: true,
-                        flowIntensity: prev.flowIntensity === option.id ? undefined : option.id,
-                      }))
-                    }
-                    style={[
-                      styles.optionBox,
-                      {
-                        backgroundColor: isSelected ? theme.colors.primary : theme.colors.surfaceVariant,
-                        width: '23%', // ~1/4 width with gap
+          {/* Flow Section */}
+          <Card style={styles.card}>
+            <Card.Content>
+              <View style={styles.sectionHeader}>
+                <Icon icon="water" size={20} color={theme.colors.primary} />
+                <Text variant="titleMedium" style={styles.sectionTitle}>
+                  Flow
+                </Text>
+              </View>
+              <View style={styles.gridRow}>
+                {flowOptions.map((option) => {
+                  const isSelected = log.flowIntensity === option.id;
+                  return (
+                    <TouchableOpacity
+                      key={option.id}
+                      onPress={() =>
+                        setLog((prev) => ({
+                          ...prev,
+                          isPeriod: true,
+                          flowIntensity: prev.flowIntensity === option.id ? undefined : option.id,
+                        }))
                       }
-                    ]}
-                  >
-                    {/* Using Icon for flow since standard emojis vary by platform */}
-                    <Icon 
-                      source={option.icon} 
-                      size={24} 
-                      color={isSelected ? theme.colors.onPrimary : theme.colors.onSurface} 
-                    />
-                    <Text
-                      variant="labelSmall"
                       style={[
-                        styles.optionLabel,
-                        { color: isSelected ? theme.colors.onPrimary : theme.colors.onSurface }
+                        styles.optionBox,
+                        {
+                          backgroundColor: isSelected ? theme.colors.primary : theme.colors.surfaceVariant,
+                          width: '23%', // ~1/4 width with gap
+                        }
                       ]}
                     >
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </Card.Content>
-        </Card>
+                      {/* Using Icon for flow since standard emojis vary by platform */}
+                      <Icon
+                        icon={option.icon}
+                        size={24}
+                        color={isSelected ? theme.colors.onPrimary : theme.colors.onSurface}
+                      />
+                      <Text
+                        variant="labelSmall"
+                        style={[
+                          styles.optionLabel,
+                          { color: isSelected ? theme.colors.onPrimary : theme.colors.onSurface }
+                        ]}
+                      >
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </Card.Content>
+          </Card>
 
-        {/* Mood Section */}
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
-              How are you feeling?
-            </Text>
-            <View style={styles.gridRow}>
-              {moodOptions.map((option) => {
-                const isSelected = log.moods.includes(option.id);
-                return (
-                  <TouchableOpacity
-                    key={option.id}
-                    onPress={() => toggleMood(option.id)}
-                    style={[
-                      styles.optionBox,
-                      {
-                        backgroundColor: isSelected ? theme.colors.primaryContainer : theme.colors.surfaceVariant,
-                        borderColor: theme.colors.primary,
-                        borderWidth: isSelected ? 2 : 0,
-                        width: '31%', // ~1/3 width
-                      }
-                    ]}
-                  >
-                    <Text style={styles.emoji}>{option.emoji}</Text>
-                    <Text variant="labelSmall" style={styles.optionLabel}>
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </Card.Content>
-        </Card>
-
-        {/* Symptoms Section */}
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
-              Symptoms
-            </Text>
-            <View style={styles.gridRow}>
-              {symptomOptions.map((option) => {
-                const isSelected = log.symptoms.includes(option.id);
-                return (
-                  <TouchableOpacity
-                    key={option.id}
-                    onPress={() => toggleSymptom(option.id)}
-                    style={[
-                      styles.optionBox,
-                      {
-                        backgroundColor: isSelected ? theme.colors.primaryContainer : theme.colors.surfaceVariant,
-                        borderColor: theme.colors.primary,
-                        borderWidth: isSelected ? 2 : 0,
-                        width: '23%', // ~1/4 width
-                      }
-                    ]}
-                  >
-                    <Text style={styles.emoji}>{option.emoji}</Text>
-                    <Text
-                      variant="labelSmall"
-                      style={[styles.optionLabel, { fontSize: 10 }]}
-                      numberOfLines={1}
+          {/* Mood Section */}
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text variant="titleMedium" style={styles.sectionTitle}>
+                How are you feeling?
+              </Text>
+              <View style={styles.gridRow}>
+                {moodOptions.map((option) => {
+                  const isSelected = log.moods.includes(option.id);
+                  return (
+                    <TouchableOpacity
+                      key={option.id}
+                      onPress={() => toggleMood(option.id)}
+                      style={[
+                        styles.optionBox,
+                        {
+                          backgroundColor: isSelected ? theme.colors.primaryContainer : theme.colors.surfaceVariant,
+                          borderColor: theme.colors.primary,
+                          borderWidth: isSelected ? 2 : 0,
+                          width: '31%', // ~1/3 width
+                        }
+                      ]}
                     >
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </Card.Content>
-        </Card>
+                      <Text style={styles.emoji}>{option.emoji}</Text>
+                      <Text variant="labelSmall" style={styles.optionLabel}>
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </Card.Content>
+          </Card>
 
-        {/* Notes Section */}
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
-              Notes
-            </Text>
-            <TextInput
-              mode="outlined"
-              placeholder="How was your day? Any other symptoms..."
-              value={log.notes}
-              onChangeText={(text) => setLog((prev) => ({ ...prev, notes: text }))}
-              multiline
-              numberOfLines={4}
-              style={{ backgroundColor: theme.colors.surface }}
-            />
-          </Card.Content>
-        </Card>
+          {/* Symptoms Section */}
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text variant="titleMedium" style={styles.sectionTitle}>
+                Symptoms
+              </Text>
+              <View style={styles.gridRow}>
+                {symptomOptions.map((option) => {
+                  const isSelected = log.symptoms.includes(option.id);
+                  return (
+                    <TouchableOpacity
+                      key={option.id}
+                      onPress={() => toggleSymptom(option.id)}
+                      style={[
+                        styles.optionBox,
+                        {
+                          backgroundColor: isSelected ? theme.colors.primaryContainer : theme.colors.surfaceVariant,
+                          borderColor: theme.colors.primary,
+                          borderWidth: isSelected ? 2 : 0,
+                          width: '23%', // ~1/4 width
+                        }
+                      ]}
+                    >
+                      <Text style={styles.emoji}>{option.emoji}</Text>
+                      <Text
+                        variant="labelSmall"
+                        style={[styles.optionLabel, { fontSize: 10 }]}
+                        numberOfLines={1}
+                      >
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </Card.Content>
+          </Card>
 
-        {/* Snackbar for feedback */}
-        <Portal>
-          <Snackbar
-            visible={snackbarVisible}
-            onDismiss={() => setSnackbarVisible(false)}
-            duration={3000}
-            action={{
-              label: 'OK',
-              onPress: () => setSnackbarVisible(false),
-            }}
+          {/* Notes Section */}
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text variant="titleMedium" style={styles.sectionTitle}>
+                Notes
+              </Text>
+              <TextInput
+                mode="outlined"
+                placeholder="How was your day? Any other symptoms..."
+                value={log.notes}
+                onChangeText={(text) => setLog((prev) => ({ ...prev, notes: text }))}
+                multiline
+                numberOfLines={4}
+                style={{ backgroundColor: theme.colors.surface }}
+              />
+            </Card.Content>
+          </Card>
+
+          {/* Snackbar for feedback */}
+          <Portal>
+            <Snackbar
+              visible={snackbarVisible}
+              onDismiss={() => setSnackbarVisible(false)}
+              duration={3000}
+              action={{
+                label: 'OK',
+                onPress: () => setSnackbarVisible(false),
+              }}
+            >
+              Log saved! Your daily log has been recorded.
+            </Snackbar>
+          </Portal>
+        </ScrollView>
+
+        {/* Floating Save Button */}
+        <View style={[styles.floatingBar, { backgroundColor: theme.colors.background }]}>
+          <Button
+            mode="contained"
+            onPress={handleSave}
+            icon="check"
+            contentStyle={{ height: 56 }}
+            labelStyle={{ fontSize: 18, fontWeight: '600' }}
+            style={styles.saveButton}
           >
-            Log saved! Your daily log has been recorded.
-          </Snackbar>
-        </Portal>
-      </ScrollView>
-
-      {/* Floating Save Button */}
-      <View style={[styles.floatingBar, { backgroundColor: theme.colors.background }]}>
-        <Button
-          mode="contained"
-          onPress={handleSave}
-          icon="check"
-          contentStyle={{ height: 56 }}
-          labelStyle={{ fontSize: 18, fontWeight: '600' }}
-          style={styles.saveButton}
-        >
-          Save Log
-        </Button>
-      </View>
+            Save Log
+          </Button>
+        </View>
 
       </View>
     </MobileLayout>
