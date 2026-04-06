@@ -11,7 +11,12 @@
  *     → saga puts addDayLog(log) → reducer updates cache
  */
 
-import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {
+  createAction,
+  createSelector,
+  createSlice,
+  PayloadAction,
+} from '@reduxjs/toolkit';
 import { addDays, differenceInDays, format, parseISO } from 'date-fns';
 import {
   UserSettings,
@@ -211,61 +216,64 @@ export function getPhaseForDate(
 }
 
 /** Derived selector: computes full cycle stats from the Redux cache. */
-export const selectCycleStats = (state: RootState): CycleStats => {
-  const { settings, cycles } = state.cycle;
-
-  if (!settings) {
-    const now = format(new Date(), 'yyyy-MM-dd');
-    return {
-      averageCycleLength: 28,
-      averagePeriodLength: 5,
-      nextPeriodDate: now,
-      ovulationDate: now,
-      fertileWindowStart: now,
-      fertileWindowEnd: now,
-      currentPhase: 'follicular',
-      dayInCycle: 1,
-    };
-  }
-
-  const lastPeriodDate = parseISO(settings.lastPeriodDate);
-  const today = new Date();
-  const dayInCycle = differenceInDays(today, lastPeriodDate);
-  const adjustedDay = dayInCycle >= 0 ? dayInCycle : 0;
-
-  let avgCycleLength = settings.averageCycleLength;
-  let avgPeriodLength = settings.averagePeriodLength;
-
-  if (cycles.length >= 3) {
-    const completed = cycles.filter(c => c.length);
-    if (completed.length > 0) {
-      avgPeriodLength = Math.round(
-        completed.reduce((sum, c) => sum + (c.length || 0), 0) /
-          completed.length,
-      );
+/** Derived selector: computes full cycle stats from the Redux cache. (Memoized) */
+export const selectCycleStats = createSelector(
+  [selectSettings, selectCycles],
+  (settings, cycles): CycleStats => {
+    // If settings somehow don't exist, return a safe default
+    if (!settings) {
+      const now = format(new Date(), 'yyyy-MM-dd');
+      return {
+        averageCycleLength: 28,
+        averagePeriodLength: 5,
+        nextPeriodDate: now,
+        ovulationDate: now,
+        fertileWindowStart: now,
+        fertileWindowEnd: now,
+        currentPhase: 'follicular',
+        dayInCycle: 1,
+      };
     }
-  }
 
-  const nextPeriodDate = addDays(lastPeriodDate, avgCycleLength);
-  const ovulationDay = avgCycleLength - 14;
-  const ovulationDate = addDays(lastPeriodDate, ovulationDay);
-  const fertileWindowStart = addDays(ovulationDate, -5);
-  const fertileWindowEnd = addDays(ovulationDate, 1);
+    const lastPeriodDate = parseISO(settings.lastPeriodDate);
+    const today = new Date();
+    const dayInCycle = differenceInDays(today, lastPeriodDate);
+    const adjustedDay = dayInCycle >= 0 ? dayInCycle : 0;
 
-  let currentPhase: CyclePhase;
-  if (adjustedDay < avgPeriodLength) currentPhase = 'menstruation';
-  else if (adjustedDay < ovulationDay - 1) currentPhase = 'follicular';
-  else if (adjustedDay < ovulationDay + 3) currentPhase = 'ovulation';
-  else currentPhase = 'luteal';
+    let avgCycleLength = settings.averageCycleLength;
+    let avgPeriodLength = settings.averagePeriodLength;
 
-  return {
-    averageCycleLength: avgCycleLength,
-    averagePeriodLength: avgPeriodLength,
-    nextPeriodDate: format(nextPeriodDate, 'yyyy-MM-dd'),
-    ovulationDate: format(ovulationDate, 'yyyy-MM-dd'),
-    fertileWindowStart: format(fertileWindowStart, 'yyyy-MM-dd'),
-    fertileWindowEnd: format(fertileWindowEnd, 'yyyy-MM-dd'),
-    currentPhase,
-    dayInCycle: adjustedDay + 1,
-  };
-};
+    if (cycles.length >= 3) {
+      const completed = cycles.filter(c => c.length);
+      if (completed.length > 0) {
+        avgPeriodLength = Math.round(
+          completed.reduce((sum, c) => sum + (c.length || 0), 0) /
+            completed.length,
+        );
+      }
+    }
+
+    const nextPeriodDate = addDays(lastPeriodDate, avgCycleLength);
+    const ovulationDay = avgCycleLength - 14;
+    const ovulationDate = addDays(lastPeriodDate, ovulationDay);
+    const fertileWindowStart = addDays(ovulationDate, -5);
+    const fertileWindowEnd = addDays(ovulationDate, 1);
+
+    let currentPhase: CyclePhase;
+    if (adjustedDay < avgPeriodLength) currentPhase = 'menstruation';
+    else if (adjustedDay < ovulationDay - 1) currentPhase = 'follicular';
+    else if (adjustedDay < ovulationDay + 3) currentPhase = 'ovulation';
+    else currentPhase = 'luteal';
+
+    return {
+      averageCycleLength: avgCycleLength,
+      averagePeriodLength: avgPeriodLength,
+      nextPeriodDate: format(nextPeriodDate, 'yyyy-MM-dd'),
+      ovulationDate: format(ovulationDate, 'yyyy-MM-dd'),
+      fertileWindowStart: format(fertileWindowStart, 'yyyy-MM-dd'),
+      fertileWindowEnd: format(fertileWindowEnd, 'yyyy-MM-dd'),
+      currentPhase,
+      dayInCycle: adjustedDay + 1,
+    };
+  },
+);
