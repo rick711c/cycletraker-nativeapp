@@ -81,15 +81,16 @@ export default function LogPage() {
 
   return (
     <MobileLayout>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          <Text variant="headlineSmall" style={styles.headerTitle}>
-            Log Today
-          </Text>
-          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-            {format(new Date(), 'EEEE, MMMM d')}
-          </Text>
-        </View>
+      <View style={styles.pageWrapper}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.header}>
+            <Text variant="headlineSmall" style={styles.headerTitle}>
+              Log Today
+            </Text>
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+              {format(new Date(), 'EEEE, MMMM d')}
+            </Text>
+          </View>
 
         {/* Flow Section */}
         <Card style={styles.card}>
@@ -233,18 +234,6 @@ export default function LogPage() {
           </Card.Content>
         </Card>
 
-        {/* Save Button */}
-        <Button
-          mode="contained"
-          onPress={handleSave}
-          icon="check"
-          contentStyle={{ height: 56 }}
-          labelStyle={{ fontSize: 18, fontWeight: '600' }}
-          style={styles.saveButton}
-        >
-          Save Log
-        </Button>
-
         {/* Snackbar for feedback */}
         <Portal>
           <Snackbar
@@ -260,6 +249,22 @@ export default function LogPage() {
           </Snackbar>
         </Portal>
       </ScrollView>
+
+      {/* Floating Save Button */}
+      <View style={[styles.floatingBar, { backgroundColor: theme.colors.background }]}>
+        <Button
+          mode="contained"
+          onPress={handleSave}
+          icon="check"
+          contentStyle={{ height: 56 }}
+          labelStyle={{ fontSize: 18, fontWeight: '600' }}
+          style={styles.saveButton}
+        >
+          Save Log
+        </Button>
+      </View>
+
+      </View>
     </MobileLayout>
   );
 }
@@ -268,7 +273,11 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingTop: 24,
-    paddingBottom: 40,
+    paddingBottom: 90, // space for floating button
+  },
+  pageWrapper: {
+    flex: 1,
+    position: 'relative',
   },
   header: {
     marginBottom: 24,
@@ -311,7 +320,23 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   saveButton: {
-    marginTop: 8,
     borderRadius: 8,
+    flex: 1,
+  },
+  floatingBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingBottom: 20,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(0,0,0,0.08)',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
   },
 });
