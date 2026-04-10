@@ -5,6 +5,7 @@ import { Text, Button, Checkbox, useTheme } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import Icon from '../components/ui/Icon';
+import { hapticLight, hapticSuccess } from '../lib/haptics';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -12,7 +13,7 @@ import Icon from '../components/ui/Icon';
 
 const PRIVACY_VERSION = '1';
 export const PRIVACY_STORAGE_KEY = '@flora_privacy_accepted_version';
-const PRIVACY_URL = 'https://stewbit.io/flora/privacy';
+const PRIVACY_URL = 'https://dazzling-malasada-023241.netlify.app/';
 
 // ---------------------------------------------------------------------------
 // Component
@@ -23,7 +24,13 @@ export default function PrivacyConsentScreen() {
   const navigation = useNavigation();
   const [accepted, setAccepted] = useState(false);
 
+  const toggleAccepted = () => {
+    hapticLight();
+    setAccepted(!accepted);
+  };
+
   const handleContinue = async () => {
+    hapticSuccess();
     await AsyncStorage.setItem(PRIVACY_STORAGE_KEY, PRIVACY_VERSION);
     navigation.reset({
       index: 0,
@@ -32,108 +39,108 @@ export default function PrivacyConsentScreen() {
   };
 
   const openPrivacyPolicy = () => {
-    Linking.openURL(PRIVACY_URL).catch(() => {});
+    Linking.openURL(PRIVACY_URL).catch(() => { });
   };
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: theme.colors.background }]}>
-    <ScrollView
-      style={styles.root}
-      contentContainerStyle={styles.content}
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <Icon icon="shield-lock-outline" size={48} color={theme.colors.primary} />
-        <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onBackground }]}>
-          Your Privacy Matters
-        </Text>
-        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
-          Flora is a 100% offline app. Please review our privacy practices before continuing.
-        </Text>
-      </View>
-
-      {/* Privacy highlights */}
-      <View style={[styles.highlightCard, { backgroundColor: theme.colors.surface }]}>
-        <HighlightRow
-          icon="cloud-off-outline"
-          title="No Cloud, No Servers"
-          description="All your data stays on this device. We never upload anything."
-          color={theme.colors.primary}
-          theme={theme}
-        />
-        <HighlightRow
-          icon="eye-off-outline"
-          title="Zero Data Collection"
-          description="We don't collect, sell, or share any personal or health data."
-          color={theme.colors.primary}
-          theme={theme}
-        />
-        <HighlightRow
-          icon="lock-outline"
-          title="Your Data, Your Control"
-          description="No analytics, no trackers, no ads. Complete privacy."
-          color={theme.colors.primary}
-          theme={theme}
-        />
-      </View>
-
-      {/* Data loss warning */}
-      <View style={[styles.warningBox, { backgroundColor: `${theme.colors.error}14` }]}>
-        <View style={styles.warningHeader}>
-          <Icon icon="alert-circle-outline" size={22} color={theme.colors.error} />
-          <Text variant="titleSmall" style={{ color: theme.colors.error, fontWeight: '700', marginLeft: 8 }}>
-            Important Warning
+      <ScrollView
+        style={styles.root}
+        contentContainerStyle={styles.content}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Icon icon="shield-lock-outline" size={48} color={theme.colors.primary} />
+          <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onBackground }]}>
+            Your Privacy Matters
+          </Text>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
+            Flora is a 100% offline app. Please review our privacy practices before continuing.
           </Text>
         </View>
-        <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, marginTop: 8, lineHeight: 22 }}>
-          Your data lives only on this phone.{' '}
-          <Text style={{ fontWeight: '700' }}>
-            Uninstalling the app or clearing app storage will permanently delete all your health records.
-          </Text>
-          {' '}This action cannot be undone.
-        </Text>
-      </View>
 
-      {/* Consent checkbox */}
-      <View style={styles.checkboxRow}>
-        <Checkbox.Android
-          status={accepted ? 'checked' : 'unchecked'}
-          onPress={() => setAccepted(!accepted)}
-          color={theme.colors.primary}
-        />
-        <Text
-          variant="bodyMedium"
-          style={[styles.checkboxLabel, { color: theme.colors.onSurface }]}
-        >
-          I have read and agree to the{' '}
+        {/* Privacy highlights */}
+        <View style={[styles.highlightCard, { backgroundColor: theme.colors.surface }]}>
+          <HighlightRow
+            icon="cloud-off-outline"
+            title="No Cloud, No Servers"
+            description="All your data stays on this device. We never upload anything."
+            color={theme.colors.primary}
+            theme={theme}
+          />
+          <HighlightRow
+            icon="eye-off-outline"
+            title="Zero Data Collection"
+            description="We don't collect, sell, or share any personal or health data."
+            color={theme.colors.primary}
+            theme={theme}
+          />
+          <HighlightRow
+            icon="lock-outline"
+            title="Your Data, Your Control"
+            description="No analytics, no trackers, no ads. Complete privacy."
+            color={theme.colors.primary}
+            theme={theme}
+          />
+        </View>
+
+        {/* Data loss warning */}
+        <View style={[styles.warningBox, { backgroundColor: `${theme.colors.error}14` }]}>
+          <View style={styles.warningHeader}>
+            <Icon icon="alert-circle-outline" size={22} color={theme.colors.error} />
+            <Text variant="titleSmall" style={{ color: theme.colors.error, fontWeight: '700', marginLeft: 8 }}>
+              Important Warning
+            </Text>
+          </View>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurface, marginTop: 8, lineHeight: 22 }}>
+            Your data lives only on this phone.{' '}
+            <Text style={{ fontWeight: '700' }}>
+              Uninstalling the app or clearing app storage will permanently delete all your health records.
+            </Text>
+            {' '}This action cannot be undone.
+          </Text>
+        </View>
+
+        {/* Consent checkbox */}
+        <View style={styles.checkboxRow}>
+          <Checkbox.Android
+            status={accepted ? 'checked' : 'unchecked'}
+            onPress={toggleAccepted}
+            color={theme.colors.primary}
+          />
           <Text
-            style={{ color: theme.colors.primary, fontWeight: '600', textDecorationLine: 'underline' }}
-            onPress={openPrivacyPolicy}
+            variant="bodyMedium"
+            style={[styles.checkboxLabel, { color: theme.colors.onSurface }]}
           >
-            Privacy Policy
+            I have read and agree to the{' '}
+            <Text
+              style={{ color: theme.colors.primary, fontWeight: '600', textDecorationLine: 'underline' }}
+              onPress={openPrivacyPolicy}
+            >
+              Privacy Policy
+            </Text>
           </Text>
+        </View>
+
+        {/* Continue button */}
+        <Button
+          mode="contained"
+          onPress={handleContinue}
+          disabled={!accepted}
+          contentStyle={styles.buttonContent}
+          style={styles.button}
+          labelStyle={styles.buttonLabel}
+        >
+          Continue
+        </Button>
+
+        <Text
+          variant="labelSmall"
+          style={[styles.footerText, { color: theme.colors.onSurfaceVariant }]}
+        >
+          You can review the privacy policy anytime from Settings.
         </Text>
-      </View>
-
-      {/* Continue button */}
-      <Button
-        mode="contained"
-        onPress={handleContinue}
-        disabled={!accepted}
-        contentStyle={styles.buttonContent}
-        style={styles.button}
-        labelStyle={styles.buttonLabel}
-      >
-        Continue
-      </Button>
-
-      <Text
-        variant="labelSmall"
-        style={[styles.footerText, { color: theme.colors.onSurfaceVariant }]}
-      >
-        You can review the privacy policy anytime from Settings.
-      </Text>
-    </ScrollView>
+      </ScrollView>
     </SafeAreaView>
   );
 }

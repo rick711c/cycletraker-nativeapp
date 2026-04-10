@@ -29,6 +29,7 @@ import { format, subDays } from 'date-fns';
 // or require('../assets/hero-flowers.png')
 import { useAppDispatch } from '../store';
 import { setOnboarded, updateSettingsRequest } from '../store/cycleSlice';
+import { hapticLight, hapticSuccess } from '../lib/haptics';
 
 
 type Step = 'welcome' | 'lastPeriod' | 'cycleLength' | 'periodLength' | 'goal';
@@ -56,6 +57,7 @@ export default function Onboarding() {
   });
 
   const handleComplete = () => {
+    hapticSuccess();
     dispatch(updateSettingsRequest(data));
     dispatch(setOnboarded(true));
     navigation.reset({
@@ -76,6 +78,7 @@ export default function Onboarding() {
   const progressValue = currentIndex / (steps.length - 1);
 
   const goNext = () => {
+    hapticLight();
     if (currentIndex < steps.length - 1) {
       setStep(steps[currentIndex + 1]);
     } else {
@@ -84,6 +87,7 @@ export default function Onboarding() {
   };
 
   const goBack = () => {
+    hapticLight();
     if (currentIndex > 0) {
       setStep(steps[currentIndex - 1]);
     }

@@ -7,6 +7,7 @@ import { MobileLayout } from '../components/layout/MobileLayout';
 import { useAppSelector, useAppDispatch } from '../store';
 import { selectDayLogs, addDayLogRequest } from '../store/cycleSlice';
 import { FlowIntensity, Mood, PhysicalSymptom, DayLog } from '../types/cycle';
+import { hapticLight, hapticSuccess } from '../lib/haptics';
 
 
 // --- Constants ---
@@ -57,6 +58,7 @@ export default function LogPage() {
   );
 
   const toggleMood = (mood: Mood) => {
+    hapticLight();
     setLog((prev) => ({
       ...prev,
       moods: prev.moods.includes(mood)
@@ -66,6 +68,7 @@ export default function LogPage() {
   };
 
   const toggleSymptom = (symptom: PhysicalSymptom) => {
+    hapticLight();
     setLog((prev) => ({
       ...prev,
       symptoms: prev.symptoms.includes(symptom)
@@ -75,6 +78,7 @@ export default function LogPage() {
   };
 
   const handleSave = () => {
+    hapticSuccess();
     dispatch(addDayLogRequest(log));
     setSnackbarVisible(true);
   };

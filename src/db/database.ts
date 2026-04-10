@@ -58,6 +58,14 @@ export async function initDatabase(): Promise<void> {
   `);
 }
 
+/** Wipe all user data from every table (used by "Clear All Data" in Settings). */
+export async function clearAllData(): Promise<void> {
+  const d = getDB();
+  await d.execute('DELETE FROM day_logs');
+  await d.execute('DELETE FROM cycles');
+  await d.execute('DELETE FROM settings');
+}
+
 /** Close the database (call on app teardown if needed). */
 export function closeDatabase(): void {
   if (db) {

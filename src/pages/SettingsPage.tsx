@@ -7,6 +7,9 @@ import { MobileLayout } from '../components/layout/MobileLayout';
 import { useAppSelector, useAppDispatch } from '../store';
 import { selectSettings, updateSettingsRequest, setOnboarded } from '../store/cycleSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { clearAllData } from '../db/database';
+import { cancelAllNotifications } from '../notifications/notificationService';
+import { hapticLight, hapticWarning } from '../lib/haptics';
 
 
 
@@ -35,11 +38,23 @@ export default function SettingsPage() {
           style: 'destructive',
           onPress: async () => {
             try {
+              // 1. Wipe SQLite tables (cycles, day_logs, settings)
+              hapticWarning();
+              await clearAllData();
+
+              // 2. Clear AsyncStorage (redux-persist cache + privacy consent)
               await AsyncStorage.clear();
+
+              // 3. Cancel all scheduled notifications
+              await cancelAllNotifications();
+
+              // 4. Reset Redux state
               dispatch(setOnboarded(false));
+
+              // 5. Navigate to onboarding
               navigation.reset({
                 index: 0,
-                routes: [{ name: 'Onboarding' as never }],
+                routes: [{ name: 'PrivacyConsent' as never }],
               });
             } catch (error) {
               console.error('Failed to clear data', error);
@@ -55,33 +70,12 @@ export default function SettingsPage() {
       title: 'Notifications',
       items: [
         {
-          icon: 'bell-outline', // NotificationsIcon
+          icon: 'bell-outline',
           label: 'Period Reminders',
           description: 'Get notified before your period',
           type: 'toggle' as const,
           value: settings.notificationsEnabled,
-          onChange: () => dispatch(updateSettingsRequest({ notificationsEnabled: !settings.notificationsEnabled })),
-        },
-      ],
-    },
-    {
-      title: 'Privacy',
-      items: [
-        {
-          icon: 'lock-outline', // LockIcon
-          label: 'App Lock',
-          description: 'Require passcode to open',
-          type: 'toggle' as const,
-          value: false,
-          onChange: () => showSnackbar('Coming soon!'),
-        },
-        {
-          icon: 'theme-light-dark', // DarkModeIcon
-          label: 'Discreet Mode',
-          description: 'Hide sensitive notifications',
-          type: 'toggle' as const,
-          value: false,
-          onChange: () => showSnackbar('Coming soon!'),
+          onChange: () => { hapticLight(); dispatch(updateSettingsRequest({ notificationsEnabled: !settings.notificationsEnabled })); },
         },
       ],
     },
@@ -89,14 +83,14 @@ export default function SettingsPage() {
       title: 'Data',
       items: [
         {
-          icon: 'download', // DownloadIcon
+          icon: 'download',
           label: 'Export Data',
           description: 'Download your health data',
           type: 'link' as const,
           onClick: () => showSnackbar('Coming soon!'),
         },
         {
-          icon: 'delete', // DeleteIcon
+          icon: 'delete',
           label: 'Clear All Data',
           description: 'Delete all your data permanently',
           type: 'danger' as const,

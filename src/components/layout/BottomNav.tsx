@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Surface, FAB, Text, useTheme } from 'react-native-paper';
 import Icon from '../ui/Icon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { hapticLight } from '../../lib/haptics';
 // Assuming React Navigation
 import { useNavigation, useRoute } from '@react-navigation/native'; 
 
@@ -33,7 +34,10 @@ export function BottomNav() {
                     <FAB
                       icon={() => <Icon icon={item.icon} size={24} color={theme.colors.onPrimary} />}
                       style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-                      onPress={() => navigation.navigate(item.route as never)}
+                      onPress={() => {
+                    hapticLight();
+                    navigation.navigate(item.route as never);
+                  }}
                       mode="elevated"
                     />
               </View>
@@ -45,8 +49,7 @@ export function BottomNav() {
                 key={item.label}
                 style={styles.tab}
                 onPress={() => {
-                  // Debug: ensure press handler is firing
-                  // eslint-disable-next-line no-console
+                  hapticLight();
                   console.log('BottomNav press:', item.route);
                   navigation.navigate(item.route as never);
                 }}
