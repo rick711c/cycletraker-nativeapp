@@ -8,6 +8,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { store, persistor } from './src/store';
 import { initDatabase } from './src/db/database';
@@ -22,6 +23,9 @@ import LogPage from './src/pages/LogPage';
 import InsightsPage from './src/pages/InsightsPage';
 import SettingsPage from './src/pages/SettingsPage';
 import CycleHistoryPage from './src/pages/CycleHistoryPage';
+import PrivacyConsentScreen, { PRIVACY_STORAGE_KEY } from './src/pages/PrivacyConsentScreen';
+
+const REQUIRED_PRIVACY_VERSION = '1';
 
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
@@ -58,8 +62,9 @@ export default function App() {
   const scheme = useColorScheme();
   const theme  = scheme === 'dark' ? floraDarkTheme : floraLightTheme;
   const [dbReady, setDbReady] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState<boolean | null>(null);
 
-  // 1. Initialise SQLite schema + notifications on mount
+  // 1. Bootstrap: DB + notifications + privacy check
   useEffect(() => {
     async function bootstrap() {
       try {
@@ -73,8 +78,16 @@ export default function App() {
         // Load all SQLite data into Redux cache
         // (the saga will also reschedule notifications)
         store.dispatch(fetchAllData());
+
+        // Check privacy consent
+        const acceptedVersion = await AsyncStorage.getItem(PRIVACY_STORAGE_KEY);
+        setPrivacyAccepted(
+          acceptedVersion != null &&
+          parseInt(acceptedVersion, 10) >= parseInt(REQUIRED_PRIVACY_VERSION, 10),
+        );
       } catch (err) {
         console.error('Bootstrap failed:', err);
+        setPrivacyAccepted(false);
       } finally {
         setDbReady(true);
       }
@@ -82,7 +95,7 @@ export default function App() {
     bootstrap();
   }, []);
 
-  if (!dbReady) {
+  if (!dbReady || privacyAccepted === null) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -103,9 +116,10 @@ export default function App() {
                     backgroundColor={theme.colors.background}
                   />
                   <Stack.Navigator
-                    initialRouteName="Home"
+                    initialRouteName={privacyAccepted ? 'Home' : 'PrivacyConsent'}
                     screenOptions={{ headerShown: false, animation: 'none' }}
                   >
+                    <Stack.Screen name="PrivacyConsent" component={PrivacyConsentScreen} />
                     <Stack.Screen name="Home"       component={Home} />
                     <Stack.Screen name="Onboarding" component={Onboarding} />
                     <Stack.Screen name="Calendar"   component={CalendarPage} />
