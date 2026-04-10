@@ -20,6 +20,7 @@ import CalendarPage from './src/pages/CalendarPage';
 import LogPage from './src/pages/LogPage';
 import InsightsPage from './src/pages/InsightsPage';
 import SettingsPage from './src/pages/SettingsPage';
+import CycleHistoryPage from './src/pages/CycleHistoryPage';
 
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
@@ -101,6 +102,11 @@ export default function App() {
                     <Stack.Screen name="Log"        component={LogPage} />
                     <Stack.Screen name="Insights"   component={InsightsPage} />
                     <Stack.Screen name="Settings"   component={SettingsPage} />
+                    <Stack.Screen
+                      name="CycleHistory"
+                      component={CycleHistoryPage}
+                      options={{ animation: 'slide_from_right' }}
+                    />
                   </Stack.Navigator>
                 </NavigationContainer>
               </PaperProvider>

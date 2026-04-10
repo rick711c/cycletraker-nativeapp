@@ -1,0 +1,154 @@
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
+import Icon from '../ui/Icon';
+import { useAppSelector } from '../../store';
+import { selectCycles } from '../../store/cycleSlice';
+import { cyclePhaseColors } from '../../theme/muiTheme';
+import { format, parseISO, differenceInDays } from 'date-fns';
+import { CycleData } from '../../types/cycle';
+
+function getPeriodDuration(cycle: CycleData) {
+  if (!cycle.endDate) return null;
+  return differenceInDays(parseISO(cycle.endDate), parseISO(cycle.startDate)) + 1;
+}
+
+export function CycleHistory() {
+  const theme = useTheme();
+  const cycles = useAppSelector(selectCycles);
+  const cycleHistory = [...cycles].reverse();
+
+  if (cycleHistory.length === 0) {
+    return (
+      <View style={styles.emptyState}>
+        <Icon icon="calendar-blank-outline" size={40} color={theme.colors.onSurfaceVariant} />
+        <Text
+          variant="bodyMedium"
+          style={{ color: theme.colors.onSurfaceVariant, marginTop: 12, textAlign: 'center' }}
+        >
+          No cycles recorded yet.{'\n'}Start tracking to see your history!
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.root}>
+      {cycleHistory.map((cycle, index) => {
+        const isActive = !cycle.endDate || !cycle.length;
+        const periodDuration = getPeriodDuration(cycle);
+        const cycleNumber = cycleHistory.length - index;
+
+        return (
+          <View
+            key={cycle.startDate}
+            style={[
+              styles.card,
+              { backgroundColor: theme.colors.surfaceVariant },
+            ]}
+          >
+            {/* Title + status */}
+            <View style={styles.titleRow}>
+              <Text
+                variant="bodyLarge"
+                style={{ color: theme.colors.onSurface, fontWeight: '600', flex: 1 }}
+              >
+                Cycle {cycleNumber}
+              </Text>
+              <View
+                style={[
+                  styles.badge,
+                  {
+                    backgroundColor: isActive ? '#4CAF50' : theme.colors.primary,
+                  },
+                ]}
+              >
+                <Text style={styles.badgeText}>
+                  {isActive ? 'Active' : 'Completed'}
+                </Text>
+              </View>
+            </View>
+
+            {/* Dates */}
+            <Text
+              variant="bodyMedium"
+              style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}
+            >
+              {format(parseISO(cycle.startDate), 'MMM d')}
+              {cycle.endDate
+                ? ` – ${format(parseISO(cycle.endDate), 'MMM d, yyyy')}`
+                : ' – Present'}
+            </Text>
+
+            {/* Stats */}
+            <View style={styles.statsRow}>
+              {cycle.length != null && (
+                <View style={styles.stat}>
+                  <Icon icon="swap-horizontal" size={13} color={theme.colors.onSurfaceVariant} />
+                  <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, marginLeft: 3 }}>
+                    {cycle.length}d cycle
+                  </Text>
+                </View>
+              )}
+              {periodDuration != null && (
+                <View style={styles.stat}>
+                  <Icon icon="water-outline" size={13} color={cyclePhaseColors.menstruation} />
+                  <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, marginLeft: 3 }}>
+                    {periodDuration}d period
+                  </Text>
+                </View>
+              )}
+              {isActive && !cycle.length && (
+                <View style={styles.stat}>
+                  <Icon icon="clock-outline" size={13} color="#4CAF50" />
+                  <Text variant="labelSmall" style={{ color: '#4CAF50', marginLeft: 3 }}>
+                    In progress
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: {
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 56,
+    paddingHorizontal: 32,
+  },
+  card: {
+    borderRadius: 14,
+    padding: 16,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 14,
+    marginTop: 8,
+  },
+  stat: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+});

@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Card, useTheme } from 'react-native-paper';
 import Icon from '../components/ui/Icon';
+import { useNavigation } from '@react-navigation/native';
 import { MobileLayout } from '../components/layout/MobileLayout';
 import { useAppSelector } from '../store';
 import { selectCycleStats, selectCycles, selectDayLogs } from '../store/cycleSlice';
@@ -9,6 +10,7 @@ import { chartColors, cyclePhaseColors } from '../theme/muiTheme';
 
 export default function InsightsPage() {
   const theme = useTheme();
+  const navigation = useNavigation();
   const stats = useAppSelector(selectCycleStats);
   const cycles = useAppSelector(selectCycles);
   const dayLogs = useAppSelector(selectDayLogs);
@@ -48,28 +50,32 @@ export default function InsightsPage() {
 
   const statCards = [
     {
-      icon: 'calendar-today', // MaterialCommunityIcons name for CalendarTodayIcon
+      icon: 'calendar-today',
       label: 'Avg Cycle',
       value: `${insights.avgCycleLength} days`,
       color: cyclePhaseColors.menstruation,
+      onPress: undefined,
     },
     {
-      icon: 'clock-outline', // MaterialCommunityIcons name for AccessTimeIcon
+      icon: 'clock-outline',
       label: 'Cycles Tracked',
       value: insights.totalCycles.toString(),
       color: chartColors.chart2,
+      onPress: () => navigation.navigate('CycleHistory' as never),
     },
     {
-      icon: 'chart-line', // MaterialCommunityIcons name for ShowChartIcon
+      icon: 'chart-line',
       label: 'Days Logged',
       value: insights.totalLogs.toString(),
       color: chartColors.chart3,
+      onPress: undefined,
     },
     {
-      icon: 'trending-up', // MaterialCommunityIcons name for TrendingUpIcon
+      icon: 'trending-up',
       label: 'Current Day',
       value: `Day ${stats.dayInCycle}`,
       color: chartColors.chart4,
+      onPress: undefined,
     },
   ];
 
@@ -87,26 +93,43 @@ export default function InsightsPage() {
 
         {/* Stats Grid */}
         <View style={styles.statsGrid}>
-          {statCards.map((stat) => (
-            <Card key={stat.label} style={styles.statCard}>
-              <Card.Content style={styles.cardContent}>
-                <View
-                  style={[
-                    styles.iconContainer,
-                    { backgroundColor: `${stat.color}15` }, // Hex opacity (~8%)
-                  ]}
-                >
-                  <Icon icon={stat.icon} size={20} color={stat.color} />
-                </View>
-                <Text variant="headlineSmall" style={styles.statValue}>
-                  {stat.value}
-                </Text>
-                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                  {stat.label}
-                </Text>
-              </Card.Content>
-            </Card>
-          ))}
+          {statCards.map((stat) => {
+            const isClickable = !!stat.onPress;
+
+            return (
+              <Card
+                key={stat.label}
+                style={styles.statCard}
+                onPress={stat.onPress}
+              >
+                <Card.Content style={styles.cardContent}>
+                  <View style={styles.statCardHeader}>
+                    <View
+                      style={[
+                        styles.iconContainer,
+                        { backgroundColor: `${stat.color}15` },
+                      ]}
+                    >
+                      <Icon icon={stat.icon} size={20} color={stat.color} />
+                    </View>
+                    {isClickable && (
+                      <Icon
+                        icon="chevron-right"
+                        size={18}
+                        color={theme.colors.onSurfaceVariant}
+                      />
+                    )}
+                  </View>
+                  <Text variant="headlineSmall" style={styles.statValue}>
+                    {stat.value}
+                  </Text>
+                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                    {stat.label}
+                  </Text>
+                </Card.Content>
+              </Card>
+            );
+          })}
         </View>
 
         {/* Patterns */}
@@ -197,6 +220,11 @@ const styles = StyleSheet.create({
     width: '47%', 
     flexGrow: 1,
   },
+  statCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   cardContent: {
     padding: 16,
   },
@@ -215,6 +243,8 @@ const styles = StyleSheet.create({
   },
   sectionCard: {
     marginBottom: 16,
+    borderRadius: 16,
+    elevation: 0,
   },
   sectionTitle: {
     fontWeight: '600',
