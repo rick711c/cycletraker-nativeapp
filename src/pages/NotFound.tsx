@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Button, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 
@@ -12,8 +13,8 @@ const NotFound = () => {
   }, []);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.content}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View style={styles.content}>
         <Text 
           variant="displayLarge" 
           style={[styles.title, { color: theme.colors.onBackground }]}
@@ -35,7 +36,7 @@ const NotFound = () => {
           Return to Home
         </Button>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

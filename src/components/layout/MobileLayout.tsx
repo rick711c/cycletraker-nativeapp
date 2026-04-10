@@ -14,17 +14,12 @@ export function MobileLayout({ children, showNav = true }: MobileLayoutProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Replaces Box with 'overflow: auto'.
-        ScrollView handles the scrolling behavior.
-        contentContainerStyle handles the padding for the safe area and the bottom nav.
-      */}
+    <View style={[styles.container, { backgroundColor: theme.colors.background, paddingTop: insets.top }]}>
       <ScrollView
         style={styles.content}
         contentContainerStyle={[
           styles.contentContainer,
           {
-            paddingTop: insets.top,
             // Add padding at the bottom so content isn't hidden behind the absolute/fixed BottomNav
             // 80 is the height of the BottomNav bar we defined earlier + any safe area inset
             paddingBottom: showNav ? 80 + insets.bottom : insets.bottom + 16,
