@@ -1,5 +1,8 @@
 /**
  * Cycle Sagas — handle fetchAllData, startPeriod, endPeriod
+ *
+ * After any data change that affects cycle dates, we reschedule
+ * all notifications via the NotificationService.
  */
 
 import { call, put, takeLatest, takeEvery, select } from 'redux-saga/effects';
@@ -21,10 +24,48 @@ import {
   setError,
   selectCycles,
   selectSettings,
+  selectCycleStats,
 } from '../cycleSlice';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { CycleData, DayLog } from '../../types/cycle';
+import { CycleData, CycleStats, DayLog, UserSettings } from '../../types/cycle';
 import { upsertSettings } from '../../db/settingsApi';
+
+import { buildCycleNotifications } from '../../notifications/notificationScheduler';
+import {
+  cancelAllNotifications,
+  scheduleNotification,
+} from '../../notifications/notificationService';
+
+// ── Notification rescheduling ────────────────────────────────────────────────
+
+export function* rescheduleNotifications() {
+  try {
+    const settings: UserSettings = yield select(selectSettings);
+
+    // If notifications are disabled, just cancel everything
+    if (!settings.notificationsEnabled) {
+      yield call(cancelAllNotifications);
+      return;
+    }
+
+    // 1. Cancel all existing scheduled notifications
+    yield call(cancelAllNotifications);
+
+    // 2. Build the new notification list from current stats
+    const stats: CycleStats = yield select(selectCycleStats);
+    const notifications = buildCycleNotifications(stats);
+
+    // 3. Schedule each one
+    for (const n of notifications) {
+      yield call(scheduleNotification, n);
+    }
+
+    console.log(`[Notifications] Scheduled ${notifications.length} notifications`);
+  } catch (err: any) {
+    // Notification failures should not break the app
+    console.warn('[Notifications] Failed to reschedule:', err?.message);
+  }
+}
 
 // ── fetchAllData ─────────────────────────────────────────────────────────────
 
@@ -36,6 +77,9 @@ function* handleFetchAllData() {
     yield put(setCycles(cycles));
     yield put(setDayLogs(dayLogs));
     yield put(setLoading(false));
+
+    // Reschedule notifications after data load
+    yield call(rescheduleNotifications);
   } catch (err: any) {
     yield put(setError(err?.message ?? 'Failed to load data'));
   }
@@ -73,6 +117,9 @@ function* handleStartPeriod(action: PayloadAction<string | undefined>) {
     const updatedSettings = { ...settings, lastPeriodDate: periodDate };
     yield call(upsertSettings, updatedSettings);
     yield put(updateSettings(updatedSettings));
+
+    // 4. Reschedule notifications with new period date
+    yield call(rescheduleNotifications);
   } catch (err: any) {
     yield put(setError(err?.message ?? 'Failed to start period'));
   }
@@ -102,6 +149,9 @@ function* handleEndPeriod(action: PayloadAction<string | undefined>) {
           length,
         }),
       );
+
+      // Reschedule notifications with updated cycle data
+      yield call(rescheduleNotifications);
     }
   } catch (err: any) {
     yield put(setError(err?.message ?? 'Failed to end period'));

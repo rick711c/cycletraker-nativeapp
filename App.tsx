@@ -13,6 +13,7 @@ import { store, persistor } from './src/store';
 import { initDatabase } from './src/db/database';
 import { fetchAllData } from './src/store/cycleSlice';
 import { floraLightTheme, floraDarkTheme } from './src/theme/muiTheme';
+import { initializeNotifications, requestNotificationPermission } from './src/notifications/notificationService';
 
 import Home from './src/pages/Home';
 import Onboarding from './src/pages/Onboarding';
@@ -58,18 +59,27 @@ export default function App() {
   const theme  = scheme === 'dark' ? floraDarkTheme : floraLightTheme;
   const [dbReady, setDbReady] = useState(false);
 
-  // 1. Initialise SQLite schema on mount
+  // 1. Initialise SQLite schema + notifications on mount
   useEffect(() => {
-    initDatabase()
-      .then(() => {
-        // 2. Load all SQLite data into Redux cache
+    async function bootstrap() {
+      try {
+        // Init database
+        await initDatabase();
+
+        // Init notifications (uses local provider by default)
+        initializeNotifications();
+        await requestNotificationPermission();
+
+        // Load all SQLite data into Redux cache
+        // (the saga will also reschedule notifications)
         store.dispatch(fetchAllData());
+      } catch (err) {
+        console.error('Bootstrap failed:', err);
+      } finally {
         setDbReady(true);
-      })
-      .catch(err => {
-        console.error('SQLite init failed:', err);
-        setDbReady(true); // still show app even if DB init fails
-      });
+      }
+    }
+    bootstrap();
   }, []);
 
   if (!dbReady) {
