@@ -4,18 +4,21 @@ import { Text, useTheme } from 'react-native-paper';
 import Icon from '../components/ui/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { CycleRing } from '../components/cycle/CycleRing';
-import { DailyInsight } from '../components/cycle/DailyInsight';
+import { SmartDailyInsight } from '../components/cycle/SmartDailyInsight';
+import { AppMode } from '../types/insight';
 import { QuickActions } from '../components/cycle/QuickActions';
 import { UpcomingEvents } from '../components/cycle/UpcomingEvents';
 import { MobileLayout } from '../components/layout/MobileLayout';
 import { useAppSelector } from '../store';
-import { selectIsOnboarded, selectCycleStats } from '../store/cycleSlice';
+import { selectIsOnboarded, selectCycleStats, selectSettings } from '../store/cycleSlice';
 
 export default function Home() {
   const theme = useTheme();
   const navigation = useNavigation();
   const isOnboarded = useAppSelector(selectIsOnboarded);
   const stats = useAppSelector(selectCycleStats);
+  const settings = useAppSelector(selectSettings);
+  const appMode: AppMode = settings.goal === 'conceive' ? 'tryToConceive' : (settings.goal === 'pregnancy' ? 'trackPregnancy' : 'trackCycle');
 
 
   // React Native navigation redirection pattern
@@ -79,7 +82,7 @@ export default function Home() {
 
         {/* Daily Insight */}
         <View style={styles.insightContainer}>
-          <DailyInsight phase={stats.currentPhase} dayInCycle={stats.dayInCycle} />
+          <SmartDailyInsight dayInCycle={stats.dayInCycle} appMode={appMode} />
         </View>
       </View>
     </MobileLayout>

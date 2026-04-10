@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   View,
   StyleSheet,
@@ -43,6 +44,7 @@ export default function Onboarding() {
   const navigation = useNavigation();
   const theme = useTheme();
   const dispatch = useAppDispatch();
+  const insets = useSafeAreaInsets();
 
   const [step, setStep] = useState<Step>('welcome');
   const [showCalendar, setShowCalendar] = useState(false);
@@ -449,11 +451,12 @@ export default function Onboarding() {
 
       {/* Footer Navigation */}
       {step !== 'welcome' && (
-        <View style={styles.footer}>
+        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom + 16, 32) }]}>
           <Button
             mode="outlined"
             onPress={goBack}
             style={styles.footerButton}
+            contentStyle={styles.footerButtonContent}
             icon="chevron-left"
           >
             Back
@@ -463,9 +466,10 @@ export default function Onboarding() {
             onPress={goNext}
             style={styles.footerButton}
             icon={step === 'goal' ? undefined : 'chevron-right'}
-            contentStyle={{
-              flexDirection: step === 'goal' ? 'row' : 'row-reverse',
-            }}
+            contentStyle={[
+              styles.footerButtonContent,
+              { flexDirection: step === 'goal' ? 'row' : 'row-reverse' },
+            ]}
           >
             {step === 'goal' ? 'Complete' : 'Next'}
           </Button>
@@ -587,12 +591,16 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     padding: 16,
+    paddingBottom: 32,
     gap: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
   },
   footerButton: {
     flex: 1,
+    marginBottom: 24,
+  },
+  footerButtonContent: {
+    height: 52,
+    paddingHorizontal: 8,
   },
   modalBackdrop: {
     flex: 1,
