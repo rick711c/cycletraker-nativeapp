@@ -19,7 +19,7 @@ class MainApplication : Application(), ReactApplication {
           // add(MyReactNativePackage())
         },
       // <-- 2. Tell React Native to load the JS Bundle from Stallion here -->
-      jsBundleFile = Stallion.getJSBundleFile(applicationContext) 
+      jsBundleFilePath = Stallion.getJSBundleFile(applicationContext) 
     )
   }
 

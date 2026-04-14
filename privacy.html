@@ -1,9 +1,161 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr" prefix="og: https://ogp.me/ns#">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Flora — Privacy Policy</title>
+
+    <!-- Primary SEO Meta Tags -->
+    <title>
+      Flora Privacy Policy — 100% Offline Period Tracker | Zero Data Collection
+    </title>
+    <meta
+      name="description"
+      content="Flora's privacy policy explains how your menstrual cycle and pregnancy tracking data stays 100% on your device. Zero data collection, no cloud storage, no analytics — complete privacy by design."
+    />
+    <meta
+      name="keywords"
+      content="Flora privacy policy, period tracker privacy, menstrual cycle app privacy, offline period tracker, no data collection, privacy-first health app, secure cycle tracker, local data storage, GDPR compliant period app, pregnancy tracker privacy"
+    />
+    <meta name="author" content="StewBit" />
+    <meta
+      name="robots"
+      content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+    />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="theme-color" content="#0f0f14" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="application-name" content="Flora" />
+
+    <!-- Canonical URL — UPDATE this to your actual hosted URL -->
+    <link rel="canonical" href="https://stewbit.tech/flora/privacy" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://stewbit.tech/flora/privacy" />
+    <meta
+      property="og:title"
+      content="Flora Privacy Policy — 100% Offline Period Tracker"
+    />
+    <meta
+      property="og:description"
+      content="Your health data never leaves your device. Flora is a privacy-first menstrual cycle and pregnancy tracker with zero data collection."
+    />
+    <meta property="og:site_name" content="Flora by StewBit" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta
+      name="twitter:title"
+      content="Flora Privacy Policy — 100% Offline Period Tracker"
+    />
+    <meta
+      name="twitter:description"
+      content="Your health data never leaves your device. Flora is a privacy-first menstrual cycle and pregnancy tracker with zero data collection."
+    />
+
+    <!-- JSON-LD Structured Data: WebPage -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Flora Privacy Policy",
+        "description": "Privacy policy for Flora, a 100% offline menstrual cycle and pregnancy tracking application. Zero data collection, no cloud storage, complete user privacy.",
+        "url": "https://stewbit.tech/flora/privacy",
+        "inLanguage": "en",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "Flora by StewBit",
+          "url": "https://stewbit.tech/flora"
+        },
+        "about": {
+          "@type": "MobileApplication",
+          "name": "Flora",
+          "operatingSystem": "Android",
+          "applicationCategory": "HealthApplication",
+          "description": "A privacy-first, 100% offline menstrual cycle and pregnancy tracker."
+        },
+        "dateModified": "2026-04-10",
+        "publisher": {
+          "@type": "Organization",
+          "name": "StewBit",
+          "email": "stewbit.tech@gmail.com"
+        }
+      }
+    </script>
+
+    <!-- JSON-LD Structured Data: BreadcrumbList -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Flora",
+            "item": "https://stewbit.tech/flora"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Privacy Policy",
+            "item": "https://stewbit.tech/flora/privacy"
+          }
+        ]
+      }
+    </script>
+
+    <!-- JSON-LD Structured Data: FAQPage -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does Flora collect any personal data?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Flora does not collect, transmit, store on any server, sell, share, or provide access to any personal or health data. The developers have absolutely no ability to see or access your data at any time."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where is my Flora data stored?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "All data is stored exclusively in a local SQLite database on your device hardware. No data is ever transmitted over the internet, to any cloud service, analytics platform, advertising network, or third party of any kind."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What happens to my data if I uninstall Flora?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Because Flora stores all data locally and does not back up your data to any cloud server, uninstalling the app or clearing your device storage will result in the permanent and unrecoverable loss of all your tracked health data."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Flora use any third-party analytics or tracking?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Flora does not integrate with any third-party data collection services. The app does not contain advertisements, analytics SDKs, or social media trackers."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Flora safe for children under 13?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Flora does not knowingly collect data from children under 13. Since no data leaves the device, there is no risk of external data exposure regardless of user age."
+            }
+          }
+        ]
+      }
+    </script>
+
     <style>
       :root {
         --bg: #0f0f14;
@@ -29,6 +181,36 @@
         max-width: 720px;
         margin: 0 auto;
       }
+
+      /* Breadcrumb Navigation */
+      .breadcrumb {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        font-size: 13px;
+        margin-bottom: 24px;
+        padding: 0;
+      }
+      .breadcrumb li {
+        color: var(--muted);
+        margin-bottom: 0;
+        font-size: 13px;
+      }
+      .breadcrumb li + li::before {
+        content: '›';
+        margin-right: 4px;
+        color: var(--border);
+      }
+      .breadcrumb a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+      .breadcrumb a:hover,
+      .breadcrumb a:focus {
+        text-decoration: underline;
+      }
+
       h1 {
         font-size: 28px;
         font-weight: 800;
@@ -36,6 +218,7 @@
         background: linear-gradient(135deg, var(--primary), var(--accent));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
       .subtitle {
         color: var(--muted);
@@ -59,6 +242,39 @@
       }
       li {
         margin-bottom: 8px;
+      }
+
+      /* Table of Contents */
+      .toc {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin: 0 0 32px;
+      }
+      .toc-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
+      .toc ol {
+        padding-left: 20px;
+        margin: 0;
+      }
+      .toc li {
+        margin-bottom: 4px;
+        font-size: 14px;
+      }
+      .toc a {
+        color: var(--primary);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .toc a:hover,
+      .toc a:focus {
+        color: var(--accent);
+        text-decoration: underline;
       }
 
       .warning-box {
@@ -98,6 +314,50 @@
         margin-bottom: 24px;
       }
 
+      /* FAQ Section */
+      .faq-section {
+        margin-top: 40px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+      }
+      .faq-section h2 {
+        margin-top: 0;
+      }
+      .faq-item {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
+      }
+      .faq-item summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--text);
+        font-size: 15px;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .faq-item summary::-webkit-details-marker {
+        display: none;
+      }
+      .faq-item summary::after {
+        content: '+';
+        font-size: 20px;
+        font-weight: 300;
+        color: var(--primary);
+        transition: transform 0.2s;
+      }
+      .faq-item[open] summary::after {
+        content: '−';
+      }
+      .faq-item p {
+        margin-top: 12px;
+        margin-bottom: 0;
+      }
+
       footer {
         margin-top: 48px;
         padding-top: 24px;
@@ -106,107 +366,275 @@
         color: var(--muted);
         font-size: 13px;
       }
+      footer a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+      footer a:hover {
+        text-decoration: underline;
+      }
     </style>
   </head>
   <body>
-    <h1>🌸 Flora Privacy Policy</h1>
-    <p class="subtitle">Last updated: April 10, 2026</p>
-    <span class="badge">100% Offline App</span>
-
-    <h2>1. Overview</h2>
-    <p>
-      Flora is a menstrual cycle and pregnancy tracking application designed to
-      run
-      <strong style="color: var(--text)">entirely offline</strong> on your
-      mobile device. We built Flora with a privacy-first philosophy: your health
-      data belongs to you and only you.
-    </p>
-
-    <div class="info-box">
-      <strong>🔒 Zero Data Collection</strong>
-      <p>
-        Flora does not collect, transmit, store on any server, sell, share, or
-        provide access to any personal or health data. We — the developers —
-        have absolutely no ability to see or access your data at any time.
-      </p>
-    </div>
-
-    <h2>2. Data Storage</h2>
-    <p>
-      All data you enter into Flora is stored exclusively in a local SQLite
-      database on your device hardware. This includes, but is not limited to:
-    </p>
-    <ul>
-      <li>Period start and end dates</li>
-      <li>Cycle length and period length settings</li>
-      <li>Daily symptom, mood, and flow logs</li>
-      <li>User preferences (goal, notification settings)</li>
-    </ul>
-    <p>
-      No data is ever transmitted over the internet, to any cloud service,
-      analytics platform, advertising network, or third party of any kind.
-    </p>
-
-    <div class="warning-box">
-      <strong>⚠️ Critical Data Warning</strong>
-      <p>
-        Because Flora stores all data locally and does <strong>not</strong> back
-        up your data to any cloud server,
-        <strong
-          >uninstalling the app or clearing your device storage will result in
-          the permanent and unrecoverable loss of all your tracked health
-          data.</strong
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="Breadcrumb">
+      <ol
+        class="breadcrumb"
+        itemscope
+        itemtype="https://schema.org/BreadcrumbList"
+      >
+        <li
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
         >
-        We strongly recommend noting important dates separately if you plan to
-        remove the app.
+          <a itemprop="item" href="https://stewbit.tech/flora"
+            ><span itemprop="name">Flora</span></a
+          >
+          <meta itemprop="position" content="1" />
+        </li>
+        <li
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+        >
+          <span itemprop="name" aria-current="page">Privacy Policy</span>
+          <meta itemprop="position" content="2" />
+        </li>
+      </ol>
+    </nav>
+
+    <header>
+      <h1 id="page-title">🌸 Flora Privacy Policy</h1>
+      <p class="subtitle">
+        <time datetime="2026-04-10">Last updated: April 10, 2026</time>
       </p>
-    </div>
+      <span
+        class="badge"
+        role="status"
+        aria-label="Flora is a 100% offline application"
+        >100% Offline App</span
+      >
+    </header>
 
-    <h2>3. What We Do NOT Collect</h2>
-    <ul>
-      <li>No personal identifiers (name, email, phone number)</li>
-      <li>No device identifiers (IMEI, advertising ID)</li>
-      <li>No location data</li>
-      <li>No usage analytics or telemetry</li>
-      <li>No crash reports sent to external services</li>
-      <li>No cookies or tracking technologies</li>
-    </ul>
+    <!-- Table of Contents -->
+    <nav class="toc" aria-label="Table of Contents">
+      <p class="toc-title">On this page</p>
+      <ol>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#data-storage">Data Storage</a></li>
+        <li><a href="#what-we-do-not-collect">What We Do NOT Collect</a></li>
+        <li><a href="#third-party-services">Third-Party Services</a></li>
+        <li><a href="#notifications">Notifications</a></li>
+        <li><a href="#childrens-privacy">Children's Privacy</a></li>
+        <li><a href="#policy-changes">Changes to This Policy</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#faq">Frequently Asked Questions</a></li>
+      </ol>
+    </nav>
 
-    <h2>4. Third-Party Services</h2>
-    <p>
-      Flora does not integrate with any third-party data collection services.
-      The app does not contain advertisements, analytics SDKs, or social media
-      trackers.
-    </p>
+    <main>
+      <article itemscope itemtype="https://schema.org/WebPage">
+        <meta itemprop="name" content="Flora Privacy Policy" />
+        <meta itemprop="dateModified" content="2026-04-10" />
 
-    <h2>5. Notifications</h2>
-    <p>
-      Flora may send local push notifications (e.g., period reminders) if you
-      enable them. These notifications are generated and scheduled entirely on
-      your device using the operating system's local notification APIs. No
-      notification data is sent to any server.
-    </p>
+        <section id="overview" aria-labelledby="heading-overview">
+          <h2 id="heading-overview">1. Overview</h2>
+          <p>
+            Flora is a menstrual cycle and pregnancy tracking application
+            designed to run
+            <strong style="color: var(--text)">entirely offline</strong> on your
+            mobile device. We built Flora with a privacy-first philosophy: your
+            health data belongs to you and only you.
+          </p>
 
-    <h2>6. Children's Privacy</h2>
-    <p>
-      Flora does not knowingly collect data from children under 13. Since no
-      data leaves the device, there is no risk of external data exposure
-      regardless of user age.
-    </p>
+          <aside
+            class="info-box"
+            role="note"
+            aria-label="Zero data collection guarantee"
+          >
+            <strong>🔒 Zero Data Collection</strong>
+            <p>
+              Flora does not collect, transmit, store on any server, sell,
+              share, or provide access to any personal or health data. We — the
+              developers — have absolutely no ability to see or access your data
+              at any time.
+            </p>
+          </aside>
+        </section>
 
-    <h2>7. Changes to This Policy</h2>
-    <p>
-      If we update this policy, the "Last updated" date at the top will change.
-      Significant changes will be communicated through an in-app prompt
-      requesting re-acknowledgment.
-    </p>
+        <section id="data-storage" aria-labelledby="heading-data-storage">
+          <h2 id="heading-data-storage">2. Data Storage</h2>
+          <p>
+            All data you enter into Flora is stored exclusively in a local
+            SQLite database on your device hardware. This includes, but is not
+            limited to:
+          </p>
+          <ul>
+            <li>Period start and end dates</li>
+            <li>Cycle length and period length settings</li>
+            <li>Daily symptom, mood, and flow logs</li>
+            <li>User preferences (goal, notification settings)</li>
+          </ul>
+          <p>
+            No data is ever transmitted over the internet, to any cloud service,
+            analytics platform, advertising network, or third party of any kind.
+          </p>
 
-    <h2>8. Contact</h2>
-    <p>If you have questions about this privacy policy, contact us at:</p>
-    <p><strong style="color: var(--text)">📧 stewbit.tech@gmail.com</strong></p>
+          <aside
+            class="warning-box"
+            role="alert"
+            aria-label="Critical data warning"
+          >
+            <strong>⚠️ Critical Data Warning</strong>
+            <p>
+              Because Flora stores all data locally and does
+              <strong>not</strong> back up your data to any cloud server,
+              <strong
+                >uninstalling the app or clearing your device storage will
+                result in the permanent and unrecoverable loss of all your
+                tracked health data.</strong
+              >
+              We strongly recommend noting important dates separately if you
+              plan to remove the app.
+            </p>
+          </aside>
+        </section>
 
-    <footer>
-      Flora by StewBit · Made with 💜 · Your cycle, your data, your privacy.
+        <section
+          id="what-we-do-not-collect"
+          aria-labelledby="heading-no-collect"
+        >
+          <h2 id="heading-no-collect">3. What We Do NOT Collect</h2>
+          <ul>
+            <li>No personal identifiers (name, email, phone number)</li>
+            <li>No device identifiers (IMEI, advertising ID)</li>
+            <li>No location data</li>
+            <li>No usage analytics or telemetry</li>
+            <li>No crash reports sent to external services</li>
+            <li>No cookies or tracking technologies</li>
+          </ul>
+        </section>
+
+        <section
+          id="third-party-services"
+          aria-labelledby="heading-third-party"
+        >
+          <h2 id="heading-third-party">4. Third-Party Services</h2>
+          <p>
+            Flora does not integrate with any third-party data collection
+            services. The app does not contain advertisements, analytics SDKs,
+            or social media trackers.
+          </p>
+        </section>
+
+        <section id="notifications" aria-labelledby="heading-notifications">
+          <h2 id="heading-notifications">5. Notifications</h2>
+          <p>
+            Flora may send local push notifications (e.g., period reminders) if
+            you enable them. These notifications are generated and scheduled
+            entirely on your device using the operating system's local
+            notification APIs. No notification data is sent to any server.
+          </p>
+        </section>
+
+        <section id="childrens-privacy" aria-labelledby="heading-children">
+          <h2 id="heading-children">6. Children's Privacy</h2>
+          <p>
+            Flora does not knowingly collect data from children under 13. Since
+            no data leaves the device, there is no risk of external data
+            exposure regardless of user age.
+          </p>
+        </section>
+
+        <section id="policy-changes" aria-labelledby="heading-changes">
+          <h2 id="heading-changes">7. Changes to This Policy</h2>
+          <p>
+            If we update this policy, the "Last updated" date at the top will
+            change. Significant changes will be communicated through an in-app
+            prompt requesting re-acknowledgment.
+          </p>
+        </section>
+
+        <section id="contact" aria-labelledby="heading-contact">
+          <h2 id="heading-contact">8. Contact</h2>
+          <p>If you have questions about this privacy policy, contact us at:</p>
+          <address>
+            <p>
+              <strong style="color: var(--text)"
+                >📧
+                <a
+                  href="mailto:stewbit.tech@gmail.com"
+                  style="color: var(--primary); text-decoration: none"
+                  >stewbit.tech@gmail.com</a
+                ></strong
+              >
+            </p>
+          </address>
+        </section>
+
+        <!-- FAQ Section for rich snippets -->
+        <section id="faq" class="faq-section" aria-labelledby="heading-faq">
+          <h2 id="heading-faq">Frequently Asked Questions</h2>
+
+          <details class="faq-item" id="faq-data-collection">
+            <summary>Does Flora collect any personal data?</summary>
+            <p>
+              No. Flora does not collect, transmit, store on any server, sell,
+              share, or provide access to any personal or health data. The
+              developers have absolutely no ability to see or access your data
+              at any time.
+            </p>
+          </details>
+
+          <details class="faq-item" id="faq-data-storage">
+            <summary>Where is my Flora data stored?</summary>
+            <p>
+              All data is stored exclusively in a local SQLite database on your
+              device hardware. No data is ever transmitted over the internet, to
+              any cloud service, analytics platform, advertising network, or
+              third party of any kind.
+            </p>
+          </details>
+
+          <details class="faq-item" id="faq-uninstall">
+            <summary>What happens to my data if I uninstall Flora?</summary>
+            <p>
+              Because Flora stores all data locally and does not back up your
+              data to any cloud server, uninstalling the app or clearing your
+              device storage will result in the permanent and unrecoverable loss
+              of all your tracked health data.
+            </p>
+          </details>
+
+          <details class="faq-item" id="faq-third-party">
+            <summary>
+              Does Flora use any third-party analytics or tracking?
+            </summary>
+            <p>
+              No. Flora does not integrate with any third-party data collection
+              services. The app does not contain advertisements, analytics SDKs,
+              or social media trackers.
+            </p>
+          </details>
+
+          <details class="faq-item" id="faq-children">
+            <summary>Is Flora safe for children under 13?</summary>
+            <p>
+              Flora does not knowingly collect data from children under 13.
+              Since no data leaves the device, there is no risk of external data
+              exposure regardless of user age.
+            </p>
+          </details>
+        </section>
+      </article>
+    </main>
+
+    <footer role="contentinfo">
+      <p>
+        Flora by <a href="https://stewbit.com" rel="noopener">StewBit</a> · Made
+        with 💜 · Your cycle, your data, your privacy.
+      </p>
     </footer>
   </body>
 </html>
