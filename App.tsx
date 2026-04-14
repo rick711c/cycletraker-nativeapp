@@ -24,6 +24,8 @@ import InsightsPage from './src/pages/InsightsPage';
 import SettingsPage from './src/pages/SettingsPage';
 import CycleHistoryPage from './src/pages/CycleHistoryPage';
 import PrivacyConsentScreen, { PRIVACY_STORAGE_KEY } from './src/pages/PrivacyConsentScreen';
+import { withStallion } from 'react-native-stallion';
+
 
 const REQUIRED_PRIVACY_VERSION = '1';
 
@@ -58,9 +60,9 @@ class ErrorBoundary extends React.Component<any, { error: Error | null }> {
 
 // ── Main App ─────────────────────────────────────────────────────────────────
 
-export default function App() {
+const app = function App() {
   const scheme = useColorScheme();
-  const theme  = scheme === 'dark' ? floraDarkTheme : floraLightTheme;
+  const theme = scheme === 'dark' ? floraDarkTheme : floraLightTheme;
   const [dbReady, setDbReady] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState<boolean | null>(null);
 
@@ -120,12 +122,12 @@ export default function App() {
                     screenOptions={{ headerShown: false, animation: 'none' }}
                   >
                     <Stack.Screen name="PrivacyConsent" component={PrivacyConsentScreen} />
-                    <Stack.Screen name="Home"       component={Home} />
+                    <Stack.Screen name="Home" component={Home} />
                     <Stack.Screen name="Onboarding" component={Onboarding} />
-                    <Stack.Screen name="Calendar"   component={CalendarPage} />
-                    <Stack.Screen name="Log"        component={LogPage} />
-                    <Stack.Screen name="Insights"   component={InsightsPage} />
-                    <Stack.Screen name="Settings"   component={SettingsPage} />
+                    <Stack.Screen name="Calendar" component={CalendarPage} />
+                    <Stack.Screen name="Log" component={LogPage} />
+                    <Stack.Screen name="Insights" component={InsightsPage} />
+                    <Stack.Screen name="Settings" component={SettingsPage} />
                     <Stack.Screen
                       name="CycleHistory"
                       component={CycleHistoryPage}
@@ -141,3 +143,5 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+
+export default withStallion(app);
