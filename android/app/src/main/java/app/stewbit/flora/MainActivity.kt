@@ -1,4 +1,4 @@
-package com.stewbit.flora
+package app.stewbit.flora
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

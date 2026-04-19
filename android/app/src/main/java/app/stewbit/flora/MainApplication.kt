@@ -1,4 +1,4 @@
-package com.stewbit.flora
+package app.stewbit.flora
 
 import android.app.Application
 import com.facebook.react.PackageList
