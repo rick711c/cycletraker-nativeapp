@@ -28,7 +28,7 @@ export function CycleRing({
 }: CycleRingProps) {
   const theme = useTheme();
 
-  const progress = (dayInCycle / cycleLength) * 100;
+const progress = Math.min((dayInCycle / cycleLength) * 100, 100);
   const circumference = 2 * Math.PI * 45;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
@@ -62,8 +62,8 @@ export function CycleRing({
     <View style={styles.container}>
       <View style={styles.ringContainer}>
         <Svg
-          width="100%"
-          height="100%"
+          width={208}
+          height={208}
           viewBox="0 0 100 100"
           style={{ transform: [{ rotate: '-90deg' }] }}
         >
@@ -99,8 +99,8 @@ export function CycleRing({
             fill="none"
             stroke={theme.colors.outline}
             strokeWidth="2"
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
+            strokeDasharray={`${circumference}`}
+            strokeDashoffset={`${strokeDashoffset}`}
             strokeLinecap="round"
           />
         </Svg>
