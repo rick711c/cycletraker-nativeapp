@@ -5,24 +5,21 @@
  * Uses the built-in Vibration API (works on all Android devices).
  */
 
-import { Vibration } from 'react-native';
+import * as Haptics from 'expo-haptics';
 
 /** Light tap — for toggles, checkbox, tab switches */
 export function hapticLight() {
-  Vibration.vibrate(15);
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 }
 
-/** Medium tap — for button presses, confirmations */
 export function hapticMedium() {
-  Vibration.vibrate(30);
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 }
 
-/** Success — for completed actions (period logged, onboarding done) */
 export function hapticSuccess() {
-  Vibration.vibrate([0, 20, 80, 20]);
+  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 }
 
-/** Warning — for destructive confirmations (clear data) */
 export function hapticWarning() {
-  Vibration.vibrate(50);
+  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 }
