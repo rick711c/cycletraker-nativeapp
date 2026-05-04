@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import Icon from '../ui/Icon';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppSelector } from '../../store';
 import { selectCycles } from '../../store/cycleSlice';
 import { cyclePhaseColors } from '../../theme/muiTheme';
@@ -21,7 +22,11 @@ export function CycleHistory() {
   if (cycleHistory.length === 0) {
     return (
       <View style={styles.emptyState}>
-        <Icon icon="calendar-blank-outline" size={40} color={theme.colors.onSurfaceVariant} />
+        <MaterialCommunityIcons
+        name="calendar-blank-outline"
+        size={40}
+        color={theme.colors.onSurfaceVariant}
+        />
         <Text
           variant="bodyMedium"
           style={{ color: theme.colors.onSurfaceVariant, marginTop: 12, textAlign: 'center' }}
@@ -84,7 +89,11 @@ export function CycleHistory() {
             <View style={styles.statsRow}>
               {cycle.length != null && (
                 <View style={styles.stat}>
-                  <Icon icon="swap-horizontal" size={13} color={theme.colors.onSurfaceVariant} />
+                  <MaterialCommunityIcons
+                  name="swap-horizontal"
+                  size={13}
+                  color={theme.colors.onSurfaceVariant}
+                  />
                   <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, marginLeft: 3 }}>
                     {cycle.length}d cycle
                   </Text>
@@ -92,7 +101,11 @@ export function CycleHistory() {
               )}
               {periodDuration != null && (
                 <View style={styles.stat}>
-                  <Icon icon="water-outline" size={13} color={cyclePhaseColors.menstruation} />
+                  <MaterialCommunityIcons
+                  name="water-outline"
+                  size={13}
+                  color={cyclePhaseColors.menstruation}
+                  />
                   <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, marginLeft: 3 }}>
                     {periodDuration}d period
                   </Text>
@@ -100,7 +113,11 @@ export function CycleHistory() {
               )}
               {isActive && !cycle.length && (
                 <View style={styles.stat}>
-                  <Icon icon="clock-outline" size={13} color="#4CAF50" />
+                  <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={13}
+                  color="#4CAF50"
+                  />
                   <Text variant="labelSmall" style={{ color: '#4CAF50', marginLeft: 3 }}>
                     In progress
                   </Text>
