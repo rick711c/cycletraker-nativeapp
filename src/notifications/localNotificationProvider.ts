@@ -6,72 +6,51 @@
  * the same NotificationProvider interface — nothing else changes.
  */
 
-import notifee, {
-  AndroidImportance,
-  TimestampTrigger,
-  TriggerType,
-  AuthorizationStatus,
-} from '@notifee/react-native';
+import * as Notifications from 'expo-notifications';
 import type { NotificationProvider, ScheduledNotification } from './notificationTypes';
 
-const CHANNEL_ID = 'flora-cycle-reminders';
-const CHANNEL_NAME = 'Cycle Reminders';
-
-let channelCreated = false;
-
-async function ensureChannel(): Promise<void> {
-  if (channelCreated) return;
-  await notifee.createChannel({
-    id: CHANNEL_ID,
-    name: CHANNEL_NAME,
-    importance: AndroidImportance.HIGH,
-    description: 'Reminders for your menstrual cycle events',
-  });
-  channelCreated = true;
-}
+// Configure how notifications behave when received
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound:true,
+    shouldShowSound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 // ---------------------------------------------------------------------------
-// Provider implementation
+// Provider implementation (Expo version)
 // ---------------------------------------------------------------------------
 
 export const localNotificationProvider: NotificationProvider = {
   async requestPermission(): Promise<boolean> {
-    const settings = await notifee.requestPermission();
-    return (
-      settings.authorizationStatus === AuthorizationStatus.AUTHORIZED ||
-      settings.authorizationStatus === AuthorizationStatus.PROVISIONAL
-    );
+    const { status } = await Notifications.requestPermissionsAsync();
+    return status === 'granted';
   },
 
   async scheduleNotification(n: ScheduledNotification): Promise<void> {
-    await ensureChannel();
-
-    const trigger: TimestampTrigger = {
-      type: TriggerType.TIMESTAMP,
-      timestamp: n.scheduledAt.getTime(),
-    };
-
-    await notifee.createTriggerNotification(
-      {
-        id: n.id,
+    await Notifications.scheduleNotificationAsync({
+      identifier: n.id,
+      content: {
         title: n.title,
         body: n.body,
-        android: {
-          channelId: CHANNEL_ID,
-          importance: AndroidImportance.HIGH,
-          smallIcon: 'ic_launcher', // uses app icon
-          pressAction: { id: 'default' },
-        },
+        sound: true,
       },
-      trigger,
-    );
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: n.scheduledAt,
+      },
+    });
   },
 
   async cancelAll(): Promise<void> {
-    await notifee.cancelAllNotifications();
+    await Notifications.cancelAllScheduledNotificationsAsync();
   },
 
   async cancelById(id: string): Promise<void> {
-    await notifee.cancelNotification(id);
+    await Notifications.cancelScheduledNotificationAsync(id);
   },
 };
