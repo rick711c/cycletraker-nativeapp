@@ -1,29 +1,40 @@
 /**
- * SQLite Database Singleton — powered by @op-engineering/op-sqlite
+ * SQLite Database Singleton — powered by expo-sqlite
  *
- * op-sqlite uses JSI for near-native performance and supports modern Gradle.
+ * expo-sqlite works inside Expo Go (no custom native code required).
+ * Note: Unlike @op-engineering/op-sqlite, this does NOT use JSI,
+ * so performance is slightly lower but perfectly fine for most apps.
+ *
  * Call initDatabase() once at app startup before any API calls.
  */
 
-import { OPSQLite, DB } from '@op-engineering/op-sqlite';
+import * as SQLite from 'expo-sqlite';
 
-let db: DB | null = null;
+let db: SQLite.SQLiteDatabase | null = null;
 
 /** Return the open DB instance, throwing if not yet initialised. */
-export function getDB(): DB {
+export function getDB(): SQLite.SQLiteDatabase {
   if (!db) {
     throw new Error('Database not initialised — call initDatabase() first');
   }
   return db;
 }
 
-/** Open the database and create all tables if they don't exist. */
+/**
+ * Open the database and create all tables if they don't exist.
+ *
+ * Important differences from op-sqlite:
+ * - Uses openDatabaseSync() instead of OPSQLite.open()
+ * - Uses execAsync() instead of execute()
+ */
 export async function initDatabase(): Promise<void> {
   if (db) return; // already open
 
-  db = OPSQLite.open({ name: 'flora.db' });
+  // Open database (Expo way)
+  db = SQLite.openDatabaseSync('flora.db');
 
-  await db.execute(`
+  // Create all tables in a single batch
+  await db.execAsync(`
     CREATE TABLE IF NOT EXISTS settings (
       id                    INTEGER PRIMARY KEY DEFAULT 1,
       average_cycle_length  INTEGER NOT NULL DEFAULT 28,
@@ -31,19 +42,15 @@ export async function initDatabase(): Promise<void> {
       last_period_date      TEXT    NOT NULL DEFAULT (date('now')),
       goal                  TEXT    NOT NULL DEFAULT 'track',
       notifications_enabled INTEGER NOT NULL DEFAULT 1
-    )
-  `);
+    );
 
-  await db.execute(`
     CREATE TABLE IF NOT EXISTS cycles (
       id         INTEGER PRIMARY KEY AUTOINCREMENT,
       start_date TEXT    NOT NULL UNIQUE,
       end_date   TEXT,
       length     INTEGER
-    )
-  `);
+    );
 
-  await db.execute(`
     CREATE TABLE IF NOT EXISTS day_logs (
       id             INTEGER PRIMARY KEY AUTOINCREMENT,
       date           TEXT    NOT NULL UNIQUE,
@@ -54,22 +61,32 @@ export async function initDatabase(): Promise<void> {
       notes          TEXT,
       sleep_hours    REAL,
       water_intake   REAL
-    )
+    );
   `);
 }
 
-/** Wipe all user data from every table (used by "Clear All Data" in Settings). */
+/**
+ * Wipe all user data from every table
+ * (used by "Clear All Data" in Settings).
+ *
+ * Note:
+ * - expo-sqlite uses runAsync() for mutations (INSERT, UPDATE, DELETE)
+ */
 export async function clearAllData(): Promise<void> {
   const d = getDB();
-  await d.execute('DELETE FROM day_logs');
-  await d.execute('DELETE FROM cycles');
-  await d.execute('DELETE FROM settings');
+
+  await d.runAsync('DELETE FROM day_logs');
+  await d.runAsync('DELETE FROM cycles');
+  await d.runAsync('DELETE FROM settings');
 }
 
-/** Close the database (call on app teardown if needed). */
+/**
+ * Close the database (call on app teardown if needed).
+ *
+ * Note:
+ * - expo-sqlite does NOT require explicit close()
+ * - We simply reset the reference
+ */
 export function closeDatabase(): void {
-  if (db) {
-    db.close();
-    db = null;
-  }
+  db = null;
 }
