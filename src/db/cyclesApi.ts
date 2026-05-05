@@ -8,17 +8,21 @@ import { CycleData } from '../types/cycle';
 function rowToCycle(row: Record<string, any>): CycleData {
   return {
     startDate: row.start_date as string,
-    endDate:   (row.end_date as string)  ?? undefined,
-    length:    (row.length   as number)  ?? undefined,
+    endDate: (row.end_date as string) ?? undefined,
+    length: (row.length as number) ?? undefined,
   };
 }
 
 /** Fetch all cycles ordered by start date ascending. */
 export async function getAllCycles(): Promise<CycleData[]> {
-  const result = await getDB().execute(
-    'SELECT * FROM cycles ORDER BY start_date ASC',
+  const db = getDB();
+
+  // expo-sqlite uses getAllAsync() for SELECT queries
+  const rows = await db.getAllAsync(
+    'SELECT * FROM cycles ORDER BY start_date ASC'
   );
-  return (result.rows ?? []).map(rowToCycle);
+
+  return rows.map(rowToCycle);
 }
 
 /**
@@ -26,10 +30,14 @@ export async function getAllCycles(): Promise<CycleData[]> {
  * INSERT OR IGNORE is safe to call multiple times with the same startDate.
  */
 export async function insertCycle(startDate: string): Promise<CycleData> {
-  await getDB().execute(
+  const db = getDB();
+
+  // expo-sqlite uses runAsync() for INSERT
+  await db.runAsync(
     'INSERT OR IGNORE INTO cycles (start_date) VALUES (?)',
-    [startDate],
+    [startDate]
   );
+
   return { startDate };
 }
 
@@ -39,13 +47,22 @@ export async function updateCycle(
   endDate: string,
   length: number,
 ): Promise<void> {
-  await getDB().execute(
+  const db = getDB();
+
+  // expo-sqlite uses runAsync() for UPDATE
+  await db.runAsync(
     'UPDATE cycles SET end_date = ?, length = ? WHERE start_date = ?',
-    [endDate, length, startDate],
+    [endDate, length, startDate]
   );
 }
 
 /** Delete a cycle by its start date. */
 export async function deleteCycle(startDate: string): Promise<void> {
-  await getDB().execute('DELETE FROM cycles WHERE start_date = ?', [startDate]);
+  const db = getDB();
+
+  // expo-sqlite uses runAsync() for DELETE
+  await db.runAsync(
+    'DELETE FROM cycles WHERE start_date = ?',
+    [startDate]
+  );
 }
