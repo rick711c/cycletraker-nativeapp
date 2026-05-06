@@ -1,4 +1,35 @@
 {
-  "name": "Flora",
-  "displayName": "Flora"
+  "expo": {
+    "name": "Flora",
+    "slug": "flora",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/app_icon.jpeg",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "scheme": "flora",
+    "splash": {
+      "image": "./src/assets/app_icon.jpeg",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "bundleIdentifier": "app.stewbit.flora",
+      "supportsTablet": false
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/app_icon.jpeg",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "app.stewbit.flora",
+      "softwareKeyboardLayoutMode": "resize"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-notifications",
+      "expo-splash-screen"
+    ]
+  }
 }

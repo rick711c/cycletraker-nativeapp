@@ -1,91 +1,70 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import Icon from '../components/ui/Icon';
-import { useNavigation } from '@react-navigation/native';
 import { CycleRing } from '../components/cycle/CycleRing';
 import { SmartDailyInsight } from '../components/cycle/SmartDailyInsight';
 import { AppMode } from '../types/insight';
 import { QuickActions } from '../components/cycle/QuickActions';
 import { UpcomingEvents } from '../components/cycle/UpcomingEvents';
-import { MobileLayout } from '../components/layout/MobileLayout';
 import { useAppSelector } from '../store';
-import { selectIsOnboarded, selectCycleStats, selectSettings } from '../store/cycleSlice';
+import { selectCycleStats, selectSettings } from '../store/cycleSlice';
 
 export default function Home() {
   const theme = useTheme();
-  const navigation = useNavigation();
-  const isOnboarded = useAppSelector(selectIsOnboarded);
   const stats = useAppSelector(selectCycleStats);
   const settings = useAppSelector(selectSettings);
   const appMode: AppMode = settings.goal === 'conceive' ? 'tryToConceive' : (settings.goal === 'pregnancy' ? 'trackPregnancy' : 'trackCycle');
 
 
-  // React Native navigation redirection pattern
-  useEffect(() => {
-    if (!isOnboarded) {
-      // Ensure 'Onboarding' is defined in your navigation stack
-      // Using 'reset' prevents going back to Home with the back button
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Onboarding' as never }],
-      });
-    }
-  }, [isOnboarded, navigation]);
-
-  if (!isOnboarded) {
-    return null; // Render nothing while redirecting
-  }
-
-
   return (
-    <MobileLayout>
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.brandContainer}>
-            {/* 'flower' is a common MaterialCommunityIcon equivalent to LocalFlorist */}
-            <Icon icon="flower" size={28} color={theme.colors.primary} />
-            <Text variant="headlineSmall" style={styles.brandText}>
-              Flora
-            </Text>
-          </View>
-          <View style={styles.dateContainer}>
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-              Today
-            </Text>
-            <Text variant="bodyMedium" style={[styles.dateText, { color: theme.colors.onSurface }]}>
-              {new Date().toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-              })}
-            </Text>
-          </View>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      contentContainerStyle={styles.container}
+    >
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.brandContainer}>
+          <Icon icon="flower" size={28} color={theme.colors.primary} />
+          <Text variant="headlineSmall" style={styles.brandText}>
+            Flora
+          </Text>
         </View>
-
-        {/* Cycle Ring */}
-        <View style={styles.sectionPadding}>
-          <CycleRing
-            dayInCycle={stats.dayInCycle}
-            cycleLength={stats.averageCycleLength}
-            currentPhase={stats.currentPhase}
-            periodLength={stats.averagePeriodLength}
-          />
-        </View>
-
-        {/* Quick Actions */}
-        <QuickActions />
-
-        {/* Upcoming Events */}
-        <UpcomingEvents stats={stats} />
-
-        {/* Daily Insight */}
-        <View style={styles.insightContainer}>
-          <SmartDailyInsight dayInCycle={stats.dayInCycle} appMode={appMode} />
+        <View style={styles.dateContainer}>
+          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+            Today
+          </Text>
+          <Text variant="bodyMedium" style={[styles.dateText, { color: theme.colors.onSurface }]}>
+            {new Date().toLocaleDateString('en-US', {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
+            })}
+          </Text>
         </View>
       </View>
-    </MobileLayout>
+
+      {/* Cycle Ring */}
+      <View style={styles.sectionPadding}>
+        <CycleRing
+          dayInCycle={stats.dayInCycle}
+          cycleLength={stats.averageCycleLength}
+          currentPhase={stats.currentPhase}
+          periodLength={stats.averagePeriodLength}
+        />
+      </View>
+
+      {/* Quick Actions */}
+      <QuickActions />
+
+      {/* Upcoming Events */}
+      <UpcomingEvents stats={stats} />
+
+      {/* Daily Insight */}
+      <View style={styles.insightContainer}>
+        <SmartDailyInsight dayInCycle={stats.dayInCycle} appMode={appMode} />
+      </View>
+    </ScrollView>
   );
 }
 

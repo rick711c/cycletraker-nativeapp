@@ -1,23 +1,24 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import Icon from '../components/ui/Icon';
-import { MobileLayout } from '../components/layout/MobileLayout';
 import { CycleHistory } from '../components/cycle/CycleHistory';
 
 export default function CycleHistoryPage() {
   const theme = useTheme();
-  const navigation = useNavigation();
+  const router = useRouter();
 
   return (
-    <MobileLayout>
-      <View style={styles.container}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      contentContainerStyle={styles.container}
+    >
         {/* Top bar with back button */}
         <View style={styles.topBar}>
           <TouchableOpacity
             style={[styles.backButton, { backgroundColor: theme.colors.surfaceVariant }]}
-            onPress={() => navigation.goBack()}
+            onPress={() => router.back()}
             activeOpacity={0.7}
           >
             <Icon icon="arrow-left" size={22} color={theme.colors.onSurface} />
@@ -30,8 +31,7 @@ export default function CycleHistoryPage() {
 
         {/* CycleHistory component */}
         <CycleHistory />
-      </View>
-    </MobileLayout>
+    </ScrollView>
   );
 }
 

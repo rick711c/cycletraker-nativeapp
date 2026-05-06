@@ -1,5 +1,5 @@
 import React from 'react';
-import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { StyleProp, TextStyle } from 'react-native';
 
 type Props = {
@@ -12,5 +12,5 @@ type Props = {
 
 export default function Icon({ icon, name, size = 24, color, style }: Props) {
   const iconName = (icon || name) as any;
-  return <MaterialDesignIcons name={iconName} size={size} color={color} style={style} />;
+  return <MaterialCommunityIcons name={iconName} size={size} color={color} style={style} />;
 }

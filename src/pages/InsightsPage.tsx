@@ -1,16 +1,15 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card, useTheme } from 'react-native-paper';
 import Icon from '../components/ui/Icon';
-import { useNavigation } from '@react-navigation/native';
-import { MobileLayout } from '../components/layout/MobileLayout';
+import { useRouter } from 'expo-router';
 import { useAppSelector } from '../store';
 import { selectCycleStats, selectCycles, selectDayLogs } from '../store/cycleSlice';
 import { chartColors, cyclePhaseColors } from '../theme/muiTheme';
 
 export default function InsightsPage() {
   const theme = useTheme();
-  const navigation = useNavigation();
+  const router = useRouter();
   const stats = useAppSelector(selectCycleStats);
   const cycles = useAppSelector(selectCycles);
   const dayLogs = useAppSelector(selectDayLogs);
@@ -61,7 +60,7 @@ export default function InsightsPage() {
       label: 'Cycles Tracked',
       value: insights.totalCycles.toString(),
       color: chartColors.chart2,
-      onPress: () => navigation.navigate('CycleHistory' as never),
+      onPress: () => router.push('/insights/cycle-history'),
     },
     {
       icon: 'chart-line',
@@ -80,8 +79,10 @@ export default function InsightsPage() {
   ];
 
   return (
-    <MobileLayout>
-      <View style={styles.container}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      contentContainerStyle={styles.container}
+    >
         <View style={styles.header}>
           <Text variant="headlineSmall" style={styles.headerTitle}>
             Insights
@@ -193,8 +194,7 @@ export default function InsightsPage() {
             </Text>
           </Card.Content>
         </Card>
-      </View>
-    </MobileLayout>
+    </ScrollView>
   );
 }
 

@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Text, Card, Button, TextInput, useTheme, Snackbar, Portal } from 'react-native-paper';
 import Icon from '../components/ui/Icon';
 import { format } from 'date-fns';
-import { MobileLayout } from '../components/layout/MobileLayout';
+
 import { useAppSelector, useAppDispatch } from '../store';
 import { selectDayLogs, addDayLogRequest } from '../store/cycleSlice';
 import { FlowIntensity, Mood, PhysicalSymptom, DayLog } from '../types/cycle';
@@ -84,8 +84,7 @@ export default function LogPage() {
   };
 
   return (
-    <MobileLayout>
-      <View style={styles.pageWrapper}>
+    <View style={[styles.pageWrapper, { backgroundColor: theme.colors.background }]}>
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.header}>
             <Text variant="headlineSmall" style={styles.headerTitle}>
@@ -268,8 +267,7 @@ export default function LogPage() {
           </Button>
         </View>
 
-      </View>
-    </MobileLayout>
+    </View>
   );
 }
 

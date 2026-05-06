@@ -22,7 +22,7 @@ import {
 } from 'react-native-paper';
 import { Calendar } from 'react-native-calendars';
 import Icon from '../components/ui/Icon';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { format, subDays } from 'date-fns';
 
 // If this asset import fails in your RN setup, replace with: { uri: 'https://placeholder.url/image.jpg' }
@@ -42,7 +42,7 @@ interface OnboardingData {
 }
 
 export default function Onboarding() {
-  const navigation = useNavigation();
+  const router = useRouter();
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const insets = useSafeAreaInsets();
@@ -60,10 +60,7 @@ export default function Onboarding() {
     hapticSuccess();
     dispatch(updateSettingsRequest(data));
     dispatch(setOnboarded(true));
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Home' as never }],
-    });
+    router.replace('/(tabs)');
   };
 
   const steps: Step[] = [

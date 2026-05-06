@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Text, Card, Switch, Divider, Avatar, useTheme, Snackbar, Portal } from 'react-native-paper';
 import Icon from '../components/ui/Icon';
-import { useNavigation } from '@react-navigation/native';
-import { MobileLayout } from '../components/layout/MobileLayout';
+import { useRouter } from 'expo-router';
+import 'expo-sqlite/localStorage/install';
 import { useAppSelector, useAppDispatch } from '../store';
 import { selectSettings, updateSettingsRequest, setOnboarded } from '../store/cycleSlice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { clearAllData } from '../db/database';
 import { cancelAllNotifications } from '../notifications/notificationService';
 import { hapticLight, hapticWarning } from '../lib/haptics';
@@ -14,7 +13,7 @@ import { hapticLight, hapticWarning } from '../lib/haptics';
 
 
 export default function SettingsPage() {
-  const navigation = useNavigation();
+  const router = useRouter();
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const settings = useAppSelector(selectSettings);
@@ -42,8 +41,8 @@ export default function SettingsPage() {
               hapticWarning();
               await clearAllData();
 
-              // 2. Clear AsyncStorage (redux-persist cache + privacy consent)
-              await AsyncStorage.clear();
+              // 2. Clear localStorage (redux-persist cache + privacy consent)
+              localStorage.clear();
 
               // 3. Cancel all scheduled notifications
               await cancelAllNotifications();
@@ -51,11 +50,8 @@ export default function SettingsPage() {
               // 4. Reset Redux state
               dispatch(setOnboarded(false));
 
-              // 5. Navigate to onboarding
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'PrivacyConsent' as never }],
-              });
+              // 5. Navigate to privacy consent
+              router.replace('/privacy-consent');
             } catch (error) {
               console.error('Failed to clear data', error);
             }
@@ -101,8 +97,10 @@ export default function SettingsPage() {
   ];
 
   return (
-    <MobileLayout>
-      <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      contentContainerStyle={styles.container}
+    >
         <View style={styles.header}>
           <Text variant="headlineSmall" style={styles.headerTitle}>
             Settings
@@ -259,8 +257,7 @@ export default function SettingsPage() {
             {snackbarMessage}
           </Snackbar>
         </Portal>
-      </ScrollView>
-    </MobileLayout>
+    </ScrollView>
   );
 }
 

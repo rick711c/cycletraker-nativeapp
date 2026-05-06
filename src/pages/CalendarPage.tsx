@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Text, IconButton, Card, Divider, useTheme } from 'react-native-paper';
 import Icon from '../components/ui/Icon';
 import {
@@ -16,7 +16,7 @@ import {
   parseISO,
   differenceInDays,
 } from 'date-fns';
-import { MobileLayout } from '../components/layout/MobileLayout';
+
 import { useAppSelector } from '../store';
 import { selectDayLogs, selectSettings, getPhaseForDate } from '../store/cycleSlice';
 import { CyclePhase } from '../types/cycle';
@@ -69,8 +69,10 @@ export default function CalendarPage() {
   };
 
   return (
-    <MobileLayout>
-      <View style={styles.container}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      contentContainerStyle={styles.container}
+    >
 
         {/* Month Navigation */}
         <View style={styles.header}>
@@ -245,8 +247,7 @@ export default function CalendarPage() {
             </View>
           </Card.Content>
         </Card>
-      </View>
-    </MobileLayout>
+    </ScrollView>
   );
 }
 

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Linking, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Button, Checkbox, useTheme } from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
+import 'expo-sqlite/localStorage/install';
 import Icon from '../components/ui/Icon';
 import { hapticLight, hapticSuccess } from '../lib/haptics';
 
@@ -21,7 +21,7 @@ const PRIVACY_URL = 'https://dazzling-malasada-023241.netlify.app/';
 
 export default function PrivacyConsentScreen() {
   const theme = useTheme();
-  const navigation = useNavigation();
+  const router = useRouter();
   const [accepted, setAccepted] = useState(false);
 
   const toggleAccepted = () => {
@@ -29,13 +29,10 @@ export default function PrivacyConsentScreen() {
     setAccepted(!accepted);
   };
 
-  const handleContinue = async () => {
+  const handleContinue = () => {
     hapticSuccess();
-    await AsyncStorage.setItem(PRIVACY_STORAGE_KEY, PRIVACY_VERSION);
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Home' as never }],
-    });
+    localStorage.setItem(PRIVACY_STORAGE_KEY, PRIVACY_VERSION);
+    router.replace('/(tabs)');
   };
 
   const openPrivacyPolicy = () => {
