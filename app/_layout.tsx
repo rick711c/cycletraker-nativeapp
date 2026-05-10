@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { View, ActivityIndicator, useColorScheme, StatusBar } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider } from 'react-redux';
@@ -15,6 +16,20 @@ import { initializeNotifications, requestNotificationPermission } from '@/notifi
 import { PRIVACY_STORAGE_KEY } from '@/pages/PrivacyConsentScreen';
 import { useAppSelector } from '@/store';
 import { selectIsOnboarded } from '@/store/cycleSlice';
+
+// ---------------------------------------------------------------------------
+// Privacy context — lets PrivacyConsentScreen update layout-level state
+// ---------------------------------------------------------------------------
+
+type PrivacyContextType = {
+  markPrivacyAccepted: () => void;
+};
+
+const PrivacyContext = createContext<PrivacyContextType>({
+  markPrivacyAccepted: () => {},
+});
+
+export const usePrivacy = () => useContext(PrivacyContext);
 
 const REQUIRED_PRIVACY_VERSION = '1';
 const queryClient = new QueryClient();
@@ -82,18 +97,20 @@ function InnerLayout() {
   }
 
   return (
-    <PaperProvider theme={theme}>
-      <StatusBar
-        barStyle={theme.dark ? 'light-content' : 'dark-content'}
-        backgroundColor={theme.colors.background}
-      />
-      <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="privacy-consent" />
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </PaperProvider>
+    <PrivacyContext.Provider value={{ markPrivacyAccepted: () => setPrivacyAccepted(true) }}>
+      <PaperProvider theme={theme}>
+        <StatusBar
+          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          backgroundColor={theme.colors.background}
+        />
+        <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="privacy-consent" />
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </PaperProvider>
+    </PrivacyContext.Provider>
   );
 }
 
@@ -102,12 +119,14 @@ function InnerLayout() {
  */
 export default function RootLayout() {
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <QueryClientProvider client={queryClient}>
-          <InnerLayout />
-        </QueryClientProvider>
-      </PersistGate>
-    </Provider>
+    <SafeAreaProvider>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <QueryClientProvider client={queryClient}>
+            <InnerLayout />
+          </QueryClientProvider>
+        </PersistGate>
+      </Provider>
+    </SafeAreaProvider>
   );
 }

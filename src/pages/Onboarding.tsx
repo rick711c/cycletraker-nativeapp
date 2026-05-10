@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
   StyleSheet,
@@ -112,8 +112,9 @@ export default function Onboarding() {
   ] as const;
 
   return (
-    <View
+    <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
+      edges={['top', 'bottom']}
     >
       {/* Header with image */}
       <View style={styles.imageContainer}>
@@ -476,7 +477,7 @@ export default function Onboarding() {
           </Button>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 

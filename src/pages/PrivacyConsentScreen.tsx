@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import 'expo-sqlite/localStorage/install';
 import Icon from '../components/ui/Icon';
 import { hapticLight, hapticSuccess } from '../lib/haptics';
+import { usePrivacy } from '../../app/_layout';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -22,6 +23,7 @@ const PRIVACY_URL = 'https://dazzling-malasada-023241.netlify.app/';
 export default function PrivacyConsentScreen() {
   const theme = useTheme();
   const router = useRouter();
+  const { markPrivacyAccepted } = usePrivacy();
   const [accepted, setAccepted] = useState(false);
 
   const toggleAccepted = () => {
@@ -32,6 +34,7 @@ export default function PrivacyConsentScreen() {
   const handleContinue = () => {
     hapticSuccess();
     localStorage.setItem(PRIVACY_STORAGE_KEY, PRIVACY_VERSION);
+    markPrivacyAccepted();
     router.replace('/(tabs)');
   };
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Text, Card, Button, TextInput, useTheme, Snackbar, Portal } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../components/ui/Icon';
 import { format } from 'date-fns';
 
@@ -42,6 +43,7 @@ const symptomOptions: { id: PhysicalSymptom; label: string; emoji: string }[] = 
 export default function LogPage() {
   const theme = useTheme();
   const dispatch = useAppDispatch();
+  const insets = useSafeAreaInsets();
   const today = format(new Date(), 'yyyy-MM-dd');
   const dayLogs = useAppSelector(selectDayLogs);
   const existingLog = dayLogs.find(l => l.date === today);
@@ -254,7 +256,7 @@ export default function LogPage() {
         </ScrollView>
 
         {/* Floating Save Button */}
-        <View style={[styles.floatingBar, { backgroundColor: theme.colors.background }]}>
+        <View style={[styles.floatingBar, { backgroundColor: theme.colors.background, paddingBottom: Math.max(insets.bottom, 20) }]}>
           <Button
             mode="contained"
             onPress={handleSave}
