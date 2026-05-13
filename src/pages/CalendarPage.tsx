@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, PanResponder } from 'react-native';
+import React, { useState, useMemo, useRef, useCallback } from 'react';
+import { View, StyleSheet, TouchableOpacity, ScrollView, PanResponder, Animated, Dimensions } from 'react-native';
 import { Text, IconButton, Card, Divider, Button, useTheme } from 'react-native-paper';
 import Icon from '../components/ui/Icon';
 import {
@@ -143,14 +143,40 @@ export default function CalendarPage() {
     setEditEnd(null);
   };
 
+  // Slide animation
+  const screenWidth = Dimensions.get('window').width;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  const animateMonth = useCallback((direction: 'left' | 'right') => {
+    const exitTarget = direction === 'left' ? -screenWidth : screenWidth;
+    const enterFrom = direction === 'left' ? screenWidth : -screenWidth;
+
+    Animated.timing(slideAnim, {
+      toValue: exitTarget,
+      duration: 150,
+      useNativeDriver: true,
+    }).start(() => {
+      setCurrentMonth(prev =>
+        direction === 'left' ? addMonths(prev, 1) : subMonths(prev, 1)
+      );
+      slideAnim.setValue(enterFrom);
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 80,
+        friction: 12,
+      }).start();
+    });
+  }, [screenWidth, slideAnim]);
+
   // Swipe gesture
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gs) =>
         Math.abs(gs.dx) > Math.abs(gs.dy) && Math.abs(gs.dx) > 15,
       onPanResponderRelease: (_, gs) => {
-        if (gs.dx < -50) setCurrentMonth(prev => addMonths(prev, 1));
-        else if (gs.dx > 50) setCurrentMonth(prev => subMonths(prev, 1));
+        if (gs.dx < -50) animateMonth('left');
+        else if (gs.dx > 50) animateMonth('right');
       },
     })
   ).current;
@@ -202,14 +228,15 @@ export default function CalendarPage() {
       )}
 
       {/* Swipeable Calendar */}
-      <View {...panResponder.panHandlers}>
-        <View style={styles.weekRow}>
-          {weekDays.map((d) => (
-            <Text key={d} variant="labelSmall" style={[styles.weekDayText, { color: theme.colors.onSurfaceVariant }]}>
-              {d}
-            </Text>
-          ))}
-        </View>
+      <View {...panResponder.panHandlers} style={{ overflow: 'hidden' }}>
+        <Animated.View style={{ transform: [{ translateX: slideAnim }] }}>
+          <View style={styles.weekRow}>
+            {weekDays.map((d) => (
+              <Text key={d} variant="labelSmall" style={[styles.weekDayText, { color: theme.colors.onSurfaceVariant }]}>
+                {d}
+              </Text>
+            ))}
+          </View>
 
         <View style={styles.calendarGrid}>
           {days.map((day) => {
@@ -281,6 +308,7 @@ export default function CalendarPage() {
             );
           })}
         </View>
+        </Animated.View>
       </View>
 
       {/* Edit Confirmation Card */}
