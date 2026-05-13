@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { Card, Text, Chip, useTheme } from 'react-native-paper';
 import { cyclePhaseColors } from '../../theme/muiTheme';
 import Icon from '../ui/Icon';
@@ -301,6 +301,15 @@ export function DailyInsight({ dayInCycle, appMode }: DailyInsightProps) {
 
   const symptomEntries = Object.entries(insight.symptoms);
 
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({
+    bio: false,
+    care: false,
+    symptoms: false,
+  });
+
+  const toggle = (key: string) =>
+    setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
+
   return (
     <View style={styles.container}>
       <Card
@@ -344,123 +353,202 @@ export function DailyInsight({ dayInCycle, appMode }: DailyInsightProps) {
             {insight.modeInsights[appMode]}
           </Text>
 
-          {/* ── Biological State ───────────────────────────── */}
-          <View
-            style={[
-              styles.bioStateBox,
-              { backgroundColor: `${phaseColor}15` },
-            ]}
-          >
-            <Text
-              variant="labelSmall"
-              style={{
-                color: phaseColor,
-                fontWeight: '700',
-                marginBottom: 4,
-                textTransform: 'uppercase',
-                letterSpacing: 0.5,
-              }}
+          {/* ── Expandable Sections ────────────────────────── */}
+          <View style={styles.buttonGroup}>
+            {/* Biological State */}
+            <Pressable
+              onPress={() => toggle('bio')}
+              style={[
+                styles.outlinedButton,
+                {
+                  borderColor: phaseColor,
+                  backgroundColor: expanded.bio
+                    ? `${phaseColor}15`
+                    : 'transparent',
+                },
+              ]}
             >
-              What's happening in your body
-            </Text>
-            <Text
-              variant="bodySmall"
-              style={{ color: theme.colors.onSurface, lineHeight: 18 }}
-            >
-              {insight.biologicalState}
-            </Text>
-          </View>
-
-          {/* ── Care Routine Tip ────────────────────────────── */}
-          <View
-            style={[
-              styles.tipBox,
-              { backgroundColor: theme.colors.surface },
-            ]}
-          >
-            <Text
-              variant="labelSmall"
-              style={{
-                color: theme.colors.primary,
-                fontWeight: '700',
-                marginBottom: 6,
-                textTransform: 'uppercase',
-                letterSpacing: 0.5,
-              }}
-            >
-              💡 Care Routine
-            </Text>
-            {insight.careRoutine.remedy ? (
-              <View style={styles.tipRow}>
-                <Icon
-                  name="hand-heart-outline"
-                  size={14}
-                  color={theme.colors.onSurfaceVariant}
-                />
-                <Text
-                  variant="bodySmall"
-                  style={[styles.tipText, { color: theme.colors.onSurface }]}
-                >
-                  {insight.careRoutine.remedy}
-                </Text>
-              </View>
-            ) : null}
-            <View style={styles.tipRow}>
               <Icon
-                name="food-apple-outline"
-                size={14}
-                color={theme.colors.onSurfaceVariant}
+                name="dna"
+                size={16}
+                color={phaseColor}
               />
               <Text
-                variant="bodySmall"
-                style={[styles.tipText, { color: theme.colors.onSurface }]}
+                variant="labelMedium"
+                style={[styles.outlinedButtonText, { color: phaseColor }]}
               >
-                {insight.careRoutine.diet}
+                Biological State
               </Text>
-            </View>
-            <View style={styles.tipRow}>
+              <View style={{ flex: 1 }} />
               <Icon
-                name="run"
-                size={14}
-                color={theme.colors.onSurfaceVariant}
+                name={expanded.bio ? 'chevron-up' : 'chevron-down'}
+                size={18}
+                color={phaseColor}
               />
-              <Text
-                variant="bodySmall"
-                style={[styles.tipText, { color: theme.colors.onSurface }]}
-              >
-                {insight.careRoutine.activity}
-              </Text>
-            </View>
-          </View>
-
-          {/* ── Symptom Expectations ────────────────────────── */}
-          <Text
-            variant="labelSmall"
-            style={{
-              color: theme.colors.onSurfaceVariant,
-              fontWeight: '700',
-              marginTop: 16,
-              marginBottom: 8,
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
-          >
-            What to expect today
-          </Text>
-          <View style={styles.chipRow}>
-            {symptomEntries.map(([key, value]) => (
-              <Chip
-                key={key}
-                compact
-                textStyle={{ fontSize: 11 }}
+            </Pressable>
+            {expanded.bio && (
+              <View
                 style={[
-                  styles.chip,
-                  { backgroundColor: `${phaseColor}18` },
+                  styles.expandedContent,
+                  { backgroundColor: `${phaseColor}10` },
                 ]}
               >
-                {formatSymptomLabel(key)}: {value}
-              </Chip>
-            ))}
+                <Text
+                  variant="bodySmall"
+                  style={{ color: theme.colors.onSurface, lineHeight: 18 }}
+                >
+                  {insight.biologicalState}
+                </Text>
+              </View>
+            )}
+
+            {/* Care Routine */}
+            <Pressable
+              onPress={() => toggle('care')}
+              style={[
+                styles.outlinedButton,
+                {
+                  borderColor: theme.colors.primary,
+                  backgroundColor: expanded.care
+                    ? `${theme.colors.primary}15`
+                    : 'transparent',
+                },
+              ]}
+            >
+              <Icon
+                name="hand-heart-outline"
+                size={16}
+                color={theme.colors.primary}
+              />
+              <Text
+                variant="labelMedium"
+                style={[
+                  styles.outlinedButtonText,
+                  { color: theme.colors.primary },
+                ]}
+              >
+                Care Routine
+              </Text>
+              <View style={{ flex: 1 }} />
+              <Icon
+                name={expanded.care ? 'chevron-up' : 'chevron-down'}
+                size={18}
+                color={theme.colors.primary}
+              />
+            </Pressable>
+            {expanded.care && (
+              <View
+                style={[
+                  styles.expandedContent,
+                  { backgroundColor: `${theme.colors.primary}10` },
+                ]}
+              >
+                {insight.careRoutine.remedy ? (
+                  <View style={styles.tipRow}>
+                    <Icon
+                      name="hand-heart-outline"
+                      size={14}
+                      color={theme.colors.onSurfaceVariant}
+                    />
+                    <Text
+                      variant="bodySmall"
+                      style={[
+                        styles.tipText,
+                        { color: theme.colors.onSurface },
+                      ]}
+                    >
+                      {insight.careRoutine.remedy}
+                    </Text>
+                  </View>
+                ) : null}
+                <View style={styles.tipRow}>
+                  <Icon
+                    name="food-apple-outline"
+                    size={14}
+                    color={theme.colors.onSurfaceVariant}
+                  />
+                  <Text
+                    variant="bodySmall"
+                    style={[
+                      styles.tipText,
+                      { color: theme.colors.onSurface },
+                    ]}
+                  >
+                    {insight.careRoutine.diet}
+                  </Text>
+                </View>
+                <View style={styles.tipRow}>
+                  <Icon
+                    name="run"
+                    size={14}
+                    color={theme.colors.onSurfaceVariant}
+                  />
+                  <Text
+                    variant="bodySmall"
+                    style={[
+                      styles.tipText,
+                      { color: theme.colors.onSurface },
+                    ]}
+                  >
+                    {insight.careRoutine.activity}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {/* Symptom Expectations */}
+            <Pressable
+              onPress={() => toggle('symptoms')}
+              style={[
+                styles.outlinedButton,
+                {
+                  borderColor: theme.colors.onSurfaceVariant,
+                  backgroundColor: expanded.symptoms
+                    ? `${theme.colors.onSurfaceVariant}15`
+                    : 'transparent',
+                },
+              ]}
+            >
+              <Icon
+                name="clipboard-pulse-outline"
+                size={16}
+                color={theme.colors.onSurfaceVariant}
+              />
+              <Text
+                variant="labelMedium"
+                style={[
+                  styles.outlinedButtonText,
+                  { color: theme.colors.onSurfaceVariant },
+                ]}
+              >
+                Symptom Expectations
+              </Text>
+              <View style={{ flex: 1 }} />
+              <Icon
+                name={expanded.symptoms ? 'chevron-up' : 'chevron-down'}
+                size={18}
+                color={theme.colors.onSurfaceVariant}
+              />
+            </Pressable>
+            {expanded.symptoms && (
+              <View style={styles.expandedContent}>
+                <View style={styles.chipRow}>
+                  {symptomEntries.map(([key, value]) => (
+                    <Chip
+                      key={key}
+                      compact
+                      textStyle={{ fontSize: 11 }}
+                      style={[
+                        styles.chip,
+                        { backgroundColor: `${phaseColor}18` },
+                      ]}
+                    >
+                      {formatSymptomLabel(key)}: {value}
+                    </Chip>
+                  ))}
+                </View>
+              </View>
+            )}
           </View>
         </Card.Content>
       </Card>
@@ -500,14 +588,25 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 16,
   },
-  bioStateBox: {
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
+  buttonGroup: {
+    gap: 8,
   },
-  tipBox: {
+  outlinedButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.2,
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    gap: 8,
+  },
+  outlinedButtonText: {
+    fontWeight: '600',
+  },
+  expandedContent: {
     borderRadius: 12,
     padding: 12,
+    marginTop: -4,
   },
   tipRow: {
     flexDirection: 'row',
