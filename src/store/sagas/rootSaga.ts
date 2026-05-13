@@ -1,5 +1,5 @@
 import { all } from 'redux-saga/effects';
-import { watchFetchAllData, watchStartPeriod, watchEndPeriod } from './cycleSagas';
+import { watchFetchAllData, watchStartPeriod, watchEndPeriod, watchChangePeriodDate } from './cycleSagas';
 import { watchAddDayLog } from './dayLogSagas';
 import { watchUpdateSettings } from './settingsSagas';
 
@@ -8,6 +8,7 @@ export default function* rootSaga() {
     watchFetchAllData(),
     watchStartPeriod(),
     watchEndPeriod(),
+    watchChangePeriodDate(),
     watchAddDayLog(),
     watchUpdateSettings(),
   ]);

@@ -81,7 +81,7 @@ export function SmartDailyInsight({ dayInCycle, appMode }: SmartDailyInsightProp
       </Text>
 
       {/* ─── Phase Banner ──────────────────────────────────────── */}
-      <View style={[styles.phaseBanner, { backgroundColor: `${phaseColor}18` }]}>
+      <View style={[styles.phaseBanner]}>
         <View style={[styles.phaseIconCircle, { backgroundColor: `${phaseColor}30` }]}>
           <Icon
             name={phaseIcons[insight.phase] ?? 'creation'}

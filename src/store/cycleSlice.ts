@@ -77,6 +77,12 @@ export const endPeriodRequest = createAction<string | undefined>(
   'cycle/endPeriodRequest',
 );
 
+/** Triggers saga to change the period start date from the calendar. */
+export const changePeriodDateRequest = createAction<{
+  startDate: string;
+  endDate: string;
+}>('cycle/changePeriodDateRequest');
+
 /** Triggers saga to upsert settings in SQLite, then update the cache. */
 export const updateSettingsRequest = createAction<Partial<UserSettings>>(
   'cycle/updateSettingsRequest',

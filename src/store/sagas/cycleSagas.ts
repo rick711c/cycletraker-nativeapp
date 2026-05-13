@@ -6,7 +6,7 @@
  */
 
 import { call, put, takeLatest, takeEvery, select } from 'redux-saga/effects';
-import { format, differenceInDays, parseISO } from 'date-fns';
+import { format, differenceInDays, parseISO, eachDayOfInterval } from 'date-fns';
 
 import { getAllCycles, insertCycle, updateCycle } from '../../db/cyclesApi';
 import { getAllDayLogs, upsertDayLog } from '../../db/dayLogsApi';
@@ -14,6 +14,7 @@ import {
   fetchAllData,
   startPeriodRequest,
   endPeriodRequest,
+  changePeriodDateRequest,
   setCycles,
   setDayLogs,
   addDayLog,
@@ -160,4 +161,53 @@ function* handleEndPeriod(action: PayloadAction<string | undefined>) {
 
 export function* watchEndPeriod() {
   yield takeEvery(endPeriodRequest, handleEndPeriod);
+}
+
+// ── changePeriodDate ─────────────────────────────────────────────────────────
+
+function* handleChangePeriodDate(
+  action: PayloadAction<{ startDate: string; endDate: string }>,
+) {
+  try {
+    const { startDate, endDate } = action.payload;
+    const periodLength =
+      differenceInDays(parseISO(endDate), parseISO(startDate)) + 1;
+
+    // 1. Insert cycle row in SQLite with start + end
+    yield call(insertCycle, startDate);
+    yield call(updateCycle, startDate, endDate, periodLength);
+    yield put(addCycle({ startDate, endDate, length: periodLength }));
+
+    // 2. Upsert day logs for every day in the period range
+    const allDays = eachDayOfInterval({
+      start: parseISO(startDate),
+      end: parseISO(endDate),
+    });
+    for (const day of allDays) {
+      const log: DayLog = {
+        date: format(day, 'yyyy-MM-dd'),
+        isPeriod: true,
+        flowIntensity: 'medium',
+        moods: [],
+        symptoms: [],
+      };
+      yield call(upsertDayLog, log);
+      yield put(addDayLog(log));
+    }
+
+    // 3. Update lastPeriodDate in settings
+    const settings: UserSettings = yield select(selectSettings);
+    const updatedSettings = { ...settings, lastPeriodDate: startDate };
+    yield call(upsertSettings, updatedSettings);
+    yield put(updateSettings(updatedSettings));
+
+    // 4. Reschedule notifications with new period date
+    yield call(rescheduleNotifications);
+  } catch (err: any) {
+    yield put(setError(err?.message ?? 'Failed to change period date'));
+  }
+}
+
+export function* watchChangePeriodDate() {
+  yield takeEvery(changePeriodDateRequest, handleChangePeriodDate);
 }
