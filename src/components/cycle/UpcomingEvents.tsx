@@ -39,20 +39,29 @@ export function UpcomingEvents({ stats }: UpcomingEventsProps) {
   const daysUntilOvulation = differenceInDays(ovulation, today);
   const isInFertileWindow = today >= fertileStart && today <= fertileEnd;
 
+  const isPeriodLate = daysUntilPeriod < 0;
+  const isOvulationPast = daysUntilOvulation < 0;
+
   const events = [
     {
-      icon: 'weather-night', // MaterialCommunityIcons equivalent for NightsStay
-      label: 'Next Period',
+      icon: isPeriodLate ? 'alert-circle' : 'weather-night',
+      label: isPeriodLate ? 'Period late by' : 'Next Period',
       date: format(nextPeriod, 'MMM d'),
-      days: daysUntilPeriod,
+      days: Math.abs(daysUntilPeriod),
       color: cyclePhaseColors.menstruation,
+      isLate: isPeriodLate,
     },
     {
-      icon: 'heart', // MaterialCommunityIcons equivalent for Favorite
-      label: isInFertileWindow ? 'Fertile Window' : 'Ovulation',
+      icon: isInFertileWindow ? 'heart' : (isOvulationPast ? 'calendar-check' : 'heart'),
+      label: isInFertileWindow
+        ? 'Fertile Window'
+        : isOvulationPast
+          ? 'Ovulation was'
+          : 'Ovulation in',
       date: isInFertileWindow ? 'Now' : format(ovulation, 'MMM d'),
-      days: isInFertileWindow ? 0 : daysUntilOvulation,
+      days: isInFertileWindow ? 0 : Math.abs(daysUntilOvulation),
       color: chartColors.chart2,
+      isLate: isOvulationPast && !isInFertileWindow,
     },
   ];
 
@@ -64,18 +73,38 @@ export function UpcomingEvents({ stats }: UpcomingEventsProps) {
       
       <View style={styles.grid}>
         {events.map((event) => (
-          <Card key={event.label} style={styles.card}>
+          <Card
+            key={event.label}
+            style={[
+              styles.card,
+              event.isLate && {
+                borderWidth: 1.5,
+                borderColor: event.color,
+                elevation: 4,
+              },
+            ]}
+          >
             <Card.Content style={styles.cardContent}>
               <View
                 style={[
                   styles.iconContainer,
-                  { backgroundColor: `${event.color}15` }, // 15 = ~8% opacity hex code
+                  {
+                    backgroundColor: event.isLate
+                      ? `${event.color}30`   // stronger tint when late
+                      : `${event.color}15`,
+                  },
                 ]}
               >
                 <Icon icon={event.icon} size={20} color={event.color} />
               </View>
               
-              <Text variant="bodyMedium" style={styles.label}>
+              <Text
+                variant="bodyMedium"
+                style={[
+                  styles.label,
+                  event.isLate && { color: event.color, fontWeight: '700' },
+                ]}
+              >
                 {event.label}
               </Text>
               
@@ -83,11 +112,19 @@ export function UpcomingEvents({ stats }: UpcomingEventsProps) {
                 variant="headlineSmall" 
                 style={[styles.daysText, { color: event.color }]}
               >
-                {event.days === 0 ? 'Today!' : `${event.days} days`}
+                {event.days === 0
+                  ? 'Today!'
+                  : `${event.days} day${event.days !== 1 ? 's' : ''}`}
               </Text>
               
-              <Text variant="labelSmall" style={styles.dateText}>
-                {event.date}
+              <Text
+                variant="labelSmall"
+                style={[
+                  styles.dateText,
+                  event.isLate && { color: event.color },
+                ]}
+              >
+                {event.isLate ? `Since ${event.date}` : event.date}
               </Text>
             </Card.Content>
           </Card>
