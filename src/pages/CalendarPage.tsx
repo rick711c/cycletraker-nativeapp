@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useMemo, useRef } from 'react';
+import { View, StyleSheet, TouchableOpacity, ScrollView, PanResponder } from 'react-native';
 import { Text, IconButton, Card, Divider, useTheme } from 'react-native-paper';
 import Icon from '../components/ui/Icon';
 import {
@@ -43,7 +43,7 @@ const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [selectedDay, setSelectedDay] = useState<Date | null>(new Date());
   const dayLogs = useAppSelector(selectDayLogs);
   const settings = useAppSelector(selectSettings);
   const theme = useTheme();
@@ -68,6 +68,26 @@ export default function CalendarPage() {
     return { log, phase };
   };
 
+  // Swipe gesture for month navigation
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        // Only capture horizontal swipes (ignore vertical scrolling)
+        return Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && Math.abs(gestureState.dx) > 15;
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        const SWIPE_THRESHOLD = 50;
+        if (gestureState.dx < -SWIPE_THRESHOLD) {
+          // Swiped left → next month
+          setCurrentMonth((prev) => addMonths(prev, 1));
+        } else if (gestureState.dx > SWIPE_THRESHOLD) {
+          // Swiped right → previous month
+          setCurrentMonth((prev) => subMonths(prev, 1));
+        }
+      },
+    })
+  ).current;
+
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: theme.colors.background }}
@@ -91,70 +111,73 @@ export default function CalendarPage() {
           />
         </View>
 
-        {/* Week Days Header */}
-        <View style={styles.weekRow}>
-          {weekDays.map((day) => (
-            <Text
-              key={day}
-              variant="labelSmall"
-              style={[styles.weekDayText, { color: theme.colors.onSurfaceVariant }]}
-            >
-              {day}
-            </Text>
-          ))}
-        </View>
+        {/* Swipeable Calendar Area */}
+        <View {...panResponder.panHandlers}>
+          {/* Week Days Header */}
+          <View style={styles.weekRow}>
+            {weekDays.map((day) => (
+              <Text
+                key={day}
+                variant="labelSmall"
+                style={[styles.weekDayText, { color: theme.colors.onSurfaceVariant }]}
+              >
+                {day}
+              </Text>
+            ))}
+          </View>
 
-        {/* Calendar Grid */}
-        <View style={styles.calendarGrid}>
-          {days.map((day) => {
-            const { log, phase } = getDayStatus(day);
-            const isCurrentMonth = isSameMonth(day, currentMonth);
-            const isPeriodDay = log?.isPeriod;
+          {/* Calendar Grid */}
+          <View style={styles.calendarGrid}>
+            {days.map((day) => {
+              const { log, phase } = getDayStatus(day);
+              const isCurrentMonth = isSameMonth(day, currentMonth);
+              const isPeriodDay = log?.isPeriod;
 
-            // Background logic: Solid color for period, transparent (hex alpha) for phases
-            const backgroundColor = isPeriodDay
-              ? cyclePhaseColors[phase]
-              : `${cyclePhaseColors[phase]}40`; // ~25% opacity hex
+              // Background logic: Solid color for period, transparent (hex alpha) for phases
+              const backgroundColor = isPeriodDay
+                ? cyclePhaseColors[phase]
+                : `${cyclePhaseColors[phase]}40`; // ~25% opacity hex
 
-            const textColor = isPeriodDay
-              ? '#ffffff'
-              : theme.colors.onSurface;
+              const textColor = isPeriodDay
+                ? '#ffffff'
+                : theme.colors.onSurface;
 
-            return (
-              <View key={day.toISOString()} style={styles.dayWrapper}>
-                <TouchableOpacity
-                  style={[
-                    styles.dayCell,
-                    {
-                      backgroundColor,
-                      opacity: isCurrentMonth ? 1 : 0.3,
-                      borderColor: isToday(day) ? theme.colors.primary : (selectedDay && isSameDay(day, selectedDay) ? theme.colors.secondary : 'transparent'),
-                      borderWidth: isToday(day) || (selectedDay && isSameDay(day, selectedDay)) ? 2 : 0,
-                    },
-                  ]}
-                  activeOpacity={0.7}
-                  onPress={() => {
-                    const todayStr = format(new Date(), 'yyyy-MM-dd');
-                    const dayStr = format(day, 'yyyy-MM-dd');
-                    if (dayStr >= todayStr) {
-                      setSelectedDay(prev => prev && isSameDay(prev, day) ? null : day);
-                    }
-                  }}
-                >
-                  <Text
-                    variant="bodyMedium"
-                    style={{ color: textColor, fontWeight: '500' }}
+              return (
+                <View key={day.toISOString()} style={styles.dayWrapper}>
+                  <TouchableOpacity
+                    style={[
+                      styles.dayCell,
+                      {
+                        backgroundColor,
+                        opacity: isCurrentMonth ? 1 : 0.3,
+                        borderColor: isToday(day) ? theme.colors.primary : (selectedDay && isSameDay(day, selectedDay) ? theme.colors.secondary : 'transparent'),
+                        borderWidth: isToday(day) || (selectedDay && isSameDay(day, selectedDay)) ? 2 : 0,
+                      },
+                    ]}
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      const todayStr = format(new Date(), 'yyyy-MM-dd');
+                      const dayStr = format(day, 'yyyy-MM-dd');
+                      if (dayStr >= todayStr) {
+                        setSelectedDay(prev => prev && isSameDay(prev, day) ? null : day);
+                      }
+                    }}
                   >
-                    {format(day, 'd')}
-                  </Text>
+                    <Text
+                      variant="bodyMedium"
+                      style={{ color: textColor, fontWeight: '500' }}
+                    >
+                      {format(day, 'd')}
+                    </Text>
 
-                  {isPeriodDay && (
-                    <Text style={styles.dotIndicator}>•</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            );
-          })}
+                    {isPeriodDay && (
+                      <Text style={styles.dotIndicator}>•</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
+          </View>
         </View>
 
         {/* Selected Day Insight */}
