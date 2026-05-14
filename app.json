@@ -4,14 +4,14 @@
     "slug": "flora",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/app_icon.jpeg",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "scheme": "flora",
+    "icon": "./assets/icon.png",
     "splash": {
-      "image": "./src/assets/app_icon.jpeg",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "ios": {
       "bundleIdentifier": "app.stewbit.flora",
@@ -19,8 +19,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/app_icon.jpeg",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
       },
       "package": "app.stewbit.flora",
       "softwareKeyboardLayoutMode": "resize"

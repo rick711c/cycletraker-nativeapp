@@ -119,7 +119,7 @@ export default function Onboarding() {
       {/* Header with image */}
       <View style={styles.imageContainer}>
         <Image
-          source={require('../assets/hero-flowers.jpg')}
+          source={require('../../assets/hero-flowers.jpg')}
           style={styles.heroImage}
           resizeMode="cover"
         />
