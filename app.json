@@ -30,6 +30,12 @@
       "expo-sqlite",
       "expo-notifications",
       "expo-splash-screen"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a40f8e36-e266-4ff4-83bb-99d1756e2411"
+      }
+    }
   }
 }
