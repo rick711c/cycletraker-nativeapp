@@ -9,7 +9,7 @@ export const trackCycleInsights: TrackCycleInsight[] = [
     dayRange: [1, 5],
     phase: 'menstruation',
     summary:
-      'Expect moderate to severe cramps as your body sheds its lining.\nMood may be sensitive or fatigued.\nPregnancy risk is extremely low right now.',
+      'Expect moderate to severe cramps as your body sheds its lining.\nMood may be sensitive or fatigued.\nPregnancy probability is extremely low during this period.',
     biologicalState:
       'Uterine lining is shedding. Prostaglandins are high, causing contractions.',
     pregnancyProbability: 'Extremely Low',
@@ -25,7 +25,7 @@ export const trackCycleInsights: TrackCycleInsight[] = [
       activity: 'Rest or light walking around the house.',
     },
     hygiene:
-      'Change pads or clean cloths every 4-6 hours. Wash with lukewarm water and mild soap. Ensure cotton cloths are dried in direct sunlight to kill bacteria.',
+      'Change pads or clean cotton cloths every 4-6 hours. If using cloths, wash thoroughly with soap and dry in direct sunlight to kill bacteria.',
     checklist: [
       'Clean cotton cloths or pads',
       'Warm water bag / Heated salt pack',
@@ -38,7 +38,7 @@ export const trackCycleInsights: TrackCycleInsight[] = [
     dayRange: [6, 11],
     phase: 'follicular',
     summary:
-      'Cramps should be completely gone by now.\nExpect a steady boost in mood and energy.\nPregnancy risk is low, but sperm can survive for days.',
+      'Cramps should be completely gone by now.\nExpect a steady boost in mood and energy.\nPregnancy probability starts low, but increases as the fertile window approaches.',
     biologicalState:
       'Estrogen is rising, rebuilding the uterine lining and boosting serotonin.',
     pregnancyProbability: 'Low to Medium (Sperm can survive up to 5 days)',
@@ -66,10 +66,10 @@ export const trackCycleInsights: TrackCycleInsight[] = [
     dayRange: [12, 16],
     phase: 'ovulation',
     summary:
-      'Mild twinges possible, but no standard cramps.\nYou are likely feeling confident, social, and magnetic.\nCaution: This is your highest-risk window for pregnancy.',
+      'Mild twinges possible, but no standard cramps.\nYou are likely feeling confident and energetic.\nThis is the period of highest pregnancy probability in your cycle.',
     biologicalState:
       'LH surges and an egg is released. Estrogen and testosterone peak.',
-    pregnancyProbability: 'Peak / Maximum Risk',
+    pregnancyProbability: 'Peak Probability',
     symptoms: {
       cramps: 'Mild one-sided twinge',
       discharge: 'Clear & stretchy',
@@ -93,9 +93,9 @@ export const trackCycleInsights: TrackCycleInsight[] = [
     dayRange: [17, 28],
     phase: 'luteal',
     summary:
-      'Cramps may return late in this phase.\nMood often shifts inward, with potential PMS irritability.\nPregnancy risk drops sharply after ovulation ends.',
+      'Cramps may return late in this phase.\nMood often shifts inward, with potential irritability.\nPregnancy probability drops significantly after the ovulation window closes.',
     biologicalState: 'Progesterone dominates. Drops sharply if not pregnant.',
-    pregnancyProbability: 'Low (Dropping rapidly)',
+    pregnancyProbability: 'Low (Decreasing rapidly)',
     symptoms: {
       cramps: 'Building',
       bloating: 'High',
@@ -125,7 +125,7 @@ export const tryToConceiveInsights: TryToConceiveInsight[] = [
     fertilityStatus: 'Infertile',
     pregnancyProbability: 'Extremely Low',
     summary:
-      'Conception is not possible during these days.\nTake this time to rest and nurture your body.',
+      'Conception is unlikely during these days.\nTake this time to rest and nurture your body.',
     biologicalState: 'The body is resetting. Old uterine lining is shedding.',
     symptoms: {
       bleeding: 'Heavy to Light',
@@ -154,7 +154,7 @@ export const tryToConceiveInsights: TryToConceiveInsight[] = [
     fertilityStatus: 'Approaching Fertile Window',
     pregnancyProbability: 'Medium (Entering fertile window)',
     summary:
-      'Your fertile window is about to open.\nWatch for your cervical mucus becoming watery.',
+      'The probability of conception is increasing.\nWatch for your cervical mucus becoming watery.',
     biologicalState: 'FSH is stimulating follicles to grow eggs.',
     symptoms: {
       discharge: 'Becoming wetter',
@@ -180,9 +180,9 @@ export const tryToConceiveInsights: TryToConceiveInsight[] = [
     dayRange: [12, 16],
     phase: 'ovulation',
     fertilityStatus: 'Peak Fertility',
-    pregnancyProbability: 'Peak / Highest Probability',
+    pregnancyProbability: 'Peak Probability',
     summary:
-      'This is your prime time for conception.\nIntercourse today or tomorrow is highly recommended.',
+      'This is the window of highest probability for conception.\nIntercourse during this time increases the likelihood of pregnancy.',
     biologicalState:
       'LH has spiked. An egg is traveling down the fallopian tube.',
     symptoms: {
@@ -240,7 +240,7 @@ export const pregnancyInsights: PregnancyInsight[] = [
     dayRange: [1, 7],
     phase: 'trimester_1',
     summary:
-      'Congratulations! Your HCG hormone is doubling rapidly.\nFatigue may start hitting you suddenly.',
+      'Your HCG hormone is doubling rapidly.\nFatigue may start hitting you suddenly.',
     biologicalState:
       'The fertilized egg has implanted. The placenta is beginning to form.',
     babyDevelopment:
@@ -253,9 +253,9 @@ export const pregnancyInsights: PregnancyInsight[] = [
     milestone:
       'Register your pregnancy at the local Anganwadi or Health Center.',
     careRoutine: {
-      diet: 'Eat Folic acid rich foods (Dals, Greens). Avoid papaya and pineapple (traditional caution). Eat small, frequent meals.',
+      diet: 'Eat Folic acid rich foods (Dals, Greens). Avoid papaya and pineapple. Eat small, frequent meals.',
       remedy: 'Rest when you feel tired.',
-      activity: 'Normal household activities, avoid lifting heavy water pots.',
+      activity: 'Normal household activities; avoid lifting heavy water pots.',
     },
     hygiene:
       'Bathe daily. Use clean, loose cotton clothes to stay comfortable as body temperature rises.',
@@ -337,7 +337,7 @@ export const pregnancyInsights: PregnancyInsight[] = [
     },
     milestone: 'Complete your first trimester blood and urine tests.',
     careRoutine: {
-      diet: 'Energy-giving foods like Bananas, Milk, and soaked Almonds (if available) or Peanuts.',
+      diet: 'Energy-giving foods like Bananas, Milk, and soaked Peanuts.',
       remedy: 'Stand up slowly to avoid dizziness.',
       activity: 'Continue light walks; avoid crowded or smoky areas.',
     },
