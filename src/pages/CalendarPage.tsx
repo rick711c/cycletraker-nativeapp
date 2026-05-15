@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useCallback } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, PanResponder, Animated, Dimensions } from 'react-native';
-import { Text, IconButton, Card, Divider, Button, useTheme } from 'react-native-paper';
+import { Text, IconButton, Card, Divider, Button, useTheme, Snackbar, Portal } from 'react-native-paper';
+import * as Haptics from 'expo-haptics';
 import Icon from '../components/ui/Icon';
 import {
   format,
@@ -59,6 +60,9 @@ export default function CalendarPage() {
   const [editStart, setEditStart] = useState<Date | null>(null);
   const [editEnd, setEditEnd] = useState<Date | null>(null);
 
+  // Snackbar state for future-date error
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+
   const days = useMemo(() => {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
@@ -93,6 +97,7 @@ export default function CalendarPage() {
   // Handle day press based on edit mode
   const handleDayPress = (day: Date) => {
     if (editMode === 'idle') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       setSelectedDay(prev => prev && isSameDay(prev, day) ? null : day);
       return;
     }
@@ -100,7 +105,13 @@ export default function CalendarPage() {
     // Block future dates for period marking (string compare avoids time issues)
     const todayStr = format(new Date(), 'yyyy-MM-dd');
     const dayStr = format(day, 'yyyy-MM-dd');
-    if (dayStr > todayStr) return;
+    if (dayStr > todayStr) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      setSnackbarVisible(true);
+      return;
+    }
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     if (editMode === 'selectStart') {
       setEditStart(day);
@@ -434,6 +445,23 @@ export default function CalendarPage() {
           </View>
         </Card.Content>
       </Card>
+
+      {/* Future-date error Snackbar */}
+      <Portal>
+        <Snackbar
+          visible={snackbarVisible}
+          onDismiss={() => setSnackbarVisible(false)}
+          duration={2500}
+          style={{ backgroundColor: '#D32F2F' }}
+          action={{
+            label: 'OK',
+            textColor: '#fff',
+            onPress: () => setSnackbarVisible(false),
+          }}
+        >
+          You can't select a future date as a period day
+        </Snackbar>
+      </Portal>
     </ScrollView>
   );
 }

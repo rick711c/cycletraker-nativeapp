@@ -5,7 +5,6 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "scheme": "flora",
     "icon": "./assets/icon.png",
     "splash": {
@@ -29,7 +28,8 @@
       "expo-router",
       "expo-sqlite",
       "expo-notifications",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      "expo-font"
     ],
     "extra": {
       "router": {},

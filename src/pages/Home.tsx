@@ -12,7 +12,7 @@ import { selectCycleStats, selectSettings } from '../store/cycleSlice';
 
 export default function Home() {
   const theme = useTheme();
-  const stats = useAppSelector(selectCycleStats);
+  const stats: any = useAppSelector(selectCycleStats);
   const settings = useAppSelector(selectSettings);
   const appMode: AppMode = settings.goal === 'conceive' ? 'tryToConceive' : (settings.goal === 'pregnancy' ? 'trackPregnancy' : 'trackCycle');
 

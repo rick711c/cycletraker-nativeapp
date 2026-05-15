@@ -12,6 +12,7 @@ export interface InsightBase {
     activity: string;
   };
   checklist: string[];
+  hygiene: string;
 }
 
 export interface TrackCycleInsight extends InsightBase {
@@ -29,4 +30,7 @@ export interface PregnancyInsight extends InsightBase {
   milestone: string;
 }
 
-export type DailyInsightData = TrackCycleInsight | TryToConceiveInsight | PregnancyInsight;
+export type DailyInsightData =
+  | TrackCycleInsight
+  | TryToConceiveInsight
+  | PregnancyInsight;

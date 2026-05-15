@@ -63,6 +63,7 @@ export function SmartDailyInsight({ dayInCycle, appMode }: SmartDailyInsightProp
     body: false,
     symptoms: false,
     care: false,
+    hygiene: false,
   });
   const toggleSection = (key: string) =>
     setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -375,6 +376,59 @@ export function SmartDailyInsight({ dayInCycle, appMode }: SmartDailyInsightProp
               </View>
             </Card.Content>
           </Card>
+        )}
+
+        {/* ─── Hygiene Routine ──────────────────────────────────── */}
+        {insight.hygiene && (
+          <>
+            <Pressable
+              onPress={() => toggleSection('hygiene')}
+              style={[
+                styles.collapsibleButton,
+                {
+                  borderColor: '#009688',
+                  backgroundColor: expandedSections.hygiene ? '#00968812' : 'transparent',
+                },
+              ]}
+            >
+              <View style={[styles.sectionIconCircle, { backgroundColor: '#00968818' }]}>
+                <Icon name="shield-check-outline" size={20} color="#009688" />
+              </View>
+              <Text
+                variant="titleSmall"
+                style={{ color: theme.colors.onSurface, fontWeight: '700', flex: 1, marginLeft: 10 }}
+              >
+                Hygiene Routine
+              </Text>
+              <Icon
+                name={expandedSections.hygiene ? 'chevron-up' : 'chevron-down'}
+                size={20}
+                color={theme.colors.onSurfaceVariant}
+              />
+            </Pressable>
+            {expandedSections.hygiene && (
+              <Card style={[styles.expandedCard, { backgroundColor: theme.colors.surface }]}>
+                <Card.Content style={styles.expandedCardInner}>
+                  <View style={styles.routineItem}>
+                    <View style={[styles.routineIconBox, { backgroundColor: '#00968818' }]}>
+                      <Icon name="hand-wash-outline" size={22} color="#009688" />
+                    </View>
+                    <View style={styles.routineContent}>
+                      <Text variant="labelLarge" style={{ color: theme.colors.onSurface, fontWeight: '700' }}>
+                        Hygiene Tips
+                      </Text>
+                      <Text
+                        variant="bodyMedium"
+                        style={{ color: theme.colors.onSurfaceVariant, marginTop: 2, lineHeight: 20 }}
+                      >
+                        {insight.hygiene}
+                      </Text>
+                    </View>
+                  </View>
+                </Card.Content>
+              </Card>
+            )}
+          </>
         )}
       </View>
 
