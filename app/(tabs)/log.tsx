@@ -1,1 +1,352 @@
-export { default } from '@/pages/LogPage';
+import Icon from "@/src/components/ui/Icon";
+import { format } from "date-fns";
+import React, { useState } from "react";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+    Button,
+    Card,
+    Portal,
+    Snackbar,
+    Text,
+    TextInput,
+    useTheme,
+} from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { hapticLight, hapticSuccess } from "@/src/lib/haptics";
+import { useAppDispatch, useAppSelector } from "@/src/store";
+import { addDayLogRequest, selectDayLogs } from "@/src/store/cycleSlice";
+import {
+    DayLog,
+    FlowIntensity,
+    Mood,
+    PhysicalSymptom,
+} from "@/src/types/cycle";
+
+const flowOptions: { id: FlowIntensity; label: string; icon: string }[] = [
+  { id: "spotting", label: "Spotting", icon: "water-outline" },
+  { id: "light", label: "Light", icon: "water" },
+  { id: "medium", label: "Medium", icon: "water-percent" },
+  { id: "heavy", label: "Heavy", icon: "waves" },
+];
+
+const moodOptions: { id: Mood; label: string; emoji: string }[] = [
+  { id: "happy", label: "Happy", emoji: "😊" },
+  { id: "energetic", label: "Energetic", emoji: "⚡" },
+  { id: "sensitive", label: "Sensitive", emoji: "🥺" },
+  { id: "anxious", label: "Anxious", emoji: "😰" },
+  { id: "sad", label: "Sad", emoji: "😢" },
+  { id: "irritable", label: "Irritable", emoji: "😤" },
+];
+
+const symptomOptions: { id: PhysicalSymptom; label: string; emoji: string }[] =
+  [
+    { id: "cramps", label: "Cramps", emoji: "🤕" },
+    { id: "headache", label: "Headache", emoji: "🤯" },
+    { id: "bloating", label: "Bloating", emoji: "🎈" },
+    { id: "breast_tenderness", label: "Tenderness", emoji: "💗" },
+    { id: "acne", label: "Acne", emoji: "😖" },
+    { id: "fatigue", label: "Fatigue", emoji: "😴" },
+    { id: "backache", label: "Backache", emoji: "🦴" },
+    { id: "nausea", label: "Nausea", emoji: "🤢" },
+  ];
+
+export default function LogScreen() {
+  const theme = useTheme();
+  const dispatch = useAppDispatch();
+  const insets = useSafeAreaInsets();
+  const today = format(new Date(), "yyyy-MM-dd");
+  const dayLogs = useAppSelector(selectDayLogs);
+  const existingLog = dayLogs.find((l) => l.date === today);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+
+  const [log, setLog] = useState<DayLog>(
+    existingLog || {
+      date: today,
+      isPeriod: false,
+      moods: [],
+      symptoms: [],
+      notes: "",
+    },
+  );
+
+  const toggleMood = (mood: Mood) => {
+    hapticLight();
+    setLog((prev) => ({
+      ...prev,
+      moods: prev.moods.includes(mood)
+        ? prev.moods.filter((m) => m !== mood)
+        : [...prev.moods, mood],
+    }));
+  };
+
+  const toggleSymptom = (symptom: PhysicalSymptom) => {
+    hapticLight();
+    setLog((prev) => ({
+      ...prev,
+      symptoms: prev.symptoms.includes(symptom)
+        ? prev.symptoms.filter((s) => s !== symptom)
+        : [...prev.symptoms, symptom],
+    }));
+  };
+
+  const handleSave = () => {
+    hapticSuccess();
+    dispatch(addDayLogRequest(log));
+    setSnackbarVisible(true);
+  };
+
+  return (
+    <View
+      style={[styles.pageWrapper, { backgroundColor: theme.colors.background }]}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.header}>
+          <Text variant="headlineSmall" style={styles.headerTitle}>
+            Log Today
+          </Text>
+          <Text
+            variant="bodyMedium"
+            style={{ color: theme.colors.onSurfaceVariant }}
+          >
+            {format(new Date(), "EEEE, MMMM d")}
+          </Text>
+        </View>
+
+        <Card style={styles.card}>
+          <Card.Content>
+            <View style={styles.sectionHeader}>
+              <Icon icon="water" size={20} color={theme.colors.primary} />
+              <Text variant="titleMedium" style={styles.sectionTitle}>
+                Flow
+              </Text>
+            </View>
+            <View style={styles.gridRow}>
+              {flowOptions.map((option) => {
+                const isSelected = log.flowIntensity === option.id;
+                return (
+                  <TouchableOpacity
+                    key={option.id}
+                    onPress={() =>
+                      setLog((prev) => ({
+                        ...prev,
+                        isPeriod: true,
+                        flowIntensity:
+                          prev.flowIntensity === option.id
+                            ? undefined
+                            : option.id,
+                      }))
+                    }
+                    style={[
+                      styles.optionBox,
+                      {
+                        backgroundColor: isSelected
+                          ? theme.colors.primary
+                          : theme.colors.surfaceVariant,
+                        width: "23%",
+                      },
+                    ]}
+                  >
+                    <Icon
+                      icon={option.icon}
+                      size={24}
+                      color={
+                        isSelected
+                          ? theme.colors.onPrimary
+                          : theme.colors.onSurface
+                      }
+                    />
+                    <Text
+                      variant="labelSmall"
+                      style={[
+                        styles.optionLabel,
+                        {
+                          color: isSelected
+                            ? theme.colors.onPrimary
+                            : theme.colors.onSurface,
+                        },
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.sectionTitle}>
+              How are you feeling?
+            </Text>
+            <View style={styles.gridRow}>
+              {moodOptions.map((option) => {
+                const isSelected = log.moods.includes(option.id);
+                return (
+                  <TouchableOpacity
+                    key={option.id}
+                    onPress={() => toggleMood(option.id)}
+                    style={[
+                      styles.optionBox,
+                      {
+                        backgroundColor: isSelected
+                          ? theme.colors.primaryContainer
+                          : theme.colors.surfaceVariant,
+                        borderColor: theme.colors.primary,
+                        borderWidth: isSelected ? 2 : 0,
+                        width: "31%",
+                      },
+                    ]}
+                  >
+                    <Text style={styles.emoji}>{option.emoji}</Text>
+                    <Text variant="labelSmall" style={styles.optionLabel}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.sectionTitle}>
+              Symptoms
+            </Text>
+            <View style={styles.gridRow}>
+              {symptomOptions.map((option) => {
+                const isSelected = log.symptoms.includes(option.id);
+                return (
+                  <TouchableOpacity
+                    key={option.id}
+                    onPress={() => toggleSymptom(option.id)}
+                    style={[
+                      styles.optionBox,
+                      {
+                        backgroundColor: isSelected
+                          ? theme.colors.primaryContainer
+                          : theme.colors.surfaceVariant,
+                        borderColor: theme.colors.primary,
+                        borderWidth: isSelected ? 2 : 0,
+                        width: "23%",
+                      },
+                    ]}
+                  >
+                    <Text style={styles.emoji}>{option.emoji}</Text>
+                    <Text
+                      variant="labelSmall"
+                      style={[styles.optionLabel, { fontSize: 10 }]}
+                      numberOfLines={1}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.sectionTitle}>
+              Notes
+            </Text>
+            <TextInput
+              mode="outlined"
+              placeholder="How was your day? Any other symptoms..."
+              value={log.notes}
+              onChangeText={(text) =>
+                setLog((prev) => ({ ...prev, notes: text }))
+              }
+              multiline
+              numberOfLines={4}
+              style={{ backgroundColor: theme.colors.surface }}
+            />
+          </Card.Content>
+        </Card>
+
+        <Portal>
+          <Snackbar
+            visible={snackbarVisible}
+            onDismiss={() => setSnackbarVisible(false)}
+            duration={3000}
+            action={{ label: "OK", onPress: () => setSnackbarVisible(false) }}
+          >
+            Log saved! Your daily log has been recorded.
+          </Snackbar>
+        </Portal>
+      </ScrollView>
+
+      <View
+        style={[
+          styles.floatingBar,
+          {
+            backgroundColor: theme.colors.background,
+            paddingBottom: Math.max(insets.bottom, 20),
+          },
+        ]}
+      >
+        <Button
+          mode="contained"
+          onPress={handleSave}
+          icon="check"
+          contentStyle={{ height: 56 }}
+          labelStyle={{ fontSize: 18, fontWeight: "600" }}
+          style={styles.saveButton}
+        >
+          Save Log
+        </Button>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { paddingHorizontal: 16, paddingTop: 24, paddingBottom: 90 },
+  pageWrapper: { flex: 1, position: "relative" },
+  header: { marginBottom: 24 },
+  headerTitle: { fontWeight: "700" },
+  card: { marginBottom: 16 },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    gap: 8,
+  },
+  sectionTitle: { fontWeight: "600", marginBottom: 16 },
+  gridRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    justifyContent: "flex-start",
+  },
+  optionBox: {
+    alignItems: "center",
+    padding: 8,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  emoji: { fontSize: 24, marginBottom: 4 },
+  optionLabel: { marginTop: 4, textAlign: "center", fontWeight: "500" },
+  saveButton: { borderRadius: 8, flex: 1 },
+  floatingBar: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingBottom: 20,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "rgba(0,0,0,0.08)",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+  },
+});

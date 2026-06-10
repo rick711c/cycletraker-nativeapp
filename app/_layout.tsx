@@ -1,54 +1,52 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { View, ActivityIndicator, useColorScheme, StatusBar } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Stack, useRouter, useSegments } from 'expo-router';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
-import { PaperProvider } from 'react-native-paper';
-import 'expo-sqlite/localStorage/install';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Stack, useRouter, useSegments } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import "expo-sqlite/localStorage/install";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  StatusBar,
+  useColorScheme,
+  View,
+} from "react-native";
+import { PaperProvider } from "react-native-paper";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
 
-import { store, persistor } from '@/store';
-import { initDatabase } from '@/db/database';
-import { fetchAllData } from '@/store/cycleSlice';
-import { floraLightTheme, floraDarkTheme } from '@/theme/muiTheme';
-import { initializeNotifications, requestNotificationPermission } from '@/notifications/notificationService';
-import { PRIVACY_STORAGE_KEY } from '@/pages/PrivacyConsentScreen';
-import { useAppSelector } from '@/store';
-import { selectIsOnboarded } from '@/store/cycleSlice';
+import { PRIVACY_STORAGE_KEY } from "@/src/constants";
+import { initDatabase } from "@/src/db/database";
+import {
+  initializeNotifications,
+  requestNotificationPermission,
+} from "@/src/notifications/notificationService";
+import { persistor, store, useAppSelector } from "@/src/store";
+import { fetchAllData, selectIsOnboarded } from "@/src/store/cycleSlice";
+import { floraDarkTheme, floraLightTheme } from "@/src/theme/muiTheme";
 
-// ---------------------------------------------------------------------------
-// Privacy context — lets PrivacyConsentScreen update layout-level state
-// ---------------------------------------------------------------------------
+export { ErrorBoundary } from "expo-router";
 
-type PrivacyContextType = {
-  markPrivacyAccepted: () => void;
-};
+SplashScreen.preventAutoHideAsync();
 
+type PrivacyContextType = { markPrivacyAccepted: () => void };
 const PrivacyContext = createContext<PrivacyContextType>({
   markPrivacyAccepted: () => {},
 });
-
 export const usePrivacy = () => useContext(PrivacyContext);
 
-const REQUIRED_PRIVACY_VERSION = '1';
+const REQUIRED_PRIVACY_VERSION = "1";
 const queryClient = new QueryClient();
 
-/**
- * Inner layout that reads Redux state to determine initial route.
- * Must be rendered inside <Provider> so hooks can access the store.
- */
 function InnerLayout() {
   const router = useRouter();
   const segments = useSegments();
   const isOnboarded = useAppSelector(selectIsOnboarded);
   const scheme = useColorScheme();
-  const theme = scheme === 'dark' ? floraDarkTheme : floraLightTheme;
+  const theme = scheme === "dark" ? floraDarkTheme : floraLightTheme;
 
   const [dbReady, setDbReady] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState<boolean | null>(null);
 
-  // Bootstrap: DB + notifications + privacy check
   useEffect(() => {
     async function bootstrap() {
       try {
@@ -57,53 +55,62 @@ function InnerLayout() {
         await requestNotificationPermission();
         store.dispatch(fetchAllData());
 
-        // Check privacy consent using localStorage (expo-sqlite backed)
         const acceptedVersion = localStorage.getItem(PRIVACY_STORAGE_KEY);
         setPrivacyAccepted(
           acceptedVersion != null &&
-          parseInt(acceptedVersion, 10) >= parseInt(REQUIRED_PRIVACY_VERSION, 10),
+            parseInt(acceptedVersion, 10) >=
+              parseInt(REQUIRED_PRIVACY_VERSION, 10),
         );
       } catch (err) {
-        console.error('Bootstrap failed:', err);
+        console.error("Bootstrap failed:", err);
         setPrivacyAccepted(false);
       } finally {
         setDbReady(true);
+        SplashScreen.hideAsync();
       }
     }
     bootstrap();
   }, []);
 
-  // Redirect based on state
   useEffect(() => {
     if (!dbReady || privacyAccepted === null) return;
 
-    const inTabsGroup = segments[0] === '(tabs)';
+    const inTabsGroup = segments[0] === "(tabs)";
 
     if (!privacyAccepted) {
-      router.replace('/privacy-consent');
+      router.replace("/privacy-consent");
     } else if (!isOnboarded) {
-      router.replace('/onboarding');
+      router.replace("/onboarding");
     } else if (!inTabsGroup) {
-      router.replace('/(tabs)');
+      router.replace("/(tabs)");
     }
   }, [dbReady, privacyAccepted, isOnboarded, segments]);
 
   if (!dbReady || privacyAccepted === null) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: theme.colors.background,
+        }}
+      >
         <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
 
   return (
-    <PrivacyContext.Provider value={{ markPrivacyAccepted: () => setPrivacyAccepted(true) }}>
+    <PrivacyContext.Provider
+      value={{ markPrivacyAccepted: () => setPrivacyAccepted(true) }}
+    >
       <PaperProvider theme={theme}>
         <StatusBar
-          barStyle={theme.dark ? 'light-content' : 'dark-content'}
+          barStyle={theme.dark ? "light-content" : "dark-content"}
           backgroundColor={theme.colors.background}
         />
-        <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
+        <Stack screenOptions={{ headerShown: false, animation: "none" }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="privacy-consent" />
           <Stack.Screen name="onboarding" />
@@ -114,9 +121,6 @@ function InnerLayout() {
   );
 }
 
-/**
- * Root layout — wraps the entire app with providers.
- */
 export default function RootLayout() {
   return (
     <SafeAreaProvider>

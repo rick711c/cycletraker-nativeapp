@@ -1,36 +1,16 @@
-/**
- * Local Notification Provider — powered by expo-notifications
- *
- * This is the ONLY file that imports the native notification library.
- * Swapping to Firebase means creating a new provider file implementing
- * the same NotificationProvider interface — nothing else changes.
- *
- * NOTE: expo-notifications push support was removed from Expo Go in SDK 53.
- * We lazy-load the module and fall back to a no-op provider when running
- * inside Expo Go so the app can still boot without crashing.
- */
+import Constants from "expo-constants";
+import type {
+    NotificationProvider,
+    ScheduledNotification,
+} from "./notificationTypes";
 
-import Constants from 'expo-constants';
-import type { NotificationProvider, ScheduledNotification } from './notificationTypes';
+const isExpoGo = Constants.appOwnership === "expo";
 
-// ---------------------------------------------------------------------------
-// Detect whether we're running inside Expo Go
-// ---------------------------------------------------------------------------
-
-const isExpoGo = Constants.appOwnership === 'expo';
-
-// ---------------------------------------------------------------------------
-// Lazy-loaded expo-notifications reference (only resolved in dev builds)
-// ---------------------------------------------------------------------------
-
-let Notifications: typeof import('expo-notifications') | null = null;
+let Notifications: typeof import("expo-notifications") | null = null;
 
 if (!isExpoGo) {
   try {
-    // Dynamic require so the module is never evaluated inside Expo Go
-    Notifications = require('expo-notifications');
-
-    // Configure how notifications behave when received
+    Notifications = require("expo-notifications");
     Notifications!.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
@@ -42,22 +22,18 @@ if (!isExpoGo) {
       }),
     });
   } catch (err) {
-    console.warn('[Notifications] Failed to load expo-notifications:', err);
+    console.warn("[Notifications] Failed to load expo-notifications:", err);
   }
 }
-
-// ---------------------------------------------------------------------------
-// Provider implementation
-// ---------------------------------------------------------------------------
 
 export const localNotificationProvider: NotificationProvider = {
   async requestPermission(): Promise<boolean> {
     if (!Notifications) {
-      console.log('[Notifications] Skipped (Expo Go — not supported)');
+      console.log("[Notifications] Skipped (Expo Go — not supported)");
       return false;
     }
     const { status } = await Notifications.requestPermissionsAsync();
-    return status === 'granted';
+    return status === "granted";
   },
 
   async scheduleNotification(n: ScheduledNotification): Promise<void> {

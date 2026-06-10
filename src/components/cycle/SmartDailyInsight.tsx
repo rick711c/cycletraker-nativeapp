@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 import { Card, Text, Chip, Checkbox, Divider, useTheme } from 'react-native-paper';
-import { cyclePhaseColors } from '../../theme/muiTheme';
-import Icon from '../ui/Icon';
-import { AppMode, DailyInsightData, TryToConceiveInsight, PregnancyInsight, TrackCycleInsight } from '../../types/insight';
-import { getInsightForDay } from '../../lib/insightHelpers';
+import { cyclePhaseColors } from '@/src/theme/muiTheme';
+import Icon from '@/src/components/ui/Icon';
+import { AppMode, DailyInsightData, TryToConceiveInsight, PregnancyInsight, TrackCycleInsight } from '@/src/types/insight';
+import { getInsightForDay } from '@/src/lib/insightHelpers';
 
 // ---------------------------------------------------------------------------
 // Phase display helpers

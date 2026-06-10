@@ -1,4 +1,4 @@
-export type AppMode = 'trackCycle' | 'tryToConceive' | 'trackPregnancy';
+export type AppMode = "trackCycle" | "tryToConceive" | "trackPregnancy";
 
 export interface InsightBase {
   dayRange: [number, number];

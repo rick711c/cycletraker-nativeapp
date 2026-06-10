@@ -4,13 +4,14 @@
     "slug": "flora",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "expo54testapp",
     "userInterfaceStyle": "automatic",
-    "scheme": "flora",
-    "icon": "./assets/icon.png",
+    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#ffffff"
     },
     "ios": {
       "bundleIdentifier": "app.stewbit.flora",
@@ -18,24 +19,21 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
       },
       "package": "app.stewbit.flora",
-      "softwareKeyboardLayoutMode": "resize"
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
     },
-    "plugins": [
-      "expo-router",
-      "expo-sqlite",
-      "expo-notifications",
-      "expo-splash-screen",
-      "expo-font"
-    ],
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "a40f8e36-e266-4ff4-83bb-99d1756e2411"
-      }
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": ["expo-router", "expo-asset", "expo-audio", "expo-sqlite"],
+    "experiments": {
+      "typedRoutes": true
     }
   }
 }

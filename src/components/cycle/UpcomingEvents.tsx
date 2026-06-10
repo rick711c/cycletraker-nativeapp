@@ -1,23 +1,19 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Card, Text } from 'react-native-paper';
-import Icon from '../ui/Icon';
-import { format, parseISO, differenceInDays } from 'date-fns';
-import type { CycleStats } from '@/types/cycle';
+import type { CycleStats } from "@/src/types/cycle";
+import { differenceInDays, format, parseISO } from "date-fns";
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import { Card, Text } from "react-native-paper";
+import Icon from "../ui/Icon";
 
-// --- Types & Constants ---
-
-// Assuming you might not have the theme file set up yet in RN, 
-// I've included the colors here. You can move these to your theme config later.
 const cyclePhaseColors = {
-  menstruation: '#FF5252',
-  follicular: '#448AFF',
-  ovulation: '#69F0AE',
-  luteal: '#FFAB40',
+  menstruation: "#FF5252",
+  follicular: "#448AFF",
+  ovulation: "#69F0AE",
+  luteal: "#FFAB40",
 };
 
 const chartColors = {
-  chart2: '#E91E63', // Pink/Heart color
+  chart2: "#E91E63",
 };
 
 interface UpcomingEventsProps {
@@ -26,8 +22,6 @@ interface UpcomingEventsProps {
 
 export function UpcomingEvents({ stats }: UpcomingEventsProps) {
   const today = new Date();
-  
-  // Guard clause to prevent crashes if stats aren't loaded yet
   if (!stats) return null;
 
   const nextPeriod = parseISO(stats.nextPeriodDate);
@@ -44,21 +38,25 @@ export function UpcomingEvents({ stats }: UpcomingEventsProps) {
 
   const events = [
     {
-      icon: isPeriodLate ? 'alert-circle' : 'weather-night',
-      label: isPeriodLate ? 'Period late by' : 'Next Period',
-      date: format(nextPeriod, 'MMM d'),
+      icon: isPeriodLate ? "alert-circle" : "weather-night",
+      label: isPeriodLate ? "Period late by" : "Next Period",
+      date: format(nextPeriod, "MMM d"),
       days: Math.abs(daysUntilPeriod),
       color: cyclePhaseColors.menstruation,
       isLate: isPeriodLate,
     },
     {
-      icon: isInFertileWindow ? 'heart' : (isOvulationPast ? 'calendar-check' : 'heart'),
-      label: isInFertileWindow
-        ? 'Fertile Window'
+      icon: isInFertileWindow
+        ? "heart"
         : isOvulationPast
-          ? 'Ovulation was'
-          : 'Ovulation in',
-      date: isInFertileWindow ? 'Now' : format(ovulation, 'MMM d'),
+          ? "calendar-check"
+          : "heart",
+      label: isInFertileWindow
+        ? "Fertile Window"
+        : isOvulationPast
+          ? "Ovulation was"
+          : "Ovulation in",
+      date: isInFertileWindow ? "Now" : format(ovulation, "MMM d"),
       days: isInFertileWindow ? 0 : Math.abs(daysUntilOvulation),
       color: chartColors.chart2,
       isLate: isOvulationPast && !isInFertileWindow,
@@ -70,7 +68,6 @@ export function UpcomingEvents({ stats }: UpcomingEventsProps) {
       <Text variant="titleLarge" style={styles.headerTitle}>
         Upcoming
       </Text>
-      
       <View style={styles.grid}>
         {events.map((event) => (
           <Card
@@ -90,33 +87,30 @@ export function UpcomingEvents({ stats }: UpcomingEventsProps) {
                   styles.iconContainer,
                   {
                     backgroundColor: event.isLate
-                      ? `${event.color}30`   // stronger tint when late
+                      ? `${event.color}30`
                       : `${event.color}15`,
                   },
                 ]}
               >
                 <Icon icon={event.icon} size={20} color={event.color} />
               </View>
-              
               <Text
                 variant="bodyMedium"
                 style={[
                   styles.label,
-                  event.isLate && { color: event.color, fontWeight: '700' },
+                  event.isLate && { color: event.color, fontWeight: "700" },
                 ]}
               >
                 {event.label}
               </Text>
-              
-              <Text 
-                variant="headlineSmall" 
+              <Text
+                variant="headlineSmall"
                 style={[styles.daysText, { color: event.color }]}
               >
                 {event.days === 0
-                  ? 'Today!'
-                  : `${event.days} day${event.days !== 1 ? 's' : ''}`}
+                  ? "Today!"
+                  : `${event.days} day${event.days !== 1 ? "s" : ""}`}
               </Text>
-              
               <Text
                 variant="labelSmall"
                 style={[
@@ -135,41 +129,20 @@ export function UpcomingEvents({ stats }: UpcomingEventsProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16, // px: 2
-  },
-  headerTitle: {
-    fontWeight: '600',
-    marginBottom: 16, // mb: 2
-  },
-  grid: {
-    flexDirection: 'row',
-    gap: 16, // gap: 2 (MUI spacing 2 = 16px)
-  },
-  card: {
-    flex: 1, // mimics grid 1fr
-  },
-  cardContent: {
-    padding: 16, // p: 2
-  },
+  container: { paddingHorizontal: 16 },
+  headerTitle: { fontWeight: "600", marginBottom: 16 },
+  grid: { flexDirection: "row", gap: 16 },
+  card: { flex: 1 },
+  cardContent: { padding: 16 },
   iconContainer: {
     width: 40,
     height: 40,
-    borderRadius: 20, // 50%
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12, // mb: 1.5
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
   },
-  label: {
-    fontWeight: '500',
-    // color: text.primary is default
-  },
-  daysText: {
-    fontWeight: '700',
-    marginVertical: 2,
-    fontSize: 24, // Explicitly setting size can help match h5 visuals
-  },
-  dateText: {
-    color: '#666666', // text.secondary
-  },
+  label: { fontWeight: "500" },
+  daysText: { fontWeight: "700", marginVertical: 2, fontSize: 24 },
+  dateText: { color: "#666666" },
 });

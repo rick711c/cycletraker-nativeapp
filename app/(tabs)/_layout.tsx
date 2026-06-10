@@ -1,16 +1,18 @@
-import React from 'react';
-import { Tabs } from 'expo-router';
-import { useTheme } from 'react-native-paper';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import React from "react";
+import { useTheme } from "react-native-paper";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabsLayout() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }} edges={['top']}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      edges={["top"]}
+    >
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -27,14 +29,14 @@ export default function TabsLayout() {
           },
           tabBarLabelStyle: {
             fontSize: 12,
-            fontWeight: '500',
+            fontWeight: "500",
           },
         }}
       >
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Home',
+            title: "Home",
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="home" size={size} color={color} />
             ),
@@ -43,16 +45,20 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="calendar"
           options={{
-            title: 'Calendar',
+            title: "Calendar",
             tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="calendar-month" size={size} color={color} />
+              <MaterialCommunityIcons
+                name="calendar-month"
+                size={size}
+                color={color}
+              />
             ),
           }}
         />
         <Tabs.Screen
           name="log"
           options={{
-            title: 'Log',
+            title: "Log",
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="plus" size={size} color={color} />
             ),
@@ -61,16 +67,20 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="insights"
           options={{
-            title: 'Insights',
+            title: "Insights",
             tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="chart-bar" size={size} color={color} />
+              <MaterialCommunityIcons
+                name="chart-bar"
+                size={size}
+                color={color}
+              />
             ),
           }}
         />
         <Tabs.Screen
           name="settings"
           options={{
-            title: 'Settings',
+            title: "Settings",
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="cog" size={size} color={color} />
             ),

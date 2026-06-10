@@ -1,18 +1,24 @@
-export type CyclePhase = 'menstruation' | 'follicular' | 'ovulation' | 'luteal';
+export type CyclePhase = "menstruation" | "follicular" | "ovulation" | "luteal";
 
-export type FlowIntensity = 'spotting' | 'light' | 'medium' | 'heavy';
+export type FlowIntensity = "spotting" | "light" | "medium" | "heavy";
 
-export type Mood = 'happy' | 'sensitive' | 'sad' | 'anxious' | 'energetic' | 'irritable';
+export type Mood =
+  | "happy"
+  | "sensitive"
+  | "sad"
+  | "anxious"
+  | "energetic"
+  | "irritable";
 
-export type PhysicalSymptom = 
-  | 'cramps' 
-  | 'headache' 
-  | 'bloating' 
-  | 'breast_tenderness' 
-  | 'acne' 
-  | 'fatigue'
-  | 'backache'
-  | 'nausea';
+export type PhysicalSymptom =
+  | "cramps"
+  | "headache"
+  | "bloating"
+  | "breast_tenderness"
+  | "acne"
+  | "fatigue"
+  | "backache"
+  | "nausea";
 
 export interface DayLog {
   date: string;
@@ -35,7 +41,7 @@ export interface UserSettings {
   averageCycleLength: number;
   averagePeriodLength: number;
   lastPeriodDate: string;
-  goal: 'track' | 'conceive' | 'pregnancy';
+  goal: "track" | "conceive" | "pregnancy";
   notificationsEnabled: boolean;
 }
 

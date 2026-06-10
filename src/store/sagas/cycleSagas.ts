@@ -1,88 +1,71 @@
-/**
- * Cycle Sagas — handle fetchAllData, startPeriod, endPeriod
- *
- * After any data change that affects cycle dates, we reschedule
- * all notifications via the NotificationService.
- */
-
-import { call, put, takeLatest, takeEvery, select } from 'redux-saga/effects';
-import { format, differenceInDays, parseISO, eachDayOfInterval } from 'date-fns';
-
-import { getAllCycles, insertCycle, updateCycle } from '../../db/cyclesApi';
-import { getAllDayLogs, upsertDayLog } from '../../db/dayLogsApi';
 import {
-  fetchAllData,
-  startPeriodRequest,
-  endPeriodRequest,
-  changePeriodDateRequest,
-  setCycles,
-  setDayLogs,
-  addDayLog,
-  addCycle,
-  updateLastCycle,
-  updateSettings,
-  setLoading,
-  setError,
-  selectCycles,
-  selectSettings,
-  selectCycleStats,
-} from '../cycleSlice';
-import { PayloadAction } from '@reduxjs/toolkit';
-import { CycleData, CycleStats, DayLog, UserSettings } from '../../types/cycle';
-import { upsertSettings } from '../../db/settingsApi';
+    differenceInDays,
+    eachDayOfInterval,
+    format,
+    parseISO,
+} from "date-fns";
+import { call, put, select, takeEvery, takeLatest } from "redux-saga/effects";
 
-import { buildCycleNotifications } from '../../notifications/notificationScheduler';
+import { PayloadAction } from "@reduxjs/toolkit";
+import { getAllCycles, insertCycle, updateCycle } from "../../db/cyclesApi";
+import { getAllDayLogs, upsertDayLog } from "../../db/dayLogsApi";
+import { upsertSettings } from "../../db/settingsApi";
+import { buildCycleNotifications } from "../../notifications/notificationScheduler";
 import {
-  cancelAllNotifications,
-  scheduleNotification,
-} from '../../notifications/notificationService';
-
-// ── Notification rescheduling ────────────────────────────────────────────────
+    cancelAllNotifications,
+    scheduleNotification,
+} from "../../notifications/notificationService";
+import { CycleData, CycleStats, DayLog, UserSettings } from "../../types/cycle";
+import {
+    addCycle,
+    addDayLog,
+    changePeriodDateRequest,
+    endPeriodRequest,
+    fetchAllData,
+    selectCycles,
+    selectCycleStats,
+    selectSettings,
+    setCycles,
+    setDayLogs,
+    setError,
+    setLoading,
+    startPeriodRequest,
+    updateLastCycle,
+    updateSettings,
+} from "../cycleSlice";
 
 export function* rescheduleNotifications() {
   try {
     const settings: UserSettings = yield select(selectSettings);
-
-    // If notifications are disabled, just cancel everything
     if (!settings.notificationsEnabled) {
       yield call(cancelAllNotifications);
       return;
     }
-
-    // 1. Cancel all existing scheduled notifications
     yield call(cancelAllNotifications);
-
-    // 2. Build the new notification list from current stats
     const stats: CycleStats = yield select(selectCycleStats);
     const notifications = buildCycleNotifications(stats);
-
-    // 3. Schedule each one
     for (const n of notifications) {
       yield call(scheduleNotification, n);
     }
-
-    console.log(`[Notifications] Scheduled ${notifications.length} notifications`);
+    console.log(
+      `[Notifications] Scheduled ${notifications.length} notifications`,
+    );
   } catch (err: any) {
-    // Notification failures should not break the app
-    console.warn('[Notifications] Failed to reschedule:', err?.message);
+    console.warn("[Notifications] Failed to reschedule:", err?.message);
   }
 }
-
-// ── fetchAllData ─────────────────────────────────────────────────────────────
 
 function* handleFetchAllData() {
   try {
     yield put(setLoading(true));
     const cycles: CycleData[] = yield call(getAllCycles);
-    const dayLogs: DayLog[]   = yield call(getAllDayLogs);
+    const dayLogs: DayLog[] = yield call(getAllDayLogs);
     yield put(setCycles(cycles));
     yield put(setDayLogs(dayLogs));
     yield put(setLoading(false));
-
-    // Reschedule notifications after data load
     yield call(rescheduleNotifications);
   } catch (err: any) {
-    yield put(setError(err?.message ?? 'Failed to load data'));
+    yield put(setError(err?.message ?? "Failed to load data"));
   }
 }
 
@@ -90,39 +73,29 @@ export function* watchFetchAllData() {
   yield takeLatest(fetchAllData, handleFetchAllData);
 }
 
-// ── startPeriod ──────────────────────────────────────────────────────────────
-
 function* handleStartPeriod(action: PayloadAction<string | undefined>) {
   try {
-    const periodDate = action.payload ?? format(new Date(), 'yyyy-MM-dd');
-
-    // 1. Insert cycle row in SQLite
+    const periodDate = action.payload ?? format(new Date(), "yyyy-MM-dd");
     yield call(insertCycle, periodDate);
     yield put(addCycle({ startDate: periodDate }));
 
-    // 2. Upsert the day log for that date
-    const existingLogs: DayLog[] = yield select(selectCycles);
-    // Build the day log
     const log: DayLog = {
       date: periodDate,
       isPeriod: true,
-      flowIntensity: 'medium',
+      flowIntensity: "medium",
       moods: [],
       symptoms: [],
     };
     yield call(upsertDayLog, log);
     yield put(addDayLog(log));
 
-    // 3. Update lastPeriodDate in settings
-    const settings: ReturnType<typeof selectSettings> = yield select(selectSettings);
+    const settings: UserSettings = yield select(selectSettings);
     const updatedSettings = { ...settings, lastPeriodDate: periodDate };
     yield call(upsertSettings, updatedSettings);
     yield put(updateSettings(updatedSettings));
-
-    // 4. Reschedule notifications with new period date
     yield call(rescheduleNotifications);
   } catch (err: any) {
-    yield put(setError(err?.message ?? 'Failed to start period'));
+    yield put(setError(err?.message ?? "Failed to start period"));
   }
 }
 
@@ -130,32 +103,24 @@ export function* watchStartPeriod() {
   yield takeEvery(startPeriodRequest, handleStartPeriod);
 }
 
-// ── endPeriod ────────────────────────────────────────────────────────────────
-
 function* handleEndPeriod(action: PayloadAction<string | undefined>) {
   try {
-    const endDate = action.payload ?? format(new Date(), 'yyyy-MM-dd');
+    const endDate = action.payload ?? format(new Date(), "yyyy-MM-dd");
     const cycles: CycleData[] = yield select(selectCycles);
     const currentCycle = cycles[cycles.length - 1];
 
     if (currentCycle && !currentCycle.endDate) {
       const length =
-        differenceInDays(parseISO(endDate), parseISO(currentCycle.startDate)) + 1;
-
+        differenceInDays(parseISO(endDate), parseISO(currentCycle.startDate)) +
+        1;
       yield call(updateCycle, currentCycle.startDate, endDate, length);
       yield put(
-        updateLastCycle({
-          startDate: currentCycle.startDate,
-          endDate,
-          length,
-        }),
+        updateLastCycle({ startDate: currentCycle.startDate, endDate, length }),
       );
-
-      // Reschedule notifications with updated cycle data
       yield call(rescheduleNotifications);
     }
   } catch (err: any) {
-    yield put(setError(err?.message ?? 'Failed to end period'));
+    yield put(setError(err?.message ?? "Failed to end period"));
   }
 }
 
@@ -163,31 +128,25 @@ export function* watchEndPeriod() {
   yield takeEvery(endPeriodRequest, handleEndPeriod);
 }
 
-// ── changePeriodDate ─────────────────────────────────────────────────────────
-
 function* handleChangePeriodDate(
   action: PayloadAction<{ startDate: string; endDate: string }>,
 ) {
   try {
     const { startDate, endDate } = action.payload;
-    const periodLength =
-      differenceInDays(parseISO(endDate), parseISO(startDate)) + 1;
-
-    // 1. Insert cycle row in SQLite with start + end
     yield call(insertCycle, startDate);
-    yield call(updateCycle, startDate, endDate, periodLength);
-    yield put(addCycle({ startDate, endDate, length: periodLength }));
+    const length = differenceInDays(parseISO(endDate), parseISO(startDate)) + 1;
+    yield call(updateCycle, startDate, endDate, length);
 
-    // 2. Upsert day logs for every day in the period range
-    const allDays = eachDayOfInterval({
+    const days = eachDayOfInterval({
       start: parseISO(startDate),
       end: parseISO(endDate),
     });
-    for (const day of allDays) {
+    for (const day of days) {
+      const dateStr = format(day, "yyyy-MM-dd");
       const log: DayLog = {
-        date: format(day, 'yyyy-MM-dd'),
+        date: dateStr,
         isPeriod: true,
-        flowIntensity: 'medium',
+        flowIntensity: "medium",
         moods: [],
         symptoms: [],
       };
@@ -195,16 +154,15 @@ function* handleChangePeriodDate(
       yield put(addDayLog(log));
     }
 
-    // 3. Update lastPeriodDate in settings
+    yield put(addCycle({ startDate, endDate, length }));
+
     const settings: UserSettings = yield select(selectSettings);
     const updatedSettings = { ...settings, lastPeriodDate: startDate };
     yield call(upsertSettings, updatedSettings);
     yield put(updateSettings(updatedSettings));
-
-    // 4. Reschedule notifications with new period date
     yield call(rescheduleNotifications);
   } catch (err: any) {
-    yield put(setError(err?.message ?? 'Failed to change period date'));
+    yield put(setError(err?.message ?? "Failed to update period"));
   }
 }
 

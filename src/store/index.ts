@@ -1,3 +1,4 @@
-export { store, persistor } from './store';
-export type { RootState, AppDispatch } from './types';
-export { useAppSelector, useAppDispatch } from './hooks';
+export { useAppDispatch, useAppSelector } from "./hooks";
+export { persistor, store } from "./store";
+export type { AppDispatch, RootState } from "./types";
+

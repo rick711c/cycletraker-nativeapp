@@ -1,43 +1,29 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text, Button, useTheme } from 'react-native-paper';
-import { Link } from 'expo-router';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Link, Stack } from "expo-router";
+import { StyleSheet, View } from "react-native";
+import { Text } from "react-native-paper";
 
-export default function NotFound() {
-  const theme = useTheme();
-
+export default function NotFoundScreen() {
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <MaterialCommunityIcons name="alert-circle-outline" size={64} color={theme.colors.onSurfaceVariant} />
-      <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
-        Page not found
-      </Text>
-      <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
-        The page you're looking for doesn't exist.
-      </Text>
-      <Link href="/" asChild>
-        <Button mode="contained" style={styles.button}>
-          Go Home
-        </Button>
-      </Link>
-    </View>
+    <>
+      <Stack.Screen options={{ title: "Oops!" }} />
+      <View style={styles.container}>
+        <Text variant="headlineMedium">This screen doesn't exist.</Text>
+        <Link href="/" style={styles.link}>
+          <Text variant="bodyLarge" style={{ color: "#D92581" }}>
+            Go to home screen!
+          </Text>
+        </Link>
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-    gap: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
   },
-  title: {
-    fontWeight: '700',
-    marginTop: 8,
-  },
-  button: {
-    marginTop: 16,
-  },
+  link: { marginTop: 15, paddingVertical: 15 },
 });

@@ -1,16 +1,16 @@
-import React, { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text, Chip, useTheme } from 'react-native-paper';
-import { cyclePhaseColors } from '../../theme/muiTheme';
-import Svg, { Path, Circle } from 'react-native-svg';
+import { cyclePhaseColors } from "@/src/theme/muiTheme";
+import React, { useMemo } from "react";
+import { StyleSheet, View } from "react-native";
+import { Chip, Text, useTheme } from "react-native-paper";
+import Svg, { Circle, Path } from "react-native-svg";
 
-export type CyclePhase = 'menstruation' | 'follicular' | 'ovulation' | 'luteal';
+export type CyclePhase = "menstruation" | "follicular" | "ovulation" | "luteal";
 
 const phaseLabels: Record<CyclePhase, string> = {
-  menstruation: 'Period',
-  follicular: 'Follicular',
-  ovulation: 'Ovulation',
-  luteal: 'Luteal',
+  menstruation: "Period",
+  follicular: "Follicular",
+  ovulation: "Ovulation",
+  luteal: "Luteal",
 };
 
 interface CycleRingProps {
@@ -27,8 +27,7 @@ export function CycleRing({
   periodLength,
 }: CycleRingProps) {
   const theme = useTheme();
-
-const progress = Math.min((dayInCycle / cycleLength) * 100, 100);
+  const progress = Math.min((dayInCycle / cycleLength) * 100, 100);
   const circumference = 2 * Math.PI * 45;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
@@ -36,22 +35,22 @@ const progress = Math.min((dayInCycle / cycleLength) * 100, 100);
     const ovulationDay = cycleLength - 14;
     return [
       {
-        phase: 'menstruation' as CyclePhase,
+        phase: "menstruation" as CyclePhase,
         start: 0,
         end: periodLength / cycleLength,
       },
       {
-        phase: 'follicular' as CyclePhase,
+        phase: "follicular" as CyclePhase,
         start: periodLength / cycleLength,
         end: (ovulationDay - 1) / cycleLength,
       },
       {
-        phase: 'ovulation' as CyclePhase,
+        phase: "ovulation" as CyclePhase,
         start: (ovulationDay - 1) / cycleLength,
         end: (ovulationDay + 3) / cycleLength,
       },
       {
-        phase: 'luteal' as CyclePhase,
+        phase: "luteal" as CyclePhase,
         start: (ovulationDay + 3) / cycleLength,
         end: 1,
       },
@@ -65,21 +64,18 @@ const progress = Math.min((dayInCycle / cycleLength) * 100, 100);
           width={208}
           height={208}
           viewBox="0 0 100 100"
-          style={{ transform: [{ rotate: '-90deg' }] }}
+          style={{ transform: [{ rotate: "-90deg" }] }}
         >
-          {phases.map(segment => {
+          {phases.map((segment) => {
             const startAngle = segment.start * 360;
             const endAngle = segment.end * 360;
             const sweepAngle = endAngle - startAngle;
-
             const startRad = (startAngle * Math.PI) / 180;
             const endRad = (endAngle * Math.PI) / 180;
-
             const x1 = 50 + 45 * Math.cos(startRad);
             const y1 = 50 + 45 * Math.sin(startRad);
             const x2 = 50 + 45 * Math.cos(endRad);
             const y2 = 50 + 45 * Math.sin(endRad);
-
             const largeArcFlag = sweepAngle > 180 ? 1 : 0;
 
             return (
@@ -108,31 +104,27 @@ const progress = Math.min((dayInCycle / cycleLength) * 100, 100);
         <View style={styles.centerContent}>
           <Text
             variant="displayMedium"
-            style={{ fontWeight: '700', color: theme.colors.onSurface }}
+            style={{ fontWeight: "700", color: theme.colors.onSurface }}
           >
             {dayInCycle}
           </Text>
           <Text
             variant="bodyMedium"
-            style={{ color: theme.colors.onSurfaceVariant, fontWeight: '500' }}
+            style={{ color: theme.colors.onSurfaceVariant, fontWeight: "500" }}
           >
             Day of cycle
           </Text>
-
           <Chip
             mode="flat"
             style={[
               styles.chip,
-              // Use a subtle translucent tint based on the phase color; fall back to surfaceVariant
               {
-                backgroundColor: `${
-                  cyclePhaseColors[currentPhase] ?? theme.colors.primary
-                }20`,
+                backgroundColor: `${cyclePhaseColors[currentPhase] ?? theme.colors.primary}20`,
               },
             ]}
             textStyle={{
               color: cyclePhaseColors[currentPhase] ?? theme.colors.primary,
-              fontWeight: '600',
+              fontWeight: "600",
               fontSize: 10,
             }}
             compact
@@ -146,29 +138,16 @@ const progress = Math.min((dayInCycle / cycleLength) * 100, 100);
 }
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-  },
-  ringContainer: {
-    width: 208,
-    height: 208,
-    position: 'relative',
-  },
+  container: { alignItems: "center", justifyContent: "center", padding: 16 },
+  ringContainer: { width: 208, height: 208, position: "relative" },
   centerContent: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
-  chip: {
-    marginTop: 8,
-    // height: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  chip: { marginTop: 8, alignItems: "center", justifyContent: "center" },
 });
