@@ -1,4 +1,5 @@
 import Icon from "@/src/components/ui/Icon";
+import { PRIVACY_URL } from "@/src/constants";
 import { clearAllData } from "@/src/db/database";
 import { hapticLight, hapticWarning } from "@/src/lib/haptics";
 import { cancelAllNotifications } from "@/src/notifications/notificationService";
@@ -9,10 +10,12 @@ import {
     updateSettingsRequest,
 } from "@/src/store/cycleSlice";
 import { useRouter } from "expo-router";
+import * as LocalAuthentication from "expo-local-authentication";
 import "expo-sqlite/localStorage/install";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Alert,
+    Linking,
     ScrollView,
     StyleSheet,
     TouchableOpacity,
@@ -36,10 +39,37 @@ export default function SettingsScreen() {
 
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+      setBiometricAvailable(hasHardware && isEnrolled);
+    })();
+  }, []);
 
   const showSnackbar = (message: string) => {
     setSnackbarMessage(message);
     setSnackbarVisible(true);
+  };
+
+  const handleToggleAppLock = async () => {
+    hapticLight();
+    if (!settings.appLockEnabled) {
+      // Turning ON — verify biometric first
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Verify to enable app lock",
+        disableDeviceFallback: false,
+      });
+      if (!result.success) {
+        showSnackbar("Authentication failed. App lock was not enabled.");
+        return;
+      }
+    }
+    dispatch(
+      updateSettingsRequest({ appLockEnabled: !settings.appLockEnabled }),
+    );
   };
 
   const handleReset = () => {
@@ -69,6 +99,22 @@ export default function SettingsScreen() {
   };
 
   const settingsGroups = [
+    {
+      title: "Security",
+      items: [
+        {
+          icon: "fingerprint",
+          label: "App Lock",
+          description: biometricAvailable
+            ? "Require biometric to open Flora"
+            : "No biometric enrolled on this device",
+          type: "toggle" as const,
+          value: settings.appLockEnabled,
+          onChange: handleToggleAppLock,
+          disabled: !biometricAvailable,
+        },
+      ],
+    },
     {
       title: "Notifications",
       items: [
@@ -105,6 +151,18 @@ export default function SettingsScreen() {
           description: "Delete all your data permanently",
           type: "danger" as const,
           onClick: handleReset,
+        },
+      ],
+    },
+    {
+      title: "Legal",
+      items: [
+        {
+          icon: "shield-check-outline",
+          label: "Privacy Policy",
+          description: "View our privacy policy",
+          type: "link" as const,
+          onClick: () => Linking.openURL(PRIVACY_URL),
         },
       ],
     },
@@ -251,6 +309,7 @@ export default function SettingsScreen() {
                       value={item.value}
                       onValueChange={item.onChange}
                       color={theme.colors.primary}
+                      disabled={"disabled" in item && item.disabled}
                     />
                   )}
                   {(item.type === "link" || item.type === "danger") && (

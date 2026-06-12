@@ -5,15 +5,17 @@ import { setOnboarded, updateSettingsRequest } from "@/src/store/cycleSlice";
 import { format, subDays } from "date-fns";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  ScrollView, StyleSheet, TouchableOpacity, View, Image,
+} from "react-native";
 import { Calendar } from "react-native-calendars";
 import {
-    Button,
-    Card,
-    IconButton,
-    ProgressBar,
-    Text,
-    useTheme,
+  Button,
+  Card,
+  IconButton,
+  ProgressBar,
+  Text,
+  useTheme,
 } from "react-native-paper";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -95,14 +97,28 @@ export default function OnboardingScreen() {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       edges={["top", "bottom"]}
     >
-      {/* Brand Header */}
-      <View style={styles.brandHeader}>
-        <Icon icon="flower" size={32} color={theme.colors.primary} />
-        <Text variant="headlineMedium" style={styles.brandText}>
-          Flora
-        </Text>
-      </View>
 
+      {/* Header with image */}
+      <View style={styles.imageContainer}>
+        <Image
+          source={require("../assets/images/hero-flowers.jpg")}
+          style={styles.heroImage}
+          resizeMode="cover"
+        />
+
+        {/* Overlay to fade image */}
+        <View style={styles.imageOverlay} />
+
+        {/* Brand Overlay */}
+        <View style={styles.brandOverlay}>
+          <View style={styles.brandContent}>
+            <Icon icon="flower" size={32} color={theme.colors.primary} />
+            <Text variant="headlineMedium" style={styles.brandText}>
+              Flora
+            </Text>
+          </View>
+        </View>
+      </View>
       {step !== "welcome" && (
         <View style={styles.progressContainer}>
           <ProgressBar
@@ -477,15 +493,34 @@ export default function OnboardingScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  brandHeader: {
+  imageContainer: {
+    height: 192,
+    position: "relative",
+    overflow: "hidden",
+  },
+  heroImage: {
+    width: "100%",
+    height: "100%",
+    opacity: 0.3,
+  },
+  imageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(240, 240, 255, 0.2)",
+  },
+  brandOverlay: {
+    position: "absolute",
+    bottom: 16,
+    left: 16,
+    right: 16,
+  },
+  brandContent: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 8,
   },
-  brandText: { fontWeight: "bold" },
+  brandText: {
+    fontWeight: "bold",
+  },
   progressContainer: { paddingHorizontal: 24, paddingVertical: 16 },
   progressBar: { height: 6, borderRadius: 3 },
   scrollContent: { flexGrow: 1, paddingHorizontal: 24, paddingVertical: 16 },

@@ -29,6 +29,7 @@ const defaultSettings: UserSettings = {
   lastPeriodDate: format(new Date(), "yyyy-MM-dd"),
   goal: "track",
   notificationsEnabled: true,
+  appLockEnabled: false,
 };
 
 const initialState: CycleState = {

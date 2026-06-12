@@ -1,15 +1,17 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useRouter, useSegments } from "expo-router";
+import * as LocalAuthentication from "expo-local-authentication";
 import * as SplashScreen from "expo-splash-screen";
 import "expo-sqlite/localStorage/install";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  AppState,
   StatusBar,
   useColorScheme,
   View,
 } from "react-native";
-import { PaperProvider } from "react-native-paper";
+import { Button, PaperProvider, Text } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
@@ -21,7 +23,7 @@ import {
   requestNotificationPermission,
 } from "@/src/notifications/notificationService";
 import { persistor, store, useAppSelector } from "@/src/store";
-import { fetchAllData, selectIsOnboarded } from "@/src/store/cycleSlice";
+import { fetchAllData, selectIsOnboarded, selectSettings } from "@/src/store/cycleSlice";
 import { floraDarkTheme, floraLightTheme } from "@/src/theme/muiTheme";
 
 export { ErrorBoundary } from "expo-router";
@@ -46,6 +48,44 @@ function InnerLayout() {
 
   const [dbReady, setDbReady] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState<boolean | null>(null);
+  const settings = useAppSelector(selectSettings);
+  const [isLocked, setIsLocked] = useState(true);
+  const appState = useRef(AppState.currentState);
+
+  const attemptUnlock = useCallback(async () => {
+    if (!settings.appLockEnabled) {
+      setIsLocked(false);
+      return;
+    }
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: "Unlock Flora",
+      disableDeviceFallback: false,
+    });
+    if (result.success) {
+      setIsLocked(false);
+    }
+  }, [settings.appLockEnabled]);
+
+  // Re-lock when app goes to background
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (nextState) => {
+      if (
+        appState.current.match(/active/) &&
+        nextState.match(/inactive|background/)
+      ) {
+        if (settings.appLockEnabled) setIsLocked(true);
+      }
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextState === "active" &&
+        settings.appLockEnabled
+      ) {
+        attemptUnlock();
+      }
+      appState.current = nextState;
+    });
+    return () => sub.remove();
+  }, [settings.appLockEnabled, attemptUnlock]);
 
   useEffect(() => {
     async function bootstrap() {
@@ -71,6 +111,15 @@ function InnerLayout() {
     }
     bootstrap();
   }, []);
+
+  // Initial biometric check after bootstrap
+  useEffect(() => {
+    if (dbReady && privacyAccepted && settings.appLockEnabled) {
+      attemptUnlock();
+    } else if (dbReady) {
+      setIsLocked(false);
+    }
+  }, [dbReady, privacyAccepted, settings.appLockEnabled]);
 
   useEffect(() => {
     if (!dbReady || privacyAccepted === null) return;
@@ -98,6 +147,36 @@ function InnerLayout() {
       >
         <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
+    );
+  }
+
+  if (isLocked && settings.appLockEnabled) {
+    return (
+      <PaperProvider theme={theme}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: theme.colors.background,
+            gap: 24,
+            padding: 32,
+          }}
+        >
+          <Text variant="headlineMedium" style={{ fontWeight: "bold" }}>
+            🔒 Flora is Locked
+          </Text>
+          <Text
+            variant="bodyLarge"
+            style={{ color: theme.colors.onSurfaceVariant, textAlign: "center" }}
+          >
+            Authenticate to access your data
+          </Text>
+          <Button mode="contained" onPress={attemptUnlock} icon="fingerprint">
+            Unlock
+          </Button>
+        </View>
+      </PaperProvider>
     );
   }
 

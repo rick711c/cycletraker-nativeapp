@@ -21,7 +21,8 @@ export async function initDatabase(): Promise<void> {
       average_period_length INTEGER NOT NULL DEFAULT 5,
       last_period_date      TEXT    NOT NULL DEFAULT (date('now')),
       goal                  TEXT    NOT NULL DEFAULT 'track',
-      notifications_enabled INTEGER NOT NULL DEFAULT 1
+      notifications_enabled INTEGER NOT NULL DEFAULT 1,
+      app_lock_enabled      INTEGER NOT NULL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS cycles (
@@ -43,6 +44,15 @@ export async function initDatabase(): Promise<void> {
       water_intake   REAL
     );
   `);
+
+  // Migration: add app_lock_enabled to existing databases
+  try {
+    await db.runAsync(
+      `ALTER TABLE settings ADD COLUMN app_lock_enabled INTEGER NOT NULL DEFAULT 0`,
+    );
+  } catch {
+    // Column already exists — ignore
+  }
 }
 
 export async function clearAllData(): Promise<void> {

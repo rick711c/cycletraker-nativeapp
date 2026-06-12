@@ -8,6 +8,7 @@ const DEFAULT_SETTINGS: UserSettings = {
   lastPeriodDate: format(new Date(), "yyyy-MM-dd"),
   goal: "track",
   notificationsEnabled: true,
+  appLockEnabled: false,
 };
 
 function rowToSettings(row: Record<string, any>): UserSettings {
@@ -17,6 +18,7 @@ function rowToSettings(row: Record<string, any>): UserSettings {
     lastPeriodDate: row.last_period_date as string,
     goal: row.goal as UserSettings["goal"],
     notificationsEnabled: row.notifications_enabled === 1,
+    appLockEnabled: row.app_lock_enabled === 1,
   };
 }
 
@@ -36,14 +38,15 @@ export async function upsertSettings(
 
   await db.runAsync(
     `INSERT OR REPLACE INTO settings
-       (id, average_cycle_length, average_period_length, last_period_date, goal, notifications_enabled)
-     VALUES (1, ?, ?, ?, ?, ?)`,
+       (id, average_cycle_length, average_period_length, last_period_date, goal, notifications_enabled, app_lock_enabled)
+     VALUES (1, ?, ?, ?, ?, ?, ?)`,
     [
       merged.averageCycleLength,
       merged.averagePeriodLength,
       merged.lastPeriodDate,
       merged.goal,
       merged.notificationsEnabled ? 1 : 0,
+      merged.appLockEnabled ? 1 : 0,
     ],
   );
 

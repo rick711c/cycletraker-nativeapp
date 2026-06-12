@@ -31,7 +31,18 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": ["expo-router", "expo-asset", "expo-audio", "expo-sqlite"],
+    "plugins": [
+      "expo-router",
+      "expo-asset",
+      "expo-audio",
+      "expo-sqlite",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow Flora to use Face ID to unlock the app."
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     }

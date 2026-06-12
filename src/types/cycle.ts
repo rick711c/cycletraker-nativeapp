@@ -43,6 +43,7 @@ export interface UserSettings {
   lastPeriodDate: string;
   goal: "track" | "conceive" | "pregnancy";
   notificationsEnabled: boolean;
+  appLockEnabled: boolean;
 }
 
 export interface CycleStats {
