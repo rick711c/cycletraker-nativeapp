@@ -1,19 +1,17 @@
-import { CycleRing } from "@/src/components/cycle/CycleRing";
+import { AnimeGrasslandCanvas } from "@/src/components/cycle/AnimeGrasslandCanvas";
 import { QuickActions } from "@/src/components/cycle/QuickActions";
 import { SmartDailyInsight } from "@/src/components/cycle/SmartDailyInsight";
 import { UpcomingEvents } from "@/src/components/cycle/UpcomingEvents";
-import Icon from "@/src/components/ui/Icon";
 import { useAppSelector } from "@/src/store";
 import { selectCycleStats, selectSettings } from "@/src/store/cycleSlice";
 import { AppMode } from "@/src/types/insight";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Text, useTheme } from "react-native-paper";
 
 export default function HomeScreen() {
-  const theme = useTheme();
   const stats = useAppSelector(selectCycleStats);
   const settings = useAppSelector(selectSettings);
+
   const appMode: AppMode =
     settings.goal === "conceive"
       ? "tryToConceive"
@@ -23,46 +21,25 @@ export default function HomeScreen() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      style={styles.scrollView}
       contentContainerStyle={styles.container}
+      bounces={false}
     >
-      <View style={styles.header}>
-        <View style={styles.brandContainer}>
-          <Icon icon="flower" size={28} color={theme.colors.primary} />
-          <Text variant="headlineSmall" style={styles.brandText}>
-            Flora
-          </Text>
-        </View>
-        <View style={styles.dateContainer}>
-          <Text
-            variant="bodySmall"
-            style={{ color: theme.colors.onSurfaceVariant }}
-          >
-            Today
-          </Text>
-          <Text
-            variant="bodyMedium"
-            style={[styles.dateText, { color: theme.colors.onSurface }]}
-          >
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "short",
-              month: "short",
-              day: "numeric",
-            })}
-          </Text>
-        </View>
-      </View>
+      {/* 1. Unified upper viewport canvas
+        Houses the brand logo, live date tracking, anime grassland scenery, 
+        the animated white cat, and the core progress data ring.
+      */}
+      <AnimeGrasslandCanvas
+        dayInCycle={stats.dayInCycle}
+        cycleLength={stats.averageCycleLength}
+        currentPhase={stats.currentPhase}
+        periodLength={stats.averagePeriodLength}
+      />
 
-      <View style={styles.sectionPadding}>
-        <CycleRing
-          dayInCycle={stats.dayInCycle}
-          cycleLength={stats.averageCycleLength}
-          currentPhase={stats.currentPhase}
-          periodLength={stats.averagePeriodLength}
-        />
-      </View>
-
+      {/* 2. Upgraded premium pill-shaped interaction layer */}
       <QuickActions />
+
+      {/* 3. Cycle information and insight timelines */}
       <UpcomingEvents stats={stats} />
 
       <View style={styles.insightContainer}>
@@ -73,19 +50,14 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { paddingBottom: 24 },
-  header: {
-    paddingHorizontal: 16,
-    paddingTop: 24,
-    paddingBottom: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  scrollView: { 
+    flex: 1, 
+    backgroundColor: "#000000", // Keeps a pure black background canvas
   },
-  brandContainer: { flexDirection: "row", alignItems: "center", gap: 8 },
-  brandText: { fontWeight: "700" },
-  dateContainer: { alignItems: "flex-end" },
-  dateText: { fontWeight: "500" },
-  sectionPadding: { paddingVertical: 24 },
-  insightContainer: { marginTop: 24 },
+  container: { 
+    paddingBottom: 32,
+  },
+  insightContainer: { 
+    marginTop: 24,
+  },
 });

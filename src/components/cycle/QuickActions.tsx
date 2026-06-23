@@ -1,41 +1,44 @@
 import { hapticMedium, hapticSuccess } from "@/src/lib/haptics";
 import { useAppDispatch, useAppSelector } from "@/src/store";
-import {
-    endPeriodRequest,
-    selectCycles,
-    startPeriodRequest,
-} from "@/src/store/cycleSlice";
-import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { endPeriodRequest, selectCycles, startPeriodRequest } from "@/src/store/cycleSlice";
+import React, { useState, useRef } from "react";
+import { StyleSheet, View, Modal, Animated } from "react-native";
 import { Button, Dialog, Portal, Text, useTheme } from "react-native-paper";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Icon from "../ui/Icon";
 
 export function QuickActions() {
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const cycles = useAppSelector(selectCycles);
+
   const [dialogVisible, setDialogVisible] = useState(false);
+  const [motivationVisible, setMotivationVisible] = useState(false);
+  const scaleAnim = useRef(new Animated.Value(0)).current;
 
   const currentCycle = cycles[cycles.length - 1];
   const isPeriodActive = currentCycle && !currentCycle.endDate;
 
-  const handleButtonPress = () => {
-    hapticMedium();
-    setDialogVisible(true);
-  };
+  const handleButtonPress = () => { hapticMedium(); setDialogVisible(true); };
 
   const handleConfirm = () => {
     hapticSuccess();
-    if (isPeriodActive) {
-      dispatch(endPeriodRequest());
+    if (!isPeriodActive) {
+      // Show custom anime motivation overlay only when starting a period
+      setDialogVisible(false);
+      setMotivationVisible(true);
+      Animated.spring(scaleAnim, { toValue: 1, tension: 50, friction: 6, useNativeDriver: true }).start();
     } else {
-      dispatch(startPeriodRequest());
+      dispatch(endPeriodRequest());
+      setDialogVisible(false);
     }
-    setDialogVisible(false);
   };
 
-  const handleDismiss = () => {
-    setDialogVisible(false);
+  const closeMotivation = () => {
+    Animated.timing(scaleAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
+      setMotivationVisible(false);
+      dispatch(startPeriodRequest()); // Dispatches and updates the layout theme colors
+    });
   };
 
   return (
@@ -44,112 +47,91 @@ export function QuickActions() {
         mode="contained"
         onPress={handleButtonPress}
         icon={isPeriodActive ? "check" : "water"}
-        buttonColor={
-          isPeriodActive ? theme.colors.secondary : theme.colors.primary
-        }
-        textColor={
-          isPeriodActive ? theme.colors.onSecondary : theme.colors.onPrimary
-        }
+        buttonColor={isPeriodActive ? theme.colors.secondaryContainer : theme.colors.primary}
+        textColor={isPeriodActive ? theme.colors.onSecondaryContainer : theme.colors.onPrimary}
         contentStyle={styles.buttonContent}
-        style={styles.button}
+        style={[styles.button, !isPeriodActive && { elevation: 4 }]}
         labelStyle={styles.buttonLabel}
       >
         {isPeriodActive ? "Period Ended" : "Period Started"}
       </Button>
 
-      {isPeriodActive && (
-        <Text
-          variant="bodyMedium"
-          style={[styles.helperText, { color: theme.colors.onSurfaceVariant }]}
-        >
-          Tap when your period ends to log the duration
-        </Text>
-      )}
-
+      {/* ============== CONFIRMATION CONFIRM DIALOG ============== */}
       <Portal>
-        <Dialog
-          visible={dialogVisible}
-          onDismiss={handleDismiss}
-          style={[styles.dialog, { backgroundColor: theme.colors.surface }]}
-        >
+        <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)} style={[styles.dialog, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.dialogIconContainer}>
-            <View
-              style={[
-                styles.dialogIconCircle,
-                {
-                  backgroundColor: isPeriodActive
-                    ? `${theme.colors.secondary}20`
-                    : `${theme.colors.primary}20`,
-                },
-              ]}
-            >
-              <Icon
-                icon={isPeriodActive ? "check-circle-outline" : "water-outline"}
-                size={32}
-                color={
-                  isPeriodActive ? theme.colors.secondary : theme.colors.primary
-                }
-              />
+            <View style={[styles.dialogIconCircle, { backgroundColor: isPeriodActive ? `${theme.colors.secondary}15` : `${theme.colors.primary}15` }]}>
+              <Icon icon={isPeriodActive ? "check-circle-outline" : "water-outline"} size={30} color={isPeriodActive ? theme.colors.secondary : theme.colors.primary} />
             </View>
           </View>
-          <Dialog.Title style={styles.dialogTitle}>
-            {isPeriodActive ? "End Period?" : "Start Period?"}
-          </Dialog.Title>
-          <Dialog.Content>
-            <Text
-              variant="bodyMedium"
-              style={{
-                color: theme.colors.onSurfaceVariant,
-                textAlign: "center",
-              }}
-            >
-              {isPeriodActive
-                ? "Are you sure your period has ended? This will log the duration of your current cycle."
-                : "Has your period started today? This will begin tracking a new cycle."}
+          <Dialog.Title style={styles.dialogTitle}>{isPeriodActive ? "End Period?" : "Start Period?"}</Dialog.Title>
+          <Dialog.Content style={{ paddingTop: 12, paddingHorizontal: 24 }}>
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, textAlign: "center" }}>
+              {isPeriodActive ? "Are you sure your period has ended?" : "Has your period started today?"}
             </Text>
           </Dialog.Content>
           <Dialog.Actions style={styles.dialogActions}>
-            <Button
-              mode="text"
-              onPress={handleDismiss}
-              textColor={theme.colors.onSurfaceVariant}
-              style={styles.dialogButton}
-            >
-              Cancel
-            </Button>
-            <Button
-              mode="contained"
-              onPress={handleConfirm}
-              buttonColor={
-                isPeriodActive ? theme.colors.secondary : theme.colors.primary
-              }
-              style={styles.dialogButton}
-            >
-              {isPeriodActive ? "Yes, it ended" : "Yes, it started"}
-            </Button>
+            <Button mode="text" onPress={() => setDialogVisible(false)} textColor={theme.colors.onSurfaceVariant} style={styles.dialogButton}>Cancel</Button>
+            <Button mode="contained" onPress={handleConfirm} buttonColor={isPeriodActive ? theme.colors.secondary : theme.colors.primary} style={styles.dialogButton}>Yes</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
+
+      {/* ============== ✨ NEW ANIME MOTIVATION POPUP OVERLAY ✨ ============== */}
+      <Modal transparent visible={motivationVisible} animationType="fade">
+        <View style={styles.modalOverlay}>
+          <Animated.View style={[styles.motivationCard, { transform: [{ scale: scaleAnim }] }]}>
+
+            {/* Floating Magical Accent Patterns */}
+            <MaterialCommunityIcons
+              name="creation" // ✨ Swapped from "sparkles" to "creation" to fix the TypeScript error!
+              size={28}
+              color="#FFD700"
+              style={styles.sparkleIconLeft}
+            />
+            <MaterialCommunityIcons name="heart-pulse" size={24} color="#FF6B6B" style={styles.sparkleIconRight} />
+
+            <View style={styles.heartCircleContainer}>
+              <MaterialCommunityIcons name="flower-tulip" size={42} color="#FFFFFF" />
+            </View>
+
+            <Text variant="headlineSmall" style={styles.motivationTitle}>
+              You can do this, strong girl! 💪🌸
+            </Text>
+
+            <Text variant="bodyMedium" style={styles.motivationSubtitle}>
+              Your body is magical and doing incredible work today. Take a deep breath, be gentle with yourself, and stay comfortable.
+            </Text>
+
+            <Button mode="contained" onPress={closeMotivation} buttonColor="#E91E63" style={styles.cheerButton} labelStyle={{ fontWeight: "700" }}>
+              Let's do this! 💕
+            </Button>
+          </Animated.View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal: 16, paddingVertical: 24 },
-  button: { width: "100%", borderRadius: 4 },
-  buttonContent: { height: 56 },
-  buttonLabel: { fontSize: 17, fontWeight: "600" },
-  helperText: { marginTop: 12, textAlign: "center" },
-  dialog: { borderRadius: 24, marginHorizontal: 24 },
-  dialogIconContainer: { alignItems: "center", paddingTop: 24 },
-  dialogIconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  dialogTitle: { textAlign: "center", fontWeight: "700" },
-  dialogActions: { paddingHorizontal: 16, paddingBottom: 16, gap: 8 },
-  dialogButton: { flex: 1, borderRadius: 12 },
+  container: { paddingHorizontal: 24, paddingVertical: 16, width: "100%" },
+  button: { width: "100%", borderRadius: 28 },
+  buttonContent: { height: 54, flexDirection: "row-reverse" },
+  buttonLabel: { fontSize: 16, fontWeight: "700" },
+  dialog: { borderRadius: 28, marginHorizontal: 24, paddingBottom: 4 },
+  dialogIconContainer: { alignItems: "center", paddingTop: 28 },
+  dialogIconCircle: { width: 60, height: 60, borderRadius: 30, alignItems: "center", justifyContent: "center" },
+  dialogTitle: { textAlign: "center", fontWeight: "800", fontSize: 20, marginTop: 12 },
+  dialogActions: { paddingHorizontal: 20, paddingBottom: 20, gap: 12, flexDirection: "row" },
+  dialogButton: { flex: 1, borderRadius: 20, height: 44, justifyContent: "center" },
+
+  // --- Motivation Modal Overlay Rules ---
+  modalOverlay: { flex: 1, backgroundColor: "rgba(0, 0, 0, 0.78)", justifyContent: "center", alignItems: "center", paddingHorizontal: 24 },
+  motivationCard: { width: "100%", backgroundColor: "#18181C", borderRadius: 32, padding: 32, alignItems: "center", borderWidth: 1, borderColor: "#333" },
+  heartCircleContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: "#E91E63", justifyContent: "center", alignItems: "center", marginBottom: 20, shadowColor: "#E91E63", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 8 },
+  motivationTitle: { color: "#FFFFFF", fontWeight: "800", textAlign: "center", marginBottom: 12, fontSize: 22 },
+  motivationSubtitle: { color: "#B3B3B3", textAlign: "center", lineHeight: 22, marginBottom: 28, paddingHorizontal: 8 },
+  cheerButton: { width: "100%", borderRadius: 20, height: 48, justifyContent: "center" },
+  sparkleIconLeft: { position: "absolute", left: 24, top: 24 },
+  sparkleIconRight: { position: "absolute", right: 28, bottom: 90 },
 });
