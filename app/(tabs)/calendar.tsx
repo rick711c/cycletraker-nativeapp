@@ -18,6 +18,7 @@ import {
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
+    Alert,
     Animated,
     Dimensions,
     PanResponder,
@@ -160,7 +161,9 @@ export default function CalendarScreen() {
     setEditStart(null);
     setEditEnd(null);
   };
-  const handleSaveEdit = () => {
+
+  // Internal persistent routine execution
+  const executeSave = () => {
     if (editStart && editEnd) {
       dispatch(
         changePeriodDateRequest({
@@ -173,6 +176,35 @@ export default function CalendarScreen() {
     setEditMode("idle");
     setEditStart(null);
     setEditEnd(null);
+  };
+
+  // Verified & Alert Intercept Strategy
+  const handleSaveEdit = () => {
+    if (!editStart || !editEnd) return;
+
+    const loggedDuration = differenceInDays(editEnd, editStart) + 1;
+
+    if (loggedDuration > 11) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      Alert.alert(
+        "Prolonged Period Detected",
+        `You've selected a duration of ${loggedDuration} days. Typical bleeding cycles usually log between 3 to 7 days. While variations happen, prolonged bleeding could be worth verifying. We gently recommend checking your entries or consulting your doctor if this is regular for you.\n\nWould you still like to proceed and save?`,
+        [
+          {
+            text: "Review Dates",
+            style: "cancel",
+          },
+          {
+            text: "Save Anyway",
+            style: "destructive",
+            onPress: () => executeSave(),
+          },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      executeSave();
+    }
   };
 
   const screenWidth = Dimensions.get("window").width;
@@ -226,9 +258,28 @@ export default function CalendarScreen() {
       contentContainerStyle={styles.container}
     >
       <View style={styles.header}>
-        <Text variant="headlineSmall" style={styles.monthTitle}>
-          {format(currentMonth, "MMMM yyyy")}
-        </Text>
+        <View style={styles.monthNavigationRow}>
+          <TouchableOpacity 
+            onPress={() => animateMonth("right")} 
+            style={styles.navButton}
+            accessibilityRole="button"
+          >
+            <Icon name="chevron-left" size={26} color={theme.colors.onSurface} />
+          </TouchableOpacity>
+
+          <Text variant="headlineSmall" style={styles.monthTitle}>
+            {format(currentMonth, "MMMM yyyy")}
+          </Text>
+
+          <TouchableOpacity 
+            onPress={() => animateMonth("left")} 
+            style={styles.navButton}
+            accessibilityRole="button"
+          >
+            <Icon name="chevron-right" size={26} color={theme.colors.onSurface} />
+          </TouchableOpacity>
+        </View>
+
         {editMode === "idle" && (
           <IconButton
             icon="pencil-outline"
@@ -333,7 +384,6 @@ export default function CalendarScreen() {
                 borderWidth = 2;
               }
 
-              // Show a phase dot for non-period phases only
               const showPhaseDot =
                 !isPeriodDay && !isPredictedPeriod && !inEditRange;
 
@@ -634,7 +684,21 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 24,
   },
-  monthTitle: { fontWeight: "700" },
+  monthNavigationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  navButton: {
+    padding: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  monthTitle: { 
+    fontWeight: "700",
+    minWidth: 140,
+    textAlign: "center"
+  },
   editBanner: {
     flexDirection: "row",
     alignItems: "center",
