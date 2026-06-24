@@ -23,33 +23,35 @@ import {
     PhysicalSymptom,
 } from "@/src/types/cycle";
 
-const flowOptions: { id: FlowIntensity; label: string; icon: string }[] = [
-  { id: "spotting", label: "Spotting", icon: "water-outline" },
-  { id: "light", label: "Light", icon: "water" },
-  { id: "medium", label: "Medium", icon: "water-percent" },
-  { id: "heavy", label: "Heavy", icon: "waves" },
+// --- Premium Colorful Flow Configuration ---
+const flowOptions: { id: FlowIntensity; label: string; icon: string; color: string }[] = [
+  { id: "spotting", label: "Spotting", icon: "water-outline", color: "#FF9EAE" },
+  { id: "light", label: "Light", icon: "water", color: "#FF6B8B" },
+  { id: "medium", label: "Medium", icon: "water-percent", color: "#FF3366" },
+  { id: "heavy", label: "Heavy", icon: "waves", color: "#C10037" },
 ];
 
-const moodOptions: { id: Mood; label: string; emoji: string }[] = [
-  { id: "happy", label: "Happy", emoji: "😊" },
-  { id: "energetic", label: "Energetic", emoji: "⚡" },
-  { id: "sensitive", label: "Sensitive", emoji: "🥺" },
-  { id: "anxious", label: "Anxious", emoji: "😰" },
-  { id: "sad", label: "Sad", emoji: "😢" },
-  { id: "irritable", label: "Irritable", emoji: "😤" },
+// --- Premium Colorful Mood Configuration ---
+const moodOptions: { id: Mood; label: string; icon: string; color: string }[] = [
+  { id: "happy", label: "Happy", icon: "emoticon-happy-outline", color: "#FFB549" },
+  { id: "energetic", label: "Energetic", icon: "lightning-bolt", color: "#FF5E7E" },
+  { id: "sensitive", label: "Sensitive", icon: "heart-outline", color: "#A076F9" },
+  { id: "anxious", label: "Anxious", icon: "cloud-outline", color: "#4EA8DE" },
+  { id: "sad", label: "Sad", icon: "emoticon-sad-outline", color: "#56CFE1" },
+  { id: "irritable", label: "Irritable", icon: "fire", color: "#FF4747" },
 ];
 
-const symptomOptions: { id: PhysicalSymptom; label: string; emoji: string }[] =
-  [
-    { id: "cramps", label: "Cramps", emoji: "🤕" },
-    { id: "headache", label: "Headache", emoji: "🤯" },
-    { id: "bloating", label: "Bloating", emoji: "🎈" },
-    { id: "breast_tenderness", label: "Tenderness", emoji: "💗" },
-    { id: "acne", label: "Acne", emoji: "😖" },
-    { id: "fatigue", label: "Fatigue", emoji: "😴" },
-    { id: "backache", label: "Backache", emoji: "🦴" },
-    { id: "nausea", label: "Nausea", emoji: "🤢" },
-  ];
+// --- Premium Colorful Symptom Configuration ---
+const symptomOptions: { id: PhysicalSymptom; label: string; icon: string; color: string }[] = [
+  { id: "cramps", label: "Cramps", icon: "lightning-bolt-outline", color: "#FF2A7A" },
+  { id: "headache", label: "Headache", icon: "head-flash-outline", color: "#8B5CF6" },
+  { id: "bloating", label: "Bloating", icon: "balloon", color: "#F59E0B" },
+  { id: "breast_tenderness", label: "Tenderness", icon: "heart-broken-outline", color: "#EC4899" },
+  { id: "acne", label: "Acne", icon: "dots-circle", color: "#10B981" },
+  { id: "fatigue", label: "Fatigue", icon: "bed-outline", color: "#6366F1" },
+  { id: "backache", label: "Backache", icon: "bone", color: "#D97706" },
+  { id: "nausea", label: "Nausea", icon: "emoticon-sick-outline", color: "#84CC16" },
+];
 
 export default function LogScreen() {
   const theme = useTheme();
@@ -97,29 +99,23 @@ export default function LogScreen() {
   };
 
   return (
-    <View
-      style={[styles.pageWrapper, { backgroundColor: theme.colors.background }]}
-    >
-      <ScrollView contentContainerStyle={styles.container}>
+    <View style={[styles.pageWrapper, { backgroundColor: theme.colors.background }]}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text variant="headlineSmall" style={styles.headerTitle}>
             Log Today
           </Text>
-          <Text
-            variant="bodyMedium"
-            style={{ color: theme.colors.onSurfaceVariant }}
-          >
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, fontWeight: "500" }}>
             {format(new Date(), "EEEE, MMMM d")}
           </Text>
         </View>
 
+        {/* --- 1. FLOW SECTION --- */}
         <Card style={styles.card}>
-          <Card.Content>
+          <Card.Content style={styles.cardContent}>
             <View style={styles.sectionHeader}>
-              <Icon icon="water" size={20} color={theme.colors.primary} />
-              <Text variant="titleMedium" style={styles.sectionTitle}>
-                Flow
-              </Text>
+              <Icon icon="water" size={22} color={theme.colors.primary} />
+              <Text variant="titleMedium" style={styles.sectionTitle}>Flow Intensity</Text>
             </View>
             <View style={styles.gridRow}>
               {flowOptions.map((option) => {
@@ -131,40 +127,29 @@ export default function LogScreen() {
                       setLog((prev) => ({
                         ...prev,
                         isPeriod: true,
-                        flowIntensity:
-                          prev.flowIntensity === option.id
-                            ? undefined
-                            : option.id,
+                        flowIntensity: prev.flowIntensity === option.id ? undefined : option.id,
                       }))
                     }
                     style={[
                       styles.optionBox,
                       {
-                        backgroundColor: isSelected
-                          ? theme.colors.primary
-                          : theme.colors.surfaceVariant,
                         width: "23%",
+                        backgroundColor: isSelected ? option.color : `${option.color}15`,
+                        borderColor: isSelected ? option.color : `${option.color}35`,
+                        borderWidth: 1,
                       },
                     ]}
                   >
                     <Icon
                       icon={option.icon}
                       size={24}
-                      color={
-                        isSelected
-                          ? theme.colors.onPrimary
-                          : theme.colors.onSurface
-                      }
+                      color={isSelected ? "#FFFFFF" : option.color}
                     />
                     <Text
                       variant="labelSmall"
                       style={[
                         styles.optionLabel,
-                        {
-                          color: isSelected
-                            ? theme.colors.onPrimary
-                            : theme.colors.onSurface,
-                        },
+                        { color: isSelected ? "#FFFFFF" : theme.colors.onSurface, fontWeight: isSelected ? "700" : "500" },
                       ]}
                     >
                       {option.label}
@@ -176,11 +161,13 @@ export default function LogScreen() {
           </Card.Content>
         </Card>
 
+        {/* --- 2. MOODS SECTION --- */}
         <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
-              How are you feeling?
-            </Text>
+          <Card.Content style={styles.cardContent}>
+            <View style={styles.sectionHeader}>
+              <Icon icon="heart-outline" size={22} color={theme.colors.primary} />
+              <Text variant="titleMedium" style={styles.sectionTitle}>How are you feeling?</Text>
+            </View>
             <View style={styles.gridRow}>
               {moodOptions.map((option) => {
                 const isSelected = log.moods.includes(option.id);
@@ -191,17 +178,25 @@ export default function LogScreen() {
                     style={[
                       styles.optionBox,
                       {
-                        backgroundColor: isSelected
-                          ? theme.colors.primaryContainer
-                          : theme.colors.surfaceVariant,
-                        borderColor: theme.colors.primary,
-                        borderWidth: isSelected ? 2 : 0,
-                        width: "31%",
+                        width: "31.3%",
+                        backgroundColor: isSelected ? option.color : `${option.color}12`,
+                        borderColor: isSelected ? option.color : `${option.color}30`,
+                        borderWidth: 1,
                       },
                     ]}
                   >
-                    <Text style={styles.emoji}>{option.emoji}</Text>
-                    <Text variant="labelSmall" style={styles.optionLabel}>
+                    <Icon 
+                      icon={option.icon} 
+                      size={26} 
+                      color={isSelected ? "#FFFFFF" : option.color} 
+                    />
+                    <Text 
+                      variant="labelSmall" 
+                      style={[
+                        styles.optionLabel, 
+                        { color: isSelected ? "#FFFFFF" : theme.colors.onSurface, fontWeight: isSelected ? "700" : "500" }
+                      ]}
+                    >
                       {option.label}
                     </Text>
                   </TouchableOpacity>
@@ -211,11 +206,13 @@ export default function LogScreen() {
           </Card.Content>
         </Card>
 
+        {/* --- 3. SYMPTOMS SECTION --- */}
         <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
-              Symptoms
-            </Text>
+          <Card.Content style={styles.cardContent}>
+            <View style={styles.sectionHeader}>
+              <Icon icon="alert-circle-outline" size={22} color={theme.colors.primary} />
+              <Text variant="titleMedium" style={styles.sectionTitle}>Symptoms</Text>
+            </View>
             <View style={styles.gridRow}>
               {symptomOptions.map((option) => {
                 const isSelected = log.symptoms.includes(option.id);
@@ -226,19 +223,28 @@ export default function LogScreen() {
                     style={[
                       styles.optionBox,
                       {
-                        backgroundColor: isSelected
-                          ? theme.colors.primaryContainer
-                          : theme.colors.surfaceVariant,
-                        borderColor: theme.colors.primary,
-                        borderWidth: isSelected ? 2 : 0,
                         width: "23%",
+                        backgroundColor: isSelected ? option.color : `${option.color}12`,
+                        borderColor: isSelected ? option.color : `${option.color}30`,
+                        borderWidth: 1,
                       },
                     ]}
                   >
-                    <Text style={styles.emoji}>{option.emoji}</Text>
+                    <Icon 
+                      icon={option.icon} 
+                      size={24} 
+                      color={isSelected ? "#FFFFFF" : option.color} 
+                    />
                     <Text
                       variant="labelSmall"
-                      style={[styles.optionLabel, { fontSize: 10 }]}
+                      style={[
+                        styles.optionLabel,
+                        { 
+                          fontSize: 10, 
+                          color: isSelected ? "#FFFFFF" : theme.colors.onSurface, 
+                          fontWeight: isSelected ? "700" : "500" 
+                        }
+                      ]}
                       numberOfLines={1}
                     >
                       {option.label}
@@ -250,21 +256,23 @@ export default function LogScreen() {
           </Card.Content>
         </Card>
 
+        {/* --- 4. NOTES SECTION --- */}
         <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
-              Notes
-            </Text>
+          <Card.Content style={styles.cardContent}>
+            <View style={styles.sectionHeader}>
+              <Icon icon="notebook-outline" size={22} color={theme.colors.primary} />
+              <Text variant="titleMedium" style={styles.sectionTitle}>Notes</Text>
+            </View>
             <TextInput
               mode="outlined"
               placeholder="How was your day? Any other symptoms..."
+              placeholderTextColor="rgba(255,255,255,0.35)"
               value={log.notes}
-              onChangeText={(text) =>
-                setLog((prev) => ({ ...prev, notes: text }))
-              }
+              onChangeText={(text) => setLog((prev) => ({ ...prev, notes: text }))}
               multiline
               numberOfLines={4}
-              style={{ backgroundColor: theme.colors.surface }}
+              outlineStyle={{ borderRadius: 16, borderColor: "rgba(255,255,255,0.1)" }}
+              style={{ backgroundColor: "rgba(255,255,255,0.03)", color: "#FFFFFF" }}
             />
           </Card.Content>
         </Card>
@@ -286,7 +294,7 @@ export default function LogScreen() {
           styles.floatingBar,
           {
             backgroundColor: theme.colors.background,
-            paddingBottom: Math.max(insets.bottom, 20),
+            paddingBottom: Math.max(insets.bottom, 16),
           },
         ]}
       >
@@ -294,8 +302,8 @@ export default function LogScreen() {
           mode="contained"
           onPress={handleSave}
           icon="check"
-          contentStyle={{ height: 56 }}
-          labelStyle={{ fontSize: 18, fontWeight: "600" }}
+          contentStyle={{ height: 54 }}
+          labelStyle={{ fontSize: 16, fontWeight: "700", letterSpacing: 0.5 }}
           style={styles.saveButton}
         >
           Save Log
@@ -306,33 +314,36 @@ export default function LogScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal: 16, paddingTop: 24, paddingBottom: 90 },
+  container: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 110 },
   pageWrapper: { flex: 1, position: "relative" },
-  header: { marginBottom: 24 },
-  headerTitle: { fontWeight: "700" },
-  card: { marginBottom: 16 },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
+  header: { marginBottom: 20 },
+  headerTitle: { fontWeight: "800", letterSpacing: -0.5 },
+  card: { marginBottom: 16, elevation: 0, backgroundColor: "transparent" },
+  cardContent: { paddingHorizontal: 0, paddingVertical: 4 },
+  sectionHeader: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    marginBottom: 14, 
     gap: 8,
+    width: "100%",
   },
-  sectionTitle: { fontWeight: "600", marginBottom: 16 },
-  gridRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    justifyContent: "flex-start",
+  // FIXED: Replaced flexShrink with flex: 1 to grant text the remaining space and entirely ban word wrapping
+  sectionTitle: { 
+    fontWeight: "700", 
+    letterSpacing: -0.2,
+    flex: 1, 
   },
-  optionBox: {
-    alignItems: "center",
-    padding: 8,
-    borderRadius: 8,
-    marginBottom: 8,
+  gridRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, justifyContent: "flex-start" },
+  optionBox: { 
+    alignItems: "center", 
+    justifyContent: "center", 
+    paddingVertical: 14, 
+    paddingHorizontal: 4, 
+    borderRadius: 18, 
+    marginBottom: 4,
   },
-  emoji: { fontSize: 24, marginBottom: 4 },
-  optionLabel: { marginTop: 4, textAlign: "center", fontWeight: "500" },
-  saveButton: { borderRadius: 8, flex: 1 },
+  optionLabel: { marginTop: 8, textAlign: "center" },
+  saveButton: { borderRadius: 16 },
   floatingBar: {
     position: "absolute",
     bottom: 0,
@@ -340,13 +351,7 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingBottom: 20,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "rgba(0,0,0,0.08)",
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    borderTopColor: "rgba(255,255,255,0.08)",
   },
 });
