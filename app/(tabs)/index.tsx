@@ -64,6 +64,5 @@ const styles = StyleSheet.create({
   },
   insightContainer: { 
     marginTop: 24,
-    paddingHorizontal: 16,
   },
 });
