@@ -6,10 +6,12 @@ import { selectCycleStats, selectSettings } from "@/src/store/cycleSlice";
 import { AppMode } from "@/src/types/insight";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
+import { useTheme } from "react-native-paper";
 
 export default function HomeScreen() {
   const stats = useAppSelector(selectCycleStats);
   const settings = useAppSelector(selectSettings);
+  const theme = useTheme();
 
   const appMode: AppMode =
     settings.goal === "conceive"
@@ -22,14 +24,14 @@ export default function HomeScreen() {
   const nextPeriodTarget = stats.nextPeriodDate || "";
 
   return (
-    <View style={styles.viewportCanvas}>
+    <View style={[styles.viewportCanvas, { backgroundColor: theme.colors.background }]}>
       <ScrollView
-        style={styles.scrollView}
+        style={[styles.scrollView, { backgroundColor: theme.colors.background }]}
         contentContainerStyle={styles.container}
         bounces={false}
         showsVerticalScrollIndicator={false}
       >
-        {/* 1. Unified upper viewport canvas */}
+        {/* 1. Unified upper viewport canvas (always dark hero) */}
         <AnimeGrasslandCanvas
           dayInCycle={stats.dayInCycle}
           cycleLength={stats.averageCycleLength}
@@ -53,11 +55,9 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   viewportCanvas: {
     flex: 1,
-    backgroundColor: "#000000",
   },
   scrollView: { 
     flex: 1, 
-    backgroundColor: "#000000", 
   },
   container: { 
     paddingBottom: 32,
