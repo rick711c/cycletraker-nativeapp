@@ -30,6 +30,7 @@ const defaultSettings: UserSettings = {
   goal: "track",
   notificationsEnabled: true,
   appLockEnabled: false,
+  darkModeEnabled: false,
 };
 
 const initialState: CycleState = {
@@ -115,6 +116,13 @@ const cycleSlice = createSlice({
     updateSettings(state, action: PayloadAction<UserSettings>) {
       state.settings = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    // Optimistic update: merge partial settings into state immediately
+    // so the UI doesn't flicker while the saga writes to DB.
+    builder.addCase(updateSettingsRequest, (state, action) => {
+      state.settings = { ...state.settings, ...action.payload };
+    });
   },
 });
 

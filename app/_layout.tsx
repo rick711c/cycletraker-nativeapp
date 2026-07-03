@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   AppState,
   StatusBar,
-  useColorScheme,
   View,
 } from "react-native";
 import { Button, PaperProvider, Text } from "react-native-paper";
@@ -43,12 +42,11 @@ function InnerLayout() {
   const router = useRouter();
   const segments = useSegments();
   const isOnboarded = useAppSelector(selectIsOnboarded);
-  const scheme = useColorScheme();
-  const theme = scheme === "dark" ? floraDarkTheme : floraLightTheme;
+  const settings = useAppSelector(selectSettings);
+  const theme = settings.darkModeEnabled ? floraDarkTheme : floraLightTheme;
 
   const [dbReady, setDbReady] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState<boolean | null>(null);
-  const settings = useAppSelector(selectSettings);
   const [isLocked, setIsLocked] = useState(true);
   const appState = useRef(AppState.currentState);
 

@@ -53,6 +53,15 @@ export async function initDatabase(): Promise<void> {
   } catch {
     // Column already exists — ignore
   }
+
+  // Migration: add dark_mode_enabled to existing databases (default 0 = light)
+  try {
+    await db.runAsync(
+      `ALTER TABLE settings ADD COLUMN dark_mode_enabled INTEGER NOT NULL DEFAULT 0`,
+    );
+  } catch {
+    // Column already exists — ignore
+  }
 }
 
 export async function clearAllData(): Promise<void> {
