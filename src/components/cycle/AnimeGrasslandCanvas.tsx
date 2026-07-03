@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
-import Animated, { 
-  useSharedValue,  
-  withRepeat, 
-  withTiming, 
-  withSequence, 
+import Animated, {
+  useSharedValue,
+  withRepeat,
+  withTiming,
+  withSequence,
   withSpring,
   interpolate,
   useAnimatedProps
@@ -31,7 +31,7 @@ interface AnimeGrasslandCanvasProps {
 function FloatingPetal({ index, accentColor }: { index: number; accentColor: string }) {
   const startX = (SCREEN_WIDTH / 5) * (index % 5) + Math.random() * 25;
   const startY = 60 + (index * 55);
-  
+
   const driftX = useSharedValue(0);
   const fallY = useSharedValue(0);
   const rotation = useSharedValue(0);
@@ -155,11 +155,11 @@ function AdvancedPuppy({ isDark, landscapeFill1, landscapeFill2, puppyColors }: 
   );
 }
 
-export function AnimeGrasslandCanvas({dayInCycle,
+export function AnimeGrasslandCanvas({ dayInCycle,
   cycleLength,
   currentPhase,
   periodLength,
-  nextPeriodDate}: AnimeGrasslandCanvasProps) {
+  nextPeriodDate }: AnimeGrasslandCanvasProps) {
   const theme = useTheme();
   const isDark = theme.dark;
   const accent = theme.colors.primary;
@@ -283,7 +283,7 @@ export function AnimeGrasslandCanvas({dayInCycle,
 const styles = StyleSheet.create({
   container: { width: '100%', height: 440, position: 'relative', overflow: 'hidden' },
   petalAbsolute: { position: 'absolute', zIndex: 1 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingTop: 54, width: '100%', zIndex: 10 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingTop: 40, width: '100%', zIndex: 10 },
   logoRow: { flexDirection: 'row', alignItems: 'center' },
   glowLogo: { shadowRadius: 8, shadowOpacity: 0.5, shadowOffset: { width: 0, height: 0 } },
   logoText: { fontSize: 24, fontWeight: '900', marginLeft: 6, letterSpacing: -0.5 },

@@ -418,9 +418,7 @@ export default function OnboardingScreen() {
                           ? theme.colors.primary
                           : theme.colors.outlineVariant,
                         borderWidth: 2,
-                        backgroundColor: isSelected
-                          ? theme.colors.primaryContainer + "20"
-                          : theme.colors.surface,
+                        backgroundColor: theme.colors.surface,
                       },
                     ]}
                   >
