@@ -1,7 +1,6 @@
 import { AnimeGrasslandCanvas } from "@/src/components/cycle/AnimeGrasslandCanvas";
 import { QuickActions } from "@/src/components/cycle/QuickActions";
 import { SmartDailyInsight } from "@/src/components/cycle/SmartDailyInsight";
-import { UpcomingEvents } from "@/src/components/cycle/UpcomingEvents";
 import { useAppSelector } from "@/src/store";
 import { selectCycleStats, selectSettings } from "@/src/store/cycleSlice";
 import { AppMode } from "@/src/types/insight";
@@ -19,45 +18,52 @@ export default function HomeScreen() {
         ? "trackPregnancy"
         : "trackCycle";
 
+  // Fallback safe assignment for the next period countdown string or date tracking
+  const nextPeriodTarget = stats.nextPeriodDate || "";
+
   return (
-    <ScrollView
-      style={styles.scrollView}
-      contentContainerStyle={styles.container}
-      bounces={false}
-    >
-      {/* 1. Unified upper viewport canvas
-        Houses the brand logo, live date tracking, anime grassland scenery, 
-        the animated white cat, and the core progress data ring.
-      */}
-      <AnimeGrasslandCanvas
-        dayInCycle={stats.dayInCycle}
-        cycleLength={stats.averageCycleLength}
-        currentPhase={stats.currentPhase}
-        periodLength={stats.averagePeriodLength}
-      />
+    <View style={styles.viewportCanvas}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.container}
+        bounces={false}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* 1. Unified upper viewport canvas */}
+        <AnimeGrasslandCanvas
+          dayInCycle={stats.dayInCycle}
+          cycleLength={stats.averageCycleLength}
+          currentPhase={stats.currentPhase}
+          periodLength={stats.averagePeriodLength}
+          nextPeriodDate={nextPeriodTarget}
+        />
 
-      {/* 2. Upgraded premium pill-shaped interaction layer */}
-      <QuickActions />
+        {/* 2. Self-contained action buttons */}
+        <QuickActions />
 
-      {/* 3. Cycle information and insight timelines */}
-      <UpcomingEvents stats={stats} />
-
-      <View style={styles.insightContainer}>
-        <SmartDailyInsight dayInCycle={stats.dayInCycle} appMode={appMode} />
-      </View>
-    </ScrollView>
+        {/* 3. Cycle insight dashboard feeds */}
+        <View style={styles.insightContainer}>
+          <SmartDailyInsight dayInCycle={stats.dayInCycle} appMode={appMode} />
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  viewportCanvas: {
+    flex: 1,
+    backgroundColor: "#000000",
+  },
   scrollView: { 
     flex: 1, 
-    backgroundColor: "#000000", // Keeps a pure black background canvas
+    backgroundColor: "#000000", 
   },
   container: { 
     paddingBottom: 32,
   },
   insightContainer: { 
     marginTop: 24,
+    paddingHorizontal: 16,
   },
 });

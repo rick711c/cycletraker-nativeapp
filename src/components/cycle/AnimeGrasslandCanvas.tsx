@@ -1,291 +1,262 @@
-import { cyclePhaseColors } from "@/src/theme/muiTheme";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useEffect, useRef } from "react";
-import { StyleSheet, View, Animated, Dimensions, Easing } from "react-native";
-import { Text, useTheme } from "react-native-paper";
-import Svg, { Path } from "react-native-svg";
-import { CycleRing, CyclePhase } from "./CycleRing";
+import React, { useEffect } from 'react';
+import { StyleSheet, View, Text, Dimensions } from 'react-native';
+import Animated, { 
+  useSharedValue,  
+  withRepeat, 
+  withTiming, 
+  withSequence, 
+  withSpring,
+  interpolate,
+  useAnimatedProps
+} from 'react-native-reanimated';
+import Svg, { Circle, Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+// import { CyclePhase } from '@/src/types/insight';
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CAT_WIDTH = 90; 
+const COLORS = {
+  bg: '#000000',
+  accent: '#F72585',
+  accentGlow: '#C2185B',
+  textPrimary: '#FFFFFF',
+  textSecondary: '#8E8E93',
+};
 
 interface AnimeGrasslandCanvasProps {
   dayInCycle: number;
   cycleLength: number;
-  currentPhase: CyclePhase;
+  currentPhase: string; // Or string, depending on your type definitions
   periodLength: number;
+  nextPeriodDate: string;
 }
 
-// --- 1. Infinite, Continuous Cute Falling Particle Component ---
-interface DropProps { 
-  left: `${number}%`; // Strict TypeScript template literal type constraint
-  delay: number; 
-  duration: number; 
-  color: string; 
-  icon: any; 
-  size: number; 
-}
 
-function CuteRainDrop({ left, delay, duration, color, icon, size }: DropProps) {
-  const fallAnim = useRef(new Animated.Value(-20)).current;
-  const swayAnim = useRef(new Animated.Value(0)).current;
+// ==========================================
+// 🌸 HIGH-PERFORMANCE FLOATING PETAL LAYER
+// ==========================================
+function FloatingPetal({ index }: { index: number }) {
+  const startX = (SCREEN_WIDTH / 5) * (index % 5) + Math.random() * 25;
+  const startY = 60 + (index * 55);
+  
+  const driftX = useSharedValue(0);
+  const fallY = useSharedValue(0);
+  const rotation = useSharedValue(0);
 
   useEffect(() => {
-    const startFalling = () => {
-      fallAnim.setValue(-20);
-      Animated.timing(fallAnim, {
-        toValue: 440,
-        duration: duration,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }).start(() => startFalling());
+    driftX.value = withRepeat(
+      withSequence(
+        withTiming(20, { duration: 3000 + index * 200 }),
+        withTiming(-20, { duration: 3000 + index * 200 })
+      ),
+      -1,
+      true
+    );
+    fallY.value = withRepeat(
+      withTiming(120, { duration: 6000 + index * 400 }),
+      -1,
+      true
+    );
+    rotation.value = withRepeat(
+      withTiming(360, { duration: 9000 + index * 500 }),
+      -1,
+      false
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedProps(() => ({
+    transform: [
+      { translateX: startX + driftX.value },
+      { translateY: startY + fallY.value },
+      { rotate: `${rotation.value}deg` }
+    ],
+    opacity: interpolate(fallY.value, [0, 20, 100, 120], [0, 0.45, 0.45, 0])
+  }));
+
+  return (
+    <Animated.View style={[styles.petalAbsolute, animatedStyle]}>
+      <MaterialCommunityIcons name="flower-poppy" size={13 + (index % 3) * 3} color={`${COLORS.accent}55`} />
+    </Animated.View>
+  );
+}
+
+// ==========================================
+// 🐕 ULTRA-PREMIUM INTERACTIVE PUPPY
+// ==========================================
+function AdvancedPuppy() {
+  const breathe = useSharedValue(0);
+  const tailWag = useSharedValue(0);
+  const eyeBlink = useSharedValue(1);
+  const earWiggle = useSharedValue(0);
+
+  useEffect(() => {
+    breathe.value = withRepeat(withTiming(1, { duration: 1300 }), -1, true);
+    tailWag.value = withRepeat(withSequence(withTiming(-10, { duration: 200 }), withTiming(10, { duration: 200 })), -1, true);
+
+    const earTimer = setInterval(() => {
+      earWiggle.value = withSequence(withSpring(6), withSpring(-3), withSpring(0));
+    }, 4000);
+
+    const blinkTimer = setInterval(() => {
+      eyeBlink.value = withSequence(withTiming(0.1, { duration: 80 }), withTiming(1, { duration: 100 }));
+    }, 5000);
+
+    return () => {
+      clearInterval(earTimer);
+      clearInterval(blinkTimer);
     };
-
-    const timer = setTimeout(startFalling, delay);
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(swayAnim, { toValue: 1, duration: duration / 2, useNativeDriver: true }),
-        Animated.timing(swayAnim, { toValue: -1, duration: duration / 2, useNativeDriver: true }),
-      ])
-    ).start();
-
-    return () => clearTimeout(timer);
   }, []);
 
-  const opacity = fallAnim.interpolate({
-    inputRange: [-20, 30, 390, 440],
-    outputRange: [0, 0.7, 0.7, 0],
-  });
+  const bodyStyle = useAnimatedProps(() => ({
+    transform: [{ translateY: interpolate(breathe.value, [0, 1], [0, -2.5]) }]
+  }));
+  const tailStyle = useAnimatedProps(() => ({ transform: [{ rotate: `${tailWag.value}deg` }] }));
+  const leftEarStyle = useAnimatedProps(() => ({ transform: [{ rotate: `${-15 + earWiggle.value}deg` }] }));
+  const rightEarStyle = useAnimatedProps(() => ({ transform: [{ rotate: `${15 - earWiggle.value}deg` }] }));
+  const eyeStyle = useAnimatedProps(() => ({ transform: [{ scaleY: eyeBlink.value }] }));
 
   return (
-    <Animated.View
-      style={[
-        styles.absoluteElement,
-        {
-          left, 
-          zIndex: 9, 
-          opacity,
-          transform: [
-            { translateY: fallAnim },
-            { translateX: swayAnim.interpolate({ inputRange: [-1, 1], outputRange: [-15, 15] }) }
-          ],
-        },
-      ]}
-    >
-      <MaterialCommunityIcons name={icon} size={size} color={color} style={styles.glowDrop} />
-    </Animated.View>
-  );
-}
-
-// --- 2. Anime Snap-Bloom & Swaying Flower Component ---
-interface FlowerProps { 
-  top: number; 
-  left: `${number}%`; // Strict TypeScript template literal type constraint
-  delay: number; 
-  size: number; 
-  color: string; 
-  icon: any; 
-}
-
-function AnimeFlower({ top, left, delay, size, color, icon }: FlowerProps) {
-  const scaleAnim = useRef(new Animated.Value(0)).current;
-  const swayAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.spring(scaleAnim, { toValue: 1, delay, tension: 40, friction: 4, useNativeDriver: true }).start();
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(swayAnim, { toValue: 1, duration: 2200 + Math.random() * 800, useNativeDriver: true }),
-        Animated.timing(swayAnim, { toValue: -1, duration: 2200 + Math.random() * 800, useNativeDriver: true }),
-      ])
-    ).start();
-  }, [delay]);
-
-  return (
-    <Animated.View
-      style={[
-        styles.absoluteElement,
-        {
-          top, left,
-          zIndex: 6,
-          transform: [
-            { scale: scaleAnim }, 
-            { rotate: swayAnim.interpolate({ inputRange: [-1, 1], outputRange: ["-10deg", "10deg"] }) }
-          ] as any,
-          transformOrigin: "bottom center",
-        },
-      ]}
-    >
-      <MaterialCommunityIcons name={icon} size={size} color={color} />
-    </Animated.View>
-  );
-}
-
-// --- 3. High-Fidelity MAGNIFIED & Fully Automated Walking Cat ---
-function AdvancedCuteCat({ top }: { top: number }) {
-  const breatheAnim = useRef(new Animated.Value(0)).current;
-  const tailAnim = useRef(new Animated.Value(0)).current;
-  const walkLoopAnim = useRef(new Animated.Value(0)).current; 
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(breatheAnim, { toValue: 1, duration: 1400, useNativeDriver: true }),
-        Animated.timing(breatheAnim, { toValue: 0, duration: 1400, useNativeDriver: true }),
-      ])
-    ).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(tailAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
-        Animated.timing(tailAnim, { toValue: -1, duration: 1000, useNativeDriver: true }),
-      ])
-    ).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(walkLoopAnim, {
-          toValue: 1,
-          duration: 7000, 
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
-        }),
-        Animated.timing(walkLoopAnim, {
-          toValue: 2,
-          duration: 7000, 
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, []);
-
-  const translateX = walkLoopAnim.interpolate({
-    inputRange: [0, 1, 2],
-    outputRange: [15, SCREEN_WIDTH - CAT_WIDTH - 15, 15],
-  });
-
-  const scaleX = walkLoopAnim.interpolate({
-    inputRange: [0, 0.99, 1, 1.99, 2],
-    outputRange: [1, 1, -1, -1, 1],
-  });
-
-  return (
-    <Animated.View 
-      style={[
-        styles.absoluteElement, 
-        { 
-          top, 
-          left: 0, 
-          width: CAT_WIDTH, 
-          height: 80,
-          zIndex: 8,
-          transform: [
-            { translateX },
-            { scaleX }
-          ]
-        }
-      ]}
-    >
-      <Animated.View style={[styles.tailWrapper, { transform: [{ rotate: tailAnim.interpolate({ inputRange: [-1, 1], outputRange: ["-15deg", "25deg"] }) }] }]}>
-        <View style={styles.catTail} />
-      </Animated.View>
-
-      <Animated.View style={[styles.catBodyFrame, { transform: [{ scaleY: breatheAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.06] }) }] }]}>
-        <View style={styles.earLeft} />
-        <View style={styles.earRight} />
-        <View style={styles.catFaceCircle}>
-          <View style={styles.eyeLeft} />
-          <View style={styles.eyeRight} />
-          <View style={styles.blushLeft} />
-          <View style={styles.blushRight} />
-          <Text style={styles.catMouth}>w</Text>
-        </View>
-      </Animated.View>
-    </Animated.View>
-  );
-}
-
-export function AnimeGrasslandCanvas({ dayInCycle, cycleLength, currentPhase, periodLength }: AnimeGrasslandCanvasProps) {
-  const theme = useTheme();
-  const currentPhaseColor = cyclePhaseColors[currentPhase] ?? theme.colors.primary;
-
-  return (
-    <View style={styles.canvasContainer}>
-      
-      {/* 🌸 RICH, SEAMLESS & HIGH-DENSITY PARTICLE LAYER SPREAD ALL OVER THE ENTIRE WIDTH */}
-      <CuteRainDrop left="4%" delay={0} duration={3200} color={`${currentPhaseColor}BB`} icon="flower-poppy" size={14} />
-      <CuteRainDrop left="13%" delay={800} duration={2800} color="#FFFFFF70" icon="star" size={10} />
-      <CuteRainDrop left="22%" delay={400} duration={3500} color={`${currentPhaseColor}AA`} icon="water" size={13} />
-      <CuteRainDrop left="31%" delay={1200} duration={3000} color={`${currentPhaseColor}DD`} icon="flower-tulip" size={12} />
-      <CuteRainDrop left="40%" delay={150} duration={2700} color="#FFFFFF60" icon="sparkles" size={11} />
-      <CuteRainDrop left="49%" delay={950} duration={3300} color={`${currentPhaseColor}CC`} icon="flower-poppy" size={13} />
-      <CuteRainDrop left="58%" delay={500} duration={3100} color="#FFFFFF50" icon="water" size={14} />
-      <CuteRainDrop left="67%" delay={1400} duration={2900} color={`${currentPhaseColor}EE`} icon="flower-tulip" size={11} />
-      <CuteRainDrop left="76%" delay={300} duration={3400} color="#FFFFFF80" icon="star" size={12} />
-      <CuteRainDrop left="85%" delay={1100} duration={2600} color={`${currentPhaseColor}90`} icon="sparkles" size={10} />
-      <CuteRainDrop left="93%" delay={650} duration={3200} color={`${currentPhaseColor}AA`} icon="water" size={12} />
-
-      <View style={styles.headerRow}>
-        <View style={styles.brandContainer}>
-          <MaterialCommunityIcons name="flower-tulip" size={26} color="#E91E63" style={{ marginRight: 8 }} />
-          <Text variant="headlineMedium" style={styles.brandText}>Flora</Text>
-        </View>
-        <View style={styles.dateContainer}>
-          <Text variant="bodySmall" style={{ color: "#757575", fontWeight: "500" }}>Today</Text>
-          <Text variant="bodyMedium" style={{ color: "#FFF", fontWeight: "600" }}>Tue, Jun 23</Text>
-        </View>
-      </View>
-
-      <View style={styles.ringWrapper}>
-        <CycleRing dayInCycle={dayInCycle} cycleLength={cycleLength} currentPhase={currentPhase} periodLength={periodLength} />
-      </View>
-
-      <View style={styles.grasslandBase}>
-        <Svg width="100%" height={120} viewBox={`0 0 ${SCREEN_WIDTH} 120`} fill="none">
-          <Path d={`M0 60 Q ${SCREEN_WIDTH * 0.35} 20, ${SCREEN_WIDTH * 0.7} 50 T ${SCREEN_WIDTH} 40 L ${SCREEN_WIDTH} 120 L 0 120 Z`} fill="#0A120D" />
-          <Path d={`M0 80 Q ${SCREEN_WIDTH * 0.25} 50, ${SCREEN_WIDTH * 0.55} 75 T ${SCREEN_WIDTH} 65 L ${SCREEN_WIDTH} 120 L 0 120 Z`} fill="#121F16" />
+    <View style={styles.puppyWrapper}>
+      <View style={styles.landscapeVectorContainer}>
+        <Svg width={SCREEN_WIDTH} height={60} viewBox={`0 0 ${SCREEN_WIDTH} 60`} fill="none">
+          <Path d={`M0 30 Q ${SCREEN_WIDTH * 0.3} 10, ${SCREEN_WIDTH * 0.7} 22 T ${SCREEN_WIDTH} 15 L ${SCREEN_WIDTH} 60 L 0 60 Z`} fill="#070709" />
+          <Path d={`M0 42 Q ${SCREEN_WIDTH * 0.2} 25, ${SCREEN_WIDTH * 0.5} 36 T ${SCREEN_WIDTH} 30 L ${SCREEN_WIDTH} 60 L 0 60 Z`} fill="#0D0D0F" />
         </Svg>
       </View>
 
-      <AdvancedCuteCat top={334} />
+      <Animated.View style={[styles.puppyFrame, bodyStyle]}>
+        <Animated.View style={[styles.puppyTail, tailStyle]} />
+        <Animated.View style={[styles.puppyEarL, leftEarStyle]} />
+        <Animated.View style={[styles.puppyEarR, rightEarStyle]} />
+        <View style={styles.puppyFace}>
+          <Animated.View style={[styles.puppyEyeL, eyeStyle]} />
+          <Animated.View style={[styles.puppyEyeR, eyeStyle]} />
+          <View style={styles.puppySnout}>
+            <View style={styles.puppyNose} />
+            <View style={styles.puppyMouth} />
+          </View>
+          <View style={styles.blushNodeL} />
+          <View style={styles.blushNodeR} />
+        </View>
+      </Animated.View>
+    </View>
+  );
+}
 
-      {/* 🌸 SWAYING GROUND FLOWERS SPREAD ALL OVER THE ENTIRE WIDTH */}
-      <AnimeFlower top={385} left="6%" delay={200} size={22} color={currentPhaseColor} icon="flower-poppy" />
-      <AnimeFlower top={410} left="16%" delay={500} size={16} color="#FFF" icon="flower" />
-      <AnimeFlower top={395} left="26%" delay={800} size={18} color={currentPhaseColor} icon="flower-tulip" />
-      <AnimeFlower top={415} left="37%" delay={300} size={15} color="#FFF" icon="flower" />
-      <AnimeFlower top={400} left="48%" delay={1100} size={20} color={currentPhaseColor} icon="flower-poppy" />
-      <AnimeFlower top={412} left="59%" delay={900} size={17} color="#FFF" icon="flower" />
-      <AnimeFlower top={402} left="70%" delay={400} size={21} color={currentPhaseColor} icon="flower-tulip" />
-      <AnimeFlower top={390} left="81%" delay={700} size={16} color="#FFF" icon="flower" />
-      <AnimeFlower top={408} left="89%" delay={1300} size={18} color={currentPhaseColor} icon="flower-poppy" />
-      <AnimeFlower top={385} left="95%" delay={150} size={22} color={currentPhaseColor} icon="flower-poppy" />
+export function AnimeGrasslandCanvas({dayInCycle,
+  cycleLength,
+  currentPhase,
+  periodLength,
+  nextPeriodDate}: AnimeGrasslandCanvasProps) {
+  const ringProgress = useSharedValue(0);
+  const glowPulse = useSharedValue(1);
+
+  useEffect(() => {
+    ringProgress.value = withTiming(0.75, { duration: 1400 });
+    glowPulse.value = withRepeat(withTiming(1.05, { duration: 1800 }), -1, true);
+  }, []);
+
+  const RADIUS = 84;
+  const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+  const animatedRing = useAnimatedProps(() => ({ strokeDashoffset: CIRCUMFERENCE * (1 - ringProgress.value) }));
+  const animatedGlow = useAnimatedProps(() => ({
+    transform: [{ scale: glowPulse.value }],
+    opacity: interpolate(glowPulse.value, [1, 1.05], [0.25, 0.5])
+  }));
+
+  return (
+    <View style={styles.container}>
+      {Array.from({ length: 5 }).map((_, idx) => <FloatingPetal key={idx} index={idx} />)}
+
+      <View style={styles.header}>
+        <View style={styles.logoRow}>
+          <MaterialCommunityIcons name="flower-tulip" size={24} color={COLORS.accent} style={styles.glowLogo} />
+          <Text style={styles.logoText}>Flora</Text>
+        </View>
+        <View style={styles.dateRow}>
+          <Text style={styles.dateLabel}>Today</Text>
+          <Text style={styles.dateValue}>Tue, Jun 23</Text>
+        </View>
+      </View>
+
+      <View style={styles.dashboardContainer}>
+        <View style={styles.ringFrame}>
+          <Animated.View style={[styles.ambientGlow, animatedGlow]} />
+          <Svg width={200} height={200} viewBox="0 0 200 200" style={styles.svgRotate}>
+            <Defs>
+              <SvgGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <Stop offset="0%" stopColor={COLORS.accent} />
+                <Stop offset="100%" stopColor={COLORS.accentGlow} />
+              </SvgGradient>
+            </Defs>
+            <Circle cx="105" cy="105" r={RADIUS} stroke="rgba(255,255,255,0.03)" strokeWidth={6} fill="none" />
+            <AnimatedCircle cx="105" cy="105" r={RADIUS} stroke="url(#accentGrad)" strokeWidth={6} fill="none" strokeDasharray={CIRCUMFERENCE} animatedProps={animatedRing} strokeLinecap="round" />
+          </Svg>
+
+          <MaterialCommunityIcons name="flower" size={24} color="#FF7EA5" style={[styles.sakura, { top: 10, right: 24 }]} />
+          <MaterialCommunityIcons name="flower" size={18} color={COLORS.accent} style={[styles.sakura, { bottom: 24, left: 8 }]} />
+
+          <View style={styles.metricsStack}>
+            <Text style={styles.metricLabel}>NEXT PERIOD</Text>
+            <Text style={styles.metricNumber}>30</Text>
+            <Text style={styles.metricMonth}>July 2026</Text>
+            <View style={styles.dotSeparator} />
+            <Text style={styles.metricCountdown}>5 days left</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.pillRow}>
+        <View style={styles.pillContainer}>
+          <Text style={styles.pillText}>Day 1 of cycle</Text>
+        </View>
+        <View style={[styles.pillContainer, { backgroundColor: COLORS.accent }]}>
+          <Text style={[styles.pillText, { color: '#FFF', fontWeight: '800' }]}>MENSTRUATION</Text>
+        </View>
+      </View>
+
+      <AdvancedPuppy />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  canvasContainer: { width: "100%", height: 460, backgroundColor: "#000000", position: "relative", overflow: "hidden" },
-  absoluteElement: { position: "absolute" },
-  headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 24, paddingTop: 50, width: "100%", zIndex: 10 },
-  brandContainer: { flexDirection: "row", alignItems: "center" },
-  brandText: { fontWeight: "800", color: "#FFFFFF", fontSize: 28, letterSpacing: -0.5 },
-  dateContainer: { alignItems: "flex-end" },
-  ringWrapper: { position: "absolute", top: 130, left: 0, right: 0, alignItems: "center", justifyContent: "center", zIndex: 5 },
-  grasslandBase: { position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 4 },
-  glowDrop: { shadowColor: "#FFF", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.3, shadowRadius: 2 },
-  
-  catBodyFrame: { width: CAT_WIDTH, height: 80, alignItems: "center", justifyContent: "flex-end" },
-  catFaceCircle: { width: 86, height: 70, borderRadius: 35, backgroundColor: "#FFFFFF", position: "relative", justifyContent: "center", alignItems: "center" },
-  earLeft: { position: "absolute", left: 6, top: -2, width: 0, height: 0, borderStyle: "solid", borderLeftWidth: 12, borderRightWidth: 12, borderBottomWidth: 20, borderLeftColor: "transparent", borderRightColor: "transparent", borderBottomColor: "#FFFFFF", transform: [{ rotate: "-25deg" }] },
-  earRight: { position: "absolute", right: 6, top: -2, width: 0, height: 0, borderStyle: "solid", borderLeftWidth: 12, borderRightWidth: 12, borderBottomWidth: 20, borderLeftColor: "transparent", borderRightColor: "transparent", borderBottomColor: "#FFFFFF", transform: [{ rotate: "25deg" }] },
-  eyeLeft: { position: "absolute", left: 22, top: 24, width: 7, height: 7, borderRadius: 3.5, backgroundColor: "#2D3748" },
-  eyeRight: { position: "absolute", right: 22, top: 24, width: 7, height: 7, borderRadius: 3.5, backgroundColor: "#2D3748" },
-  blushLeft: { position: "absolute", left: 14, top: 34, width: 12, height: 7, borderRadius: 3.5, backgroundColor: "#FFB7B2", opacity: 0.8 },
-  blushRight: { position: "absolute", right: 14, top: 34, width: 12, height: 7, borderRadius: 3.5, backgroundColor: "#FFB7B2", opacity: 0.8 },
-  catMouth: { fontSize: 22, color: "#2D3748", position: "absolute", bottom: 14, fontWeight: "800" },
-  tailWrapper: { position: "absolute", right: -12, bottom: 6, transformOrigin: "left center" },
-  catTail: { width: 30, height: 10, borderRadius: 5, backgroundColor: "#FFFFFF" },
+  container: { width: '100%', height: 440, backgroundColor: COLORS.bg, position: 'relative', overflow: 'hidden' },
+  petalAbsolute: { position: 'absolute', zIndex: 1 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingTop: 54, width: '100%', zIndex: 10 },
+  logoRow: { flexDirection: 'row', alignItems: 'center' },
+  glowLogo: { shadowColor: COLORS.accent, shadowRadius: 8, shadowOpacity: 0.5, shadowOffset: { width: 0, height: 0 } },
+  logoText: { fontSize: 24, fontWeight: '900', color: COLORS.textPrimary, marginLeft: 6, letterSpacing: -0.5 },
+  dateRow: { alignItems: 'flex-end' },
+  dateLabel: { fontSize: 10, fontWeight: '600', color: COLORS.textSecondary, textTransform: 'uppercase' },
+  dateValue: { fontSize: 13, fontWeight: '700', color: COLORS.textPrimary, marginTop: 1 },
+  dashboardContainer: { alignItems: 'center', marginTop: 18 },
+  ringFrame: { width: 200, height: 200, position: 'relative', alignItems: 'center', justifyContent: 'center' },
+  ambientGlow: { position: 'absolute', width: 168, height: 168, borderRadius: 84, shadowColor: COLORS.accent, shadowRadius: 20, shadowOpacity: 0.7, shadowOffset: { width: 0, height: 0 } },
+  svgRotate: { transform: [{ rotate: '-90deg' }] },
+  sakura: { position: 'absolute', zIndex: 5, shadowColor: COLORS.accent, shadowRadius: 4, shadowOpacity: 0.3, shadowOffset: { width: 0, height: 1 } },
+  metricsStack: { position: 'absolute', alignItems: 'center', justifyContent: 'center', width: 164, height: 164, borderRadius: 82, backgroundColor: '#050507' },
+  metricLabel: { fontSize: 10, fontWeight: '800', color: COLORS.textSecondary, letterSpacing: 1 },
+  metricNumber: { fontSize: 52, fontWeight: '900', color: COLORS.textPrimary, lineHeight: 54, marginVertical: 1 },
+  metricMonth: { fontSize: 13, fontWeight: '700', color: COLORS.textSecondary },
+  dotSeparator: { width: 4, height: 4, borderRadius: 2, backgroundColor: COLORS.accent, marginVertical: 6 },
+  metricCountdown: { fontSize: 11, fontWeight: '600', color: COLORS.textSecondary },
+  pillRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginTop: 16, zIndex: 12 },
+  pillContainer: { backgroundColor: 'rgba(255,255,255,0.04)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.02)' },
+  pillText: { color: COLORS.textSecondary, fontSize: 11, fontWeight: '600' },
+  puppyWrapper: { width: SCREEN_WIDTH, height: 95, position: 'relative', alignItems: 'center', justifyContent: 'flex-end' },
+  landscapeVectorContainer: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2 },
+  puppyFrame: { width: 84, height: 65, alignItems: 'center', justifyContent: 'flex-end', zIndex: 4, position: 'relative' },
+  puppyFace: { width: 76, height: 60, borderRadius: 30, backgroundColor: '#FFFFFF', position: 'relative', justifyContent: 'center', alignItems: 'center' },
+  puppyEarL: { position: 'absolute', left: -3, top: 8, width: 12, height: 28, borderRadius: 6, backgroundColor: '#E5E5EA', transformOrigin: 'top center' },
+  puppyEarR: { position: 'absolute', right: -3, top: 8, width: 12, height: 28, borderRadius: 6, backgroundColor: '#E5E5EA', transformOrigin: 'top center' },
+  puppyEyeL: { position: 'absolute', left: 22, top: 22, width: 5.5, height: 5.5, borderRadius: 2.75, backgroundColor: '#1C1C1E' },
+  puppyEyeR: { position: 'absolute', right: 22, top: 22, width: 5.5, height: 5.5, borderRadius: 2.75, backgroundColor: '#1C1C1E' },
+  puppySnout: { position: 'absolute', bottom: 18, alignItems: 'center' },
+  puppyNose: { width: 7, height: 4.5, borderRadius: 2, backgroundColor: '#1C1C1E' },
+  puppyMouth: { width: 1, height: 3, backgroundColor: '#1C1C1E', marginTop: 1 },
+  blushNodeL: { position: 'absolute', left: 12, top: 28, width: 9, height: 4, borderRadius: 2, backgroundColor: '#FFB7B2', opacity: 0.6 },
+  blushNodeR: { position: 'absolute', right: 12, top: 28, width: 9, height: 4, borderRadius: 2, backgroundColor: '#FFB7B2', opacity: 0.6 },
+  puppyTail: { position: 'absolute', left: 4, bottom: 2, width: 18, height: 6, borderRadius: 3, backgroundColor: '#E5E5EA', transformOrigin: 'right center' }
 });
