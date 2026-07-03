@@ -126,8 +126,8 @@ export function SmartDailyInsight({
               style={[
                 styles.orbRing,
                 {
-                  backgroundColor: `${phaseColor}10`,
-                  borderColor: `${phaseColor}25`,
+                  backgroundColor: `${phaseColor}20`,
+                  borderColor: `${phaseColor}40`,
                 },
               ]}
             >
@@ -145,7 +145,7 @@ export function SmartDailyInsight({
             >
               <Path
                 d="M0,6 Q10,0 20,6 T40,6"
-                stroke={`${phaseColor}60`}
+                stroke={`${phaseColor}90`}
                 strokeWidth={1.5}
                 fill="none"
               />
@@ -179,12 +179,26 @@ export function SmartDailyInsight({
           {/* Column 3: Fixed Aspect Context Badge Node */}
           {!isPregnancy(insight) && (
             <View style={styles.actionZoneBox}>
+              <Text
+                variant="labelSmall"
+                style={{
+                  color: textSecondary,
+                  fontWeight: '700',
+                  fontSize: 9,
+                  letterSpacing: 0.5,
+                  textTransform: 'uppercase',
+                  marginBottom: 4,
+                  textAlign: 'center',
+                }}
+              >
+                Pregnancy Chance
+              </Text>
               <View
                 style={[
                   styles.gradientStatusPill,
                   {
-                    backgroundColor: `${phaseColor}18`,
-                    borderColor: `${phaseColor}35`,
+                    backgroundColor: `${phaseColor}28`,
+                    borderColor: `${phaseColor}50`,
                   },
                 ]}
               >
