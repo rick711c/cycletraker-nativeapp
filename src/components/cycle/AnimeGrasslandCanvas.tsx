@@ -297,8 +297,9 @@ export function AnimeGrasslandCanvas({ dayInCycle,
             },
           ]}>
             <Text style={[styles.metricLabel, { color: textSecondary }]}>NEXT PERIOD</Text>
-            <Text style={[styles.metricNumber, { color: textPrimary }]}>30</Text>
-            <Text style={[styles.metricMonth, { color: textSecondary }]}>July 2026</Text>
+            <Text style={[styles.metricNumber, { color: textPrimary }]}>
+              30 <Text style={styles.metricMonth}>July</Text>
+            </Text>
             <View style={[styles.dotSeparator, { backgroundColor: accent }]} />
             <Text style={[styles.metricCountdown, { color: textSecondary }]}>5 days left</Text>
           </View>
@@ -343,8 +344,8 @@ const styles = StyleSheet.create({
   sakura: { position: 'absolute', zIndex: 5, shadowRadius: 4, shadowOpacity: 0.3, shadowOffset: { width: 0, height: 1 } },
   metricsStack: { position: 'absolute', alignItems: 'center', justifyContent: 'center', width: 164, height: 164, borderRadius: 82 },
   metricLabel: { fontSize: 10, fontWeight: '800', letterSpacing: 1 },
-  metricNumber: { fontSize: 52, fontWeight: '900', lineHeight: 54, marginVertical: 1 },
-  metricMonth: { fontSize: 13, fontWeight: '700' },
+  metricNumber: { fontSize: 38, fontWeight: '900', lineHeight: 42, marginVertical: 2 },
+  metricMonth: { fontSize: 22, fontWeight: '800' },
   dotSeparator: { width: 4, height: 4, borderRadius: 2, marginVertical: 6 },
   metricCountdown: { fontSize: 11, fontWeight: '600' },
   pillRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginTop: 16, zIndex: 12 },
