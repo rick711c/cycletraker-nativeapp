@@ -392,7 +392,7 @@ export default function CalendarScreen() {
                       styles.dayCell,
                       {
                         backgroundColor,
-                        opacity: isCurrentMonth ? 1 : 0.3,
+                        opacity: isCurrentMonth ? 1 : 0.55,
                         borderColor,
                         borderWidth,
                       },

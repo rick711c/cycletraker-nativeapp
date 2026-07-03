@@ -7,8 +7,11 @@ import Animated, {
   withSequence,
   withSpring,
   interpolate,
-  useAnimatedProps
+  useAnimatedProps,
+  useAnimatedStyle,
+  runOnJS,
 } from 'react-native-reanimated';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Svg, { Circle, Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text, useTheme } from 'react-native-paper';
@@ -22,6 +25,7 @@ interface AnimeGrasslandCanvasProps {
   currentPhase: string; // Or string, depending on your type definitions
   periodLength: number;
   nextPeriodDate: string;
+  onPuppyDragStateChange?: (isDragging: boolean) => void;
 }
 
 
@@ -76,7 +80,7 @@ function FloatingPetal({ index, accentColor }: { index: number; accentColor: str
 // ==========================================
 // 🐕 ULTRA-PREMIUM INTERACTIVE PUPPY
 // ==========================================
-function AdvancedPuppy({ isDark, landscapeFill1, landscapeFill2, puppyColors }: {
+function AdvancedPuppy({ isDark, landscapeFill1, landscapeFill2, puppyColors, onDragStateChange }: {
   isDark: boolean;
   landscapeFill1: string;
   landscapeFill2: string;
@@ -88,11 +92,18 @@ function AdvancedPuppy({ isDark, landscapeFill1, landscapeFill2, puppyColors }: 
     mouth: string;
     faceBorder: string;
   };
+  onDragStateChange?: (isDragging: boolean) => void;
 }) {
   const breathe = useSharedValue(0);
   const tailWag = useSharedValue(0);
   const eyeBlink = useSharedValue(1);
   const earWiggle = useSharedValue(0);
+
+  // Drag state
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const dragStartX = useSharedValue(0);
+  const dragStartY = useSharedValue(0);
 
   useEffect(() => {
     breathe.value = withRepeat(withTiming(1, { duration: 1300 }), -1, true);
@@ -120,8 +131,37 @@ function AdvancedPuppy({ isDark, landscapeFill1, landscapeFill2, puppyColors }: 
   const rightEarStyle = useAnimatedProps(() => ({ transform: [{ rotate: `${15 - earWiggle.value}deg` }] }));
   const eyeStyle = useAnimatedProps(() => ({ transform: [{ scaleY: eyeBlink.value }] }));
 
+  // Pan gesture for dragging the puppy
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      dragStartX.value = translateX.value;
+      dragStartY.value = translateY.value;
+      if (onDragStateChange) {
+        runOnJS(onDragStateChange)(true);
+      }
+    })
+    .onUpdate((event) => {
+      translateX.value = dragStartX.value + event.translationX;
+      translateY.value = dragStartY.value + event.translationY;
+    })
+    .onEnd(() => {
+      // Spring back to original position
+      translateX.value = withSpring(0, { damping: 12, stiffness: 100 });
+      translateY.value = withSpring(0, { damping: 12, stiffness: 100 });
+      if (onDragStateChange) {
+        runOnJS(onDragStateChange)(false);
+      }
+    });
+
+  const dragStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+    ],
+  }));
+
   return (
-    <View style={styles.puppyWrapper}>
+    <GestureHandlerRootView style={styles.puppyWrapper}>
       <View style={styles.landscapeVectorContainer}>
         <Svg width={SCREEN_WIDTH} height={60} viewBox={`0 0 ${SCREEN_WIDTH} 60`} fill="none">
           <Path d={`M0 30 Q ${SCREEN_WIDTH * 0.3} 10, ${SCREEN_WIDTH * 0.7} 22 T ${SCREEN_WIDTH} 15 L ${SCREEN_WIDTH} 60 L 0 60 Z`} fill={landscapeFill1} />
@@ -129,29 +169,33 @@ function AdvancedPuppy({ isDark, landscapeFill1, landscapeFill2, puppyColors }: 
         </Svg>
       </View>
 
-      <Animated.View style={[styles.puppyFrame, bodyStyle]}>
-        <Animated.View style={[styles.puppyTail, tailStyle, { backgroundColor: puppyColors.ear }]} />
-        <Animated.View style={[styles.puppyEarL, leftEarStyle, { backgroundColor: puppyColors.ear }]} />
-        <Animated.View style={[styles.puppyEarR, rightEarStyle, { backgroundColor: puppyColors.ear }]} />
-        <View style={[
-          styles.puppyFace,
-          {
-            backgroundColor: puppyColors.face,
-            borderWidth: isDark ? 0 : 1.5,
-            borderColor: puppyColors.faceBorder,
-          },
-        ]}>
-          <Animated.View style={[styles.puppyEyeL, eyeStyle, { backgroundColor: puppyColors.eye }]} />
-          <Animated.View style={[styles.puppyEyeR, eyeStyle, { backgroundColor: puppyColors.eye }]} />
-          <View style={styles.puppySnout}>
-            <View style={[styles.puppyNose, { backgroundColor: puppyColors.nose }]} />
-            <View style={[styles.puppyMouth, { backgroundColor: puppyColors.mouth }]} />
-          </View>
-          <View style={styles.blushNodeL} />
-          <View style={styles.blushNodeR} />
-        </View>
-      </Animated.View>
-    </View>
+      <GestureDetector gesture={panGesture}>
+        <Animated.View style={[styles.puppyDragContainer, dragStyle]}>
+          <Animated.View style={[styles.puppyFrame, bodyStyle]}>
+            <Animated.View style={[styles.puppyTail, tailStyle, { backgroundColor: puppyColors.ear }]} />
+            <Animated.View style={[styles.puppyEarL, leftEarStyle, { backgroundColor: puppyColors.ear }]} />
+            <Animated.View style={[styles.puppyEarR, rightEarStyle, { backgroundColor: puppyColors.ear }]} />
+            <View style={[
+              styles.puppyFace,
+              {
+                backgroundColor: puppyColors.face,
+                borderWidth: isDark ? 0 : 1.5,
+                borderColor: puppyColors.faceBorder,
+              },
+            ]}>
+              <Animated.View style={[styles.puppyEyeL, eyeStyle, { backgroundColor: puppyColors.eye }]} />
+              <Animated.View style={[styles.puppyEyeR, eyeStyle, { backgroundColor: puppyColors.eye }]} />
+              <View style={styles.puppySnout}>
+                <View style={[styles.puppyNose, { backgroundColor: puppyColors.nose }]} />
+                <View style={[styles.puppyMouth, { backgroundColor: puppyColors.mouth }]} />
+              </View>
+              <View style={styles.blushNodeL} />
+              <View style={styles.blushNodeR} />
+            </View>
+          </Animated.View>
+        </Animated.View>
+      </GestureDetector>
+    </GestureHandlerRootView>
   );
 }
 
@@ -159,7 +203,8 @@ export function AnimeGrasslandCanvas({ dayInCycle,
   cycleLength,
   currentPhase,
   periodLength,
-  nextPeriodDate }: AnimeGrasslandCanvasProps) {
+  nextPeriodDate,
+  onPuppyDragStateChange }: AnimeGrasslandCanvasProps) {
   const theme = useTheme();
   const isDark = theme.dark;
   const accent = theme.colors.primary;
@@ -274,6 +319,7 @@ export function AnimeGrasslandCanvas({ dayInCycle,
         landscapeFill1={landscapeFill1}
         landscapeFill2={landscapeFill2}
         puppyColors={puppyColors}
+        onDragStateChange={onPuppyDragStateChange}
       />
     </View>
   );
@@ -304,7 +350,8 @@ const styles = StyleSheet.create({
   pillRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginTop: 16, zIndex: 12 },
   pillContainer: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1 },
   pillText: { fontSize: 11, fontWeight: '600' },
-  puppyWrapper: { width: SCREEN_WIDTH, height: 95, position: 'relative', alignItems: 'center', justifyContent: 'flex-end' },
+  puppyWrapper: { width: SCREEN_WIDTH, height: 95, position: 'relative', alignItems: 'center', justifyContent: 'flex-end', zIndex: 50 },
+  puppyDragContainer: { zIndex: 50, alignItems: 'center', justifyContent: 'flex-end' },
   landscapeVectorContainer: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2 },
   puppyFrame: { width: 84, height: 65, alignItems: 'center', justifyContent: 'flex-end', zIndex: 4, position: 'relative' },
   puppyFace: { width: 76, height: 60, borderRadius: 30, position: 'relative', justifyContent: 'center', alignItems: 'center' },
