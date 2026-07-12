@@ -24,7 +24,11 @@
       },
       "package": "app.stewbit.flora",
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -34,7 +38,6 @@
     "plugins": [
       "expo-router",
       "expo-asset",
-      "expo-audio",
       "expo-sqlite",
       [
         "expo-local-authentication",
@@ -45,6 +48,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a40f8e36-e266-4ff4-83bb-99d1756e2411"
+      }
     }
   }
 }
