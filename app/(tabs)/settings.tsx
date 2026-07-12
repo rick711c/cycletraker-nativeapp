@@ -100,6 +100,26 @@ export default function SettingsScreen() {
 
   const settingsGroups = [
     {
+      title: "Appearance",
+      items: [
+        {
+          icon: "theme-light-dark",
+          label: "Dark Mode",
+          description: "Switch between light and dark theme",
+          type: "toggle" as const,
+          value: settings.darkModeEnabled,
+          onChange: () => {
+            hapticLight();
+            dispatch(
+              updateSettingsRequest({
+                darkModeEnabled: !settings.darkModeEnabled,
+              }),
+            );
+          },
+        },
+      ],
+    },
+    {
       title: "Security",
       items: [
         {

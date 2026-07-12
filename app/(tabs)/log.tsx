@@ -3,13 +3,13 @@ import { format } from "date-fns";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import {
-    Button,
-    Card,
-    Portal,
-    Snackbar,
-    Text,
-    TextInput,
-    useTheme,
+  Button,
+  Card,
+  Portal,
+  Snackbar,
+  Text,
+  TextInput,
+  useTheme,
 } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -17,10 +17,10 @@ import { hapticLight, hapticSuccess } from "@/src/lib/haptics";
 import { useAppDispatch, useAppSelector } from "@/src/store";
 import { addDayLogRequest, selectDayLogs } from "@/src/store/cycleSlice";
 import {
-    DayLog,
-    FlowIntensity,
-    Mood,
-    PhysicalSymptom,
+  DayLog,
+  FlowIntensity,
+  Mood,
+  PhysicalSymptom,
 } from "@/src/types/cycle";
 
 // --- Premium Colorful Flow Configuration ---
@@ -132,10 +132,10 @@ export default function LogScreen() {
                     }
                     style={[
                       styles.optionBox,
+                      styles.optionBox4Col,
                       {
-                        width: "23%",
-                        backgroundColor: isSelected ? option.color : `${option.color}15`,
-                        borderColor: isSelected ? option.color : `${option.color}35`,
+                        backgroundColor: isSelected ? option.color : theme.colors.surfaceVariant,
+                        borderColor: isSelected ? option.color : theme.colors.outlineVariant,
                         borderWidth: 1,
                       },
                     ]}
@@ -177,23 +177,23 @@ export default function LogScreen() {
                     onPress={() => toggleMood(option.id)}
                     style={[
                       styles.optionBox,
+                      styles.optionBox3Col,
                       {
-                        width: "31.3%",
-                        backgroundColor: isSelected ? option.color : `${option.color}12`,
-                        borderColor: isSelected ? option.color : `${option.color}30`,
+                        backgroundColor: isSelected ? option.color : theme.colors.surfaceVariant,
+                        borderColor: isSelected ? option.color : theme.colors.outlineVariant,
                         borderWidth: 1,
                       },
                     ]}
                   >
-                    <Icon 
-                      icon={option.icon} 
-                      size={26} 
-                      color={isSelected ? "#FFFFFF" : option.color} 
+                    <Icon
+                      icon={option.icon}
+                      size={26}
+                      color={isSelected ? "#FFFFFF" : option.color}
                     />
-                    <Text 
-                      variant="labelSmall" 
+                    <Text
+                      variant="labelSmall"
                       style={[
-                        styles.optionLabel, 
+                        styles.optionLabel,
                         { color: isSelected ? "#FFFFFF" : theme.colors.onSurface, fontWeight: isSelected ? "700" : "500" }
                       ]}
                     >
@@ -222,27 +222,27 @@ export default function LogScreen() {
                     onPress={() => toggleSymptom(option.id)}
                     style={[
                       styles.optionBox,
+                      styles.optionBox4Col,
                       {
-                        width: "23%",
-                        backgroundColor: isSelected ? option.color : `${option.color}12`,
-                        borderColor: isSelected ? option.color : `${option.color}30`,
+                        backgroundColor: isSelected ? option.color : theme.colors.surfaceVariant,
+                        borderColor: isSelected ? option.color : theme.colors.outlineVariant,
                         borderWidth: 1,
                       },
                     ]}
                   >
-                    <Icon 
-                      icon={option.icon} 
-                      size={24} 
-                      color={isSelected ? "#FFFFFF" : option.color} 
+                    <Icon
+                      icon={option.icon}
+                      size={24}
+                      color={isSelected ? "#FFFFFF" : option.color}
                     />
                     <Text
                       variant="labelSmall"
                       style={[
                         styles.optionLabel,
-                        { 
-                          fontSize: 10, 
-                          color: isSelected ? "#FFFFFF" : theme.colors.onSurface, 
-                          fontWeight: isSelected ? "700" : "500" 
+                        {
+                          fontSize: 10,
+                          color: isSelected ? "#FFFFFF" : theme.colors.onSurface,
+                          fontWeight: isSelected ? "700" : "500"
                         }
                       ]}
                       numberOfLines={1}
@@ -266,13 +266,13 @@ export default function LogScreen() {
             <TextInput
               mode="outlined"
               placeholder="How was your day? Any other symptoms..."
-              placeholderTextColor="rgba(255,255,255,0.35)"
+              placeholderTextColor={theme.colors.onSurfaceVariant}
               value={log.notes}
               onChangeText={(text) => setLog((prev) => ({ ...prev, notes: text }))}
               multiline
               numberOfLines={4}
-              outlineStyle={{ borderRadius: 16, borderColor: "rgba(255,255,255,0.1)" }}
-              style={{ backgroundColor: "rgba(255,255,255,0.03)", color: "#FFFFFF" }}
+              outlineStyle={{ borderRadius: 16, borderColor: theme.colors.outlineVariant }}
+              style={{ backgroundColor: theme.colors.surfaceVariant, color: theme.colors.onSurface, padding: 12 }}
             />
           </Card.Content>
         </Card>
@@ -294,6 +294,7 @@ export default function LogScreen() {
           styles.floatingBar,
           {
             backgroundColor: theme.colors.background,
+            borderTopColor: theme.colors.outlineVariant,
             paddingBottom: Math.max(insets.bottom, 16),
           },
         ]}
@@ -318,29 +319,37 @@ const styles = StyleSheet.create({
   pageWrapper: { flex: 1, position: "relative" },
   header: { marginBottom: 20 },
   headerTitle: { fontWeight: "800", letterSpacing: -0.5 },
-  card: { marginBottom: 16, elevation: 0, backgroundColor: "transparent" },
-  cardContent: { paddingHorizontal: 0, paddingVertical: 4 },
-  sectionHeader: { 
-    flexDirection: "row", 
-    alignItems: "center", 
-    marginBottom: 14, 
+  card: { marginBottom: 16, elevation: 0 },
+  cardContent: { paddingVertical: 12 },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 14,
     gap: 8,
     width: "100%",
   },
   // FIXED: Replaced flexShrink with flex: 1 to grant text the remaining space and entirely ban word wrapping
-  sectionTitle: { 
-    fontWeight: "700", 
+  sectionTitle: {
+    fontWeight: "700",
     letterSpacing: -0.2,
-    flex: 1, 
+    flex: 1,
   },
   gridRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, justifyContent: "flex-start" },
-  optionBox: { 
-    alignItems: "center", 
-    justifyContent: "center", 
-    paddingVertical: 14, 
-    paddingHorizontal: 4, 
-    borderRadius: 18, 
+  optionBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 4,
+    borderRadius: 18,
     marginBottom: 4,
+  },
+  optionBox4Col: {
+    flexBasis: '21%',
+    flexGrow: 1,
+  },
+  optionBox3Col: {
+    flexBasis: '29%',
+    flexGrow: 1,
   },
   optionLabel: { marginTop: 8, textAlign: "center" },
   saveButton: { borderRadius: 16 },
@@ -352,6 +361,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "rgba(255,255,255,0.08)",
   },
 });
