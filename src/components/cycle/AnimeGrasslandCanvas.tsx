@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { differenceInDays, format, parseISO } from 'date-fns';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -242,10 +243,33 @@ export function AnimeGrasslandCanvas({ dayInCycle,
   const ringProgress = useSharedValue(0);
   const glowPulse = useSharedValue(1);
 
+  // Derive display values from props
+  const today = new Date();
+  const todayFormatted = format(today, 'EEE, MMM d');
+
+  const nextPeriodParsed = nextPeriodDate ? parseISO(nextPeriodDate) : null;
+  const daysUntilPeriod = nextPeriodParsed
+    ? Math.max(0, differenceInDays(nextPeriodParsed, today))
+    : 0;
+  const nextPeriodDay = nextPeriodParsed ? format(nextPeriodParsed, 'd') : '--';
+  const nextPeriodMonth = nextPeriodParsed ? format(nextPeriodParsed, 'MMM') : '';
+
+  const phaseLabel = useMemo(() => {
+    const labels: Record<string, string> = {
+      menstruation: 'MENSTRUATION',
+      follicular: 'FOLLICULAR',
+      ovulation: 'OVULATION',
+      luteal: 'LUTEAL',
+    };
+    return labels[currentPhase] ?? currentPhase.toUpperCase();
+  }, [currentPhase]);
+
+  const cycleProgress = cycleLength > 0 ? Math.min(dayInCycle / cycleLength, 1) : 0;
+
   useEffect(() => {
-    ringProgress.value = withTiming(0.75, { duration: 1400 });
+    ringProgress.value = withTiming(cycleProgress, { duration: 1400 });
     glowPulse.value = withRepeat(withTiming(1.05, { duration: 1800 }), -1, true);
-  }, []);
+  }, [cycleProgress]);
 
   const RADIUS = 84;
   const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -267,7 +291,7 @@ export function AnimeGrasslandCanvas({ dayInCycle,
         </View>
         <View style={styles.dateRow}>
           <Text style={[styles.dateLabel, { color: textSecondary }]}>Today</Text>
-          <Text style={[styles.dateValue, { color: textPrimary }]}>Tue, Jun 23</Text>
+          <Text style={[styles.dateValue, { color: textPrimary }]}>{todayFormatted}</Text>
         </View>
       </View>
 
@@ -298,20 +322,20 @@ export function AnimeGrasslandCanvas({ dayInCycle,
           ]}>
             <Text style={[styles.metricLabel, { color: textSecondary }]}>NEXT PERIOD</Text>
             <Text style={[styles.metricNumber, { color: textPrimary }]}>
-              30 <Text style={styles.metricMonth}>July</Text>
+              {nextPeriodDay} <Text style={styles.metricMonth}>{nextPeriodMonth}</Text>
             </Text>
             <View style={[styles.dotSeparator, { backgroundColor: accent }]} />
-            <Text style={[styles.metricCountdown, { color: textSecondary }]}>5 days left</Text>
+            <Text style={[styles.metricCountdown, { color: textSecondary }]}>{daysUntilPeriod === 0 ? 'Today' : `${daysUntilPeriod} day${daysUntilPeriod !== 1 ? 's' : ''} left`}</Text>
           </View>
         </View>
       </View>
 
       <View style={styles.pillRow}>
         <View style={[styles.pillContainer, { backgroundColor: pillBg, borderColor: pillBorder }]}>
-          <Text style={[styles.pillText, { color: textSecondary }]}>Day 1 of cycle</Text>
+          <Text style={[styles.pillText, { color: textSecondary }]}>Day {dayInCycle} of cycle</Text>
         </View>
         <View style={[styles.pillContainer, { backgroundColor: accent, borderColor: accent }]}>
-          <Text style={[styles.pillText, { color: '#FFF', fontWeight: '800' }]}>MENSTRUATION</Text>
+          <Text style={[styles.pillText, { color: '#FFF', fontWeight: '800' }]}>{phaseLabel}</Text>
         </View>
       </View>
 

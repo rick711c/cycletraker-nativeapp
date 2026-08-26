@@ -215,7 +215,6 @@ Operations:
 - Dashboard hero visualization with animated cycle ring
 - Receives props: dayInCycle, cycleLength, currentPhase, periodLength, nextPeriodDate
 - Contains draggable animated puppy mascot
-- Note: Next period date display is currently hardcoded ("30 July", "5 days left") — NOT using props
 
 ### CycleHistory (`src/components/cycle/CycleHistory.tsx`)
 - Displays all cycles in reverse chronological order
