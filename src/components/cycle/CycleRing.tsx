@@ -20,12 +20,7 @@ interface CycleRingProps {
   periodLength: number;
 }
 
-export function CycleRing({
-  dayInCycle,
-  cycleLength,
-  currentPhase,
-  periodLength,
-}: CycleRingProps) {
+export function CycleRing({ dayInCycle, cycleLength, currentPhase, periodLength }: CycleRingProps) {
   const theme = useTheme();
   const progress = Math.min((dayInCycle / cycleLength) * 100, 100);
   const circumference = 2 * Math.PI * 45;
@@ -34,38 +29,19 @@ export function CycleRing({
   const phases = useMemo(() => {
     const ovulationDay = cycleLength - 14;
     return [
-      {
-        phase: "menstruation" as CyclePhase,
-        start: 0,
-        end: periodLength / cycleLength,
-      },
-      {
-        phase: "follicular" as CyclePhase,
-        start: periodLength / cycleLength,
-        end: (ovulationDay - 1) / cycleLength,
-      },
-      {
-        phase: "ovulation" as CyclePhase,
-        start: (ovulationDay - 1) / cycleLength,
-        end: (ovulationDay + 3) / cycleLength,
-      },
-      {
-        phase: "luteal" as CyclePhase,
-        start: (ovulationDay + 3) / cycleLength,
-        end: 1,
-      },
+      { phase: "menstruation" as CyclePhase, start: 0, end: periodLength / cycleLength },
+      { phase: "follicular" as CyclePhase, start: periodLength / cycleLength, end: (ovulationDay - 1) / cycleLength },
+      { phase: "ovulation" as CyclePhase, start: (ovulationDay - 1) / cycleLength, end: (ovulationDay + 3) / cycleLength },
+      { phase: "luteal" as CyclePhase, start: (ovulationDay + 3) / cycleLength, end: 1 },
     ];
   }, [cycleLength, periodLength]);
+
+  const currentPhaseColor = cyclePhaseColors[currentPhase] ?? theme.colors.primary;
 
   return (
     <View style={styles.container}>
       <View style={styles.ringContainer}>
-        <Svg
-          width={208}
-          height={208}
-          viewBox="0 0 100 100"
-          style={{ transform: [{ rotate: "-90deg" }] }}
-        >
+        <Svg width={208} height={208} viewBox="0 0 100 100" style={{ transform: [{ rotate: "-90deg" }] }}>
           {phases.map((segment) => {
             const startAngle = segment.start * 360;
             const endAngle = segment.end * 360;
@@ -89,45 +65,19 @@ export function CycleRing({
           })}
           <Circle cx="50" cy="50" r="35" fill={theme.colors.surface} />
           <Circle
-            cx="50"
-            cy="50"
-            r="45"
-            fill="none"
-            stroke={theme.colors.outline}
-            strokeWidth="2"
-            strokeDasharray={`${circumference}`}
-            strokeDashoffset={`${strokeDashoffset}`}
-            strokeLinecap="round"
+            cx="50" cy="50" r="45" fill="none"
+            stroke={theme.colors.outline} strokeWidth="2"
+            strokeDasharray={`${circumference}`} strokeDashoffset={`${strokeDashoffset}`} strokeLinecap="round"
           />
         </Svg>
 
         <View style={styles.centerContent}>
-          <Text
-            variant="displayMedium"
-            style={{ fontWeight: "700", color: theme.colors.onSurface }}
-          >
-            {dayInCycle}
-          </Text>
-          <Text
-            variant="bodyMedium"
-            style={{ color: theme.colors.onSurfaceVariant, fontWeight: "500" }}
-          >
-            Day of cycle
-          </Text>
+          <Text variant="displayMedium" style={{ fontWeight: "700", color: theme.colors.onSurface }}>{dayInCycle}</Text>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, fontWeight: "500" }}>Day of cycle</Text>
           <Chip
             mode="flat"
-            style={[
-              styles.chip,
-              {
-                backgroundColor: `${cyclePhaseColors[currentPhase] ?? theme.colors.primary}20`,
-              },
-            ]}
-            textStyle={{
-              color: cyclePhaseColors[currentPhase] ?? theme.colors.primary,
-              fontWeight: "600",
-              fontSize: 10,
-            }}
-            compact
+            style={[styles.chip, { backgroundColor: `${currentPhaseColor}20` }]}
+            textStyle={{ color: currentPhaseColor, fontWeight: "600", fontSize: 10 }} compact
           >
             {phaseLabels[currentPhase]}
           </Chip>
@@ -140,14 +90,6 @@ export function CycleRing({
 const styles = StyleSheet.create({
   container: { alignItems: "center", justifyContent: "center", padding: 16 },
   ringContainer: { width: 208, height: 208, position: "relative" },
-  centerContent: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  centerContent: { position: "absolute", top: 0, bottom: 0, left: 0, right: 0, justifyContent: "center", alignItems: "center" },
   chip: { marginTop: 8, alignItems: "center", justifyContent: "center" },
 });

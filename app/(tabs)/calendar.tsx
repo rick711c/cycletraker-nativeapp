@@ -1,5 +1,6 @@
 import Icon from "@/src/components/ui/Icon";
 import {
+    addDays,
     addMonths,
     differenceInDays,
     eachDayOfInterval,
@@ -29,6 +30,7 @@ import {
 import {
     Button,
     Card,
+    Dialog,
     Divider,
     IconButton,
     Portal,
@@ -84,6 +86,7 @@ export default function CalendarScreen() {
   const [editStart, setEditStart] = useState<Date | null>(null);
   const [editEnd, setEditEnd] = useState<Date | null>(null);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [warningDialogVisible, setWarningDialogVisible] = useState(false);
 
   const days = useMemo(() => {
     const monthStart = startOfMonth(currentMonth);
@@ -136,8 +139,16 @@ export default function CalendarScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     if (editMode === "selectStart") {
+      // Auto-select end date dynamically using settings or defaulting to 5 days
+      const targetPeriodLength = settings.averagePeriodLength || 5;
+      const calculatedEnd = addDays(day, targetPeriodLength - 1);
+      
+      // Safety rule: Auto-calculated end date should not exceed today's calendar date
+      const rightNow = new Date();
+      const finalAutoEnd = isBefore(rightNow, calculatedEnd) ? rightNow : calculatedEnd;
+
       setEditStart(day);
-      setEditEnd(null);
+      setEditEnd(finalAutoEnd);
       setEditMode("selectEnd");
     } else if (editMode === "selectEnd") {
       if (editStart && isBefore(day, editStart)) {
@@ -159,8 +170,10 @@ export default function CalendarScreen() {
     setEditMode("idle");
     setEditStart(null);
     setEditEnd(null);
+    setWarningDialogVisible(false);
   };
-  const handleSaveEdit = () => {
+
+  const executeSave = () => {
     if (editStart && editEnd) {
       dispatch(
         changePeriodDateRequest({
@@ -173,6 +186,20 @@ export default function CalendarScreen() {
     setEditMode("idle");
     setEditStart(null);
     setEditEnd(null);
+    setWarningDialogVisible(false);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editStart || !editEnd) return;
+
+    const loggedDuration = differenceInDays(editEnd, editStart) + 1;
+
+    if (loggedDuration > 11) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      setWarningDialogVisible(true);
+    } else {
+      executeSave();
+    }
   };
 
   const screenWidth = Dimensions.get("window").width;
@@ -217,8 +244,11 @@ export default function CalendarScreen() {
     editMode === "selectStart"
       ? "Tap the first day of your period"
       : editMode === "selectEnd"
-        ? "Now tap the last day of your period"
+        ? "Adjust or tap any day to change your selection range"
         : null;
+
+  // Compute calculated duration safely for the dialog template interface
+  const totalSelectedDays = editStart && editEnd ? differenceInDays(editEnd, editStart) + 1 : 0;
 
   return (
     <ScrollView
@@ -226,9 +256,28 @@ export default function CalendarScreen() {
       contentContainerStyle={styles.container}
     >
       <View style={styles.header}>
-        <Text variant="headlineSmall" style={styles.monthTitle}>
-          {format(currentMonth, "MMMM yyyy")}
-        </Text>
+        <View style={styles.monthNavigationRow}>
+          <TouchableOpacity 
+            onPress={() => animateMonth("right")} 
+            style={styles.navButton}
+            accessibilityRole="button"
+          >
+            <Icon name="chevron-left" size={26} color={theme.colors.onSurface} />
+          </TouchableOpacity>
+
+          <Text variant="headlineSmall" style={styles.monthTitle}>
+            {format(currentMonth, "MMMM yyyy")}
+          </Text>
+
+          <TouchableOpacity 
+            onPress={() => animateMonth("left")} 
+            style={styles.navButton}
+            accessibilityRole="button"
+          >
+            <Icon name="chevron-right" size={26} color={theme.colors.onSurface} />
+          </TouchableOpacity>
+        </View>
+
         {editMode === "idle" && (
           <IconButton
             icon="pencil-outline"
@@ -333,7 +382,6 @@ export default function CalendarScreen() {
                 borderWidth = 2;
               }
 
-              // Show a phase dot for non-period phases only
               const showPhaseDot =
                 !isPeriodDay && !isPredictedPeriod && !inEditRange;
 
@@ -344,7 +392,7 @@ export default function CalendarScreen() {
                       styles.dayCell,
                       {
                         backgroundColor,
-                        opacity: isCurrentMonth ? 1 : 0.3,
+                        opacity: isCurrentMonth ? 1 : 0.55,
                         borderColor,
                         borderWidth,
                       },
@@ -464,7 +512,7 @@ export default function CalendarScreen() {
                     color: cyclePhaseColors.menstruation,
                   }}
                 >
-                  {differenceInDays(editEnd, editStart) + 1} days
+                  {totalSelectedDays} days
                 </Text>
               </View>
             </View>
@@ -608,6 +656,56 @@ export default function CalendarScreen() {
       </Card>
 
       <Portal>
+        {/* Beautiful theme-integrated safety alert dialog */}
+        <Dialog 
+          visible={warningDialogVisible} 
+          onDismiss={() => setWarningDialogVisible(false)}
+          style={[styles.customDialog, { backgroundColor: theme.colors.elevation.level3 }]}
+        >
+          <Dialog.Title style={styles.dialogTitleRow}>
+            <Icon name="alert-circle-outline" size={24} color={cyclePhaseColors.menstruation} />
+            <Text variant="titleLarge" style={styles.dialogTitleText}>
+              Prolonged Period Detected
+            </Text>
+          </Dialog.Title>
+          
+          <Dialog.Content>
+            <Text variant="bodyMedium" style={[styles.dialogBody, { color: theme.colors.onSurface }]}>
+              You've recorded a period duration of <Text style={{ fontWeight: "700", color: cyclePhaseColors.menstruation }}>{totalSelectedDays} days</Text>.
+            </Text>
+            <Text variant="bodyMedium" style={[styles.dialogBody, { color: theme.colors.onSurfaceVariant, marginTop: 8 }]}>
+              Typical bleeding windows usually last between 3 to 7 days. While individual variations do happen, extended bleeding cycles might be an important sign worth verifying.
+            </Text>
+            <Text variant="bodyMedium" style={[styles.dialogBody, { color: theme.colors.onSurfaceVariant, marginTop: 8, fontStyle: "italic" }]}>
+              We gently recommend checking your selected timeline dates, or consulting your healthcare provider if this pattern is regular for you.
+            </Text>
+            <Divider style={{ marginVertical: 14, opacity: 0.2 }} />
+            <Text variant="titleSmall" style={{ textAlign: "center", fontWeight: "600", color: theme.colors.onSurface }}>
+              Would you still like to proceed and save?
+            </Text>
+          </Dialog.Content>
+
+          <Dialog.Actions style={styles.dialogActionsRow}>
+            <Button 
+              mode="text" 
+              textColor={theme.colors.primary}
+              onPress={() => setWarningDialogVisible(false)}
+              labelStyle={{ fontWeight: "700", letterSpacing: 0.5 }}
+            >
+              Review Dates
+            </Button>
+            <Button 
+              mode="contained"
+              buttonColor={cyclePhaseColors.menstruation}
+              textColor="#ffffff"
+              onPress={executeSave}
+              style={{ borderRadius: 20, paddingHorizontal: 4 }}
+            >
+              Save Anyway
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+
         <Snackbar
           visible={snackbarVisible}
           onDismiss={() => setSnackbarVisible(false)}
@@ -634,7 +732,21 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 24,
   },
-  monthTitle: { fontWeight: "700" },
+  monthNavigationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  navButton: {
+    padding: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  monthTitle: { 
+    fontWeight: "700",
+    minWidth: 140,
+    textAlign: "center"
+  },
   editBanner: {
     flexDirection: "row",
     alignItems: "center",
@@ -707,5 +819,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 14,
     opacity: 0.6,
+  },
+  customDialog: {
+    borderRadius: 24,
+    paddingVertical: 4,
+  },
+  dialogTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingTop: 8,
+  },
+  dialogTitleText: {
+    fontWeight: "700",
+    fontSize: 20,
+  },
+  dialogBody: {
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  dialogActionsRow: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    gap: 8,
   },
 });

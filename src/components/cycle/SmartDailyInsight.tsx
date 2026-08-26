@@ -1,15 +1,29 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
-import { Card, Text, Chip, Checkbox, Divider, useTheme } from 'react-native-paper';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Pressable,
+  Dimensions,
+} from 'react-native';
+import { Text, Checkbox, useTheme } from 'react-native-paper';
 import { cyclePhaseColors } from '@/src/theme/muiTheme';
 import Icon from '@/src/components/ui/Icon';
-import { AppMode, DailyInsightData, TryToConceiveInsight, PregnancyInsight, TrackCycleInsight } from '@/src/types/insight';
+import Svg, { Path } from 'react-native-svg';
+import {
+  AppMode,
+  DailyInsightData,
+  TryToConceiveInsight,
+  PregnancyInsight,
+  TrackCycleInsight,
+} from '@/src/types/insight';
 import { getInsightForDay } from '@/src/lib/insightHelpers';
 
-// ---------------------------------------------------------------------------
-// Phase display helpers
-// ---------------------------------------------------------------------------
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
+// ---------------------------------------------------------------------------
+// Phase icon/label maps (static, don't need theme)
+// ---------------------------------------------------------------------------
 const phaseIcons: Record<string, string> = {
   menstruation: 'water-outline',
   follicular: 'trending-up',
@@ -30,20 +44,15 @@ const phaseLabels: Record<string, string> = {
   trimester_3: '3rd Trimester',
 };
 
-// ---------------------------------------------------------------------------
-// Props
-// ---------------------------------------------------------------------------
-
 interface SmartDailyInsightProps {
   dayInCycle: number;
   appMode: AppMode;
 }
 
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
-
-export function SmartDailyInsight({ dayInCycle, appMode }: SmartDailyInsightProps) {
+export function SmartDailyInsight({
+  dayInCycle,
+  appMode,
+}: SmartDailyInsightProps) {
   const theme = useTheme();
   const insight = getInsightForDay(dayInCycle, appMode);
 
@@ -56,17 +65,20 @@ export function SmartDailyInsight({ dayInCycle, appMode }: SmartDailyInsightProp
   // Checklist state — local toggle for each item
   const [checked, setChecked] = useState<Record<number, boolean>>({});
   const toggleCheck = (index: number) =>
-    setChecked((prev) => ({ ...prev, [index]: !prev[index] }));
+    setChecked(prev => ({ ...prev, [index]: !prev[index] }));
 
   // Collapsible section state
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+  const [expandedSections, setExpandedSections] = useState<
+    Record<string, boolean>
+  >({
     body: false,
     symptoms: false,
     care: false,
     hygiene: false,
   });
+
   const toggleSection = (key: string) =>
-    setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
+    setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
 
   // Type narrowers
   const isTryToConceive = (d: DailyInsightData): d is TryToConceiveInsight =>
@@ -74,311 +86,469 @@ export function SmartDailyInsight({ dayInCycle, appMode }: SmartDailyInsightProp
   const isPregnancy = (d: DailyInsightData): d is PregnancyInsight =>
     'babyDevelopment' in d;
 
+  // Theme-derived colors for inline usage
+  const textPrimary = theme.colors.onSurface;
+  const textSecondary = theme.colors.onSurfaceVariant;
+  const surfaceCard = theme.colors.surface;
+  const surfaceVariant = theme.colors.surfaceVariant;
+  const borderGlass = theme.colors.outlineVariant;
+  const background = theme.colors.background;
+
   return (
-    <View style={styles.root}>
-      {/* ─── Section Title ─────────────────────────────────────── */}
-      <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
-        Daily Insight
-      </Text>
-
-      {/* ─── Phase Banner ──────────────────────────────────────── */}
-      <View style={[styles.phaseBanner]}>
-        <View style={[styles.phaseIconCircle, { backgroundColor: `${phaseColor}30` }]}>
-          <Icon
-            name={phaseIcons[insight.phase] ?? 'creation'}
-            size={24}
-            color={phaseColor}
-          />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text variant="titleMedium" style={{ color: phaseColor, fontWeight: '700' }}>
-            {phaseLabels[insight.phase] ?? 'Phase'} Phase
+    <View style={[styles.root, { backgroundColor: background }]}>
+      {/* ─── Section Title & Header Row ─────────────────────────── */}
+      <View style={styles.headerRow}>
+        <Text
+          variant="titleLarge"
+          style={[styles.sectionTitle, { color: theme.colors.onBackground }]}
+        >
+          Daily Insight
+        </Text>
+        <TouchableOpacity activeOpacity={0.7} style={styles.viewAllButton}>
+          <Text style={[styles.viewAllText, { color: phaseColor }]}>
+            History
           </Text>
-          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-            Cycle Day {dayInCycle}
-          </Text>
-        </View>
-
-        {/* Pregnancy Probability badge for non-pregnancy modes */}
-        {!isPregnancy(insight) && (
-          <View
-            style={[
-              styles.probabilityBadge,
-              { backgroundColor: phaseColor },
-            ]}
-          >
-            <Text style={styles.probabilityText}>
-              {(insight as TrackCycleInsight | TryToConceiveInsight).pregnancyProbability}
-            </Text>
-          </View>
-        )}
+          <Icon name="chevron-right" size={14} color={phaseColor} />
+        </TouchableOpacity>
       </View>
 
-      {/* ─── Summary ───────────────────────────────────────────── */}
-      {/* <Text
-        variant="bodyLarge"
-        style={[styles.summaryText, { color: theme.colors.onSurface }]}
+      {/* ─── Premium Phase Banner Card ─────────────────────────── */}
+      <View
+        style={[
+          styles.phaseBannerCard,
+          { backgroundColor: surfaceCard, borderColor: borderGlass },
+        ]}
       >
-        {insight.summary}
-      </Text> */}
-
-      {/* ─── Fertility Status (TryToConceive only) ─────────────── */}
-      {/* {isTryToConceive(insight) && (
-        <Card style={[styles.card, { backgroundColor: theme.colors.primaryContainer }]}>
-          <Card.Content style={styles.cardInner}>
-            <View style={styles.cardHeader}>
-              <Icon name="heart-pulse" size={22} color={theme.colors.primary} />
-              <Text
-                variant="titleSmall"
-                style={{ color: theme.colors.onPrimaryContainer, fontWeight: '700', marginLeft: 10 }}
-              >
-                Fertility Status
-              </Text>
+        <View style={styles.layoutFlexRow}>
+          {/* Column 1: Custom Orb Graphic Node */}
+          <View style={styles.orbGraphicBlock}>
+            <View
+              style={[
+                styles.orbRing,
+                {
+                  backgroundColor: `${phaseColor}20`,
+                  borderColor: `${phaseColor}40`,
+                },
+              ]}
+            >
+              <Icon
+                name={phaseIcons[insight.phase] ?? 'creation'}
+                size={22}
+                color={phaseColor}
+              />
             </View>
+            <Svg
+              width={36}
+              height={10}
+              viewBox="0 0 40 12"
+              style={styles.waveVector}
+            >
+              <Path
+                d="M0,6 Q10,0 20,6 T40,6"
+                stroke={`${phaseColor}90`}
+                strokeWidth={1.5}
+                fill="none"
+              />
+            </Svg>
+          </View>
+
+          {/* Column 2: Typography Logic Stack */}
+          <View style={styles.typographyStack}>
             <Text
-              variant="headlineSmall"
+              variant="titleMedium"
+              style={{
+                color: textPrimary,
+                fontWeight: '800',
+                letterSpacing: -0.2,
+              }}
+            >
+              {phaseLabels[insight.phase] ?? 'Phase'} Phase
+            </Text>
+            <Text
+              variant="bodySmall"
+              style={{
+                color: textSecondary,
+                marginTop: 2,
+                fontWeight: '500',
+              }}
+            >
+              Cycle Day {dayInCycle}
+            </Text>
+          </View>
+
+          {/* Column 3: Fixed Aspect Context Badge Node */}
+          {!isPregnancy(insight) && (
+            <View style={styles.actionZoneBox}>
+              <Text
+                variant="labelSmall"
+                style={{
+                  color: textSecondary,
+                  fontWeight: '700',
+                  fontSize: 9,
+                  letterSpacing: 0.5,
+                  textTransform: 'uppercase',
+                  marginBottom: 4,
+                  textAlign: 'center',
+                }}
+              >
+                Pregnancy Chance
+              </Text>
+              <View
+                style={[
+                  styles.gradientStatusPill,
+                  {
+                    backgroundColor: `${phaseColor}28`,
+                    borderColor: `${phaseColor}50`,
+                  },
+                ]}
+              >
+                <Text style={[styles.statusPillText, { color: phaseColor }]}>
+                  {
+                    (insight as TrackCycleInsight | TryToConceiveInsight)
+                      .pregnancyProbability
+                  }
+                </Text>
+              </View>
+            </View>
+          )}
+        </View>
+      </View>
+
+      {/* ─── Summary Paragraph Layer ───────────────────────────── */}
+      {insight.summary ? (
+        <Text variant="bodyMedium" style={[styles.summaryText, { color: textPrimary }]}>
+          {insight.summary}
+        </Text>
+      ) : null}
+
+      {/* ─── Fertility Status Container (TryToConceive Mode Only) ─── */}
+      {isTryToConceive(insight) && (
+        <View
+          style={[
+            styles.premiumDataBlock,
+            { backgroundColor: surfaceCard, borderColor: `${theme.colors.primary}25` },
+          ]}
+        >
+          <View style={styles.cardHeader}>
+            <Icon name="heart-pulse" size={20} color={theme.colors.primary} />
+            <Text
+              variant="titleSmall"
+              style={[
+                styles.dataBlockTitle,
+                { color: theme.colors.onBackground },
+              ]}
+            >
+              Fertility Status
+            </Text>
+          </View>
+          <Text
+            variant="headlineSmall"
+            style={{
+              color: theme.colors.primary,
+              fontWeight: '900',
+              marginTop: 6,
+              letterSpacing: -0.5,
+            }}
+          >
+            {insight.fertilityStatus}
+          </Text>
+          <View style={[styles.innerHorizontalLine, { backgroundColor: borderGlass }]} />
+          <View style={styles.actionRow}>
+            <Icon
+              name="alert-circle-outline"
+              size={16}
+              color={textSecondary}
+            />
+            <Text
+              variant="bodyMedium"
+              style={{
+                color: textSecondary,
+                marginLeft: 8,
+                flex: 1,
+                fontWeight: '500',
+                lineHeight: 18,
+              }}
+            >
+              {insight.actionItem}
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {/* ─── Baby Development Container (Pregnancy Mode Only) ─────── */}
+      {isPregnancy(insight) && (
+        <View
+          style={[
+            styles.premiumDataBlock,
+            { backgroundColor: surfaceCard, borderColor: `${theme.colors.primary}25` },
+          ]}
+        >
+          <View style={styles.cardHeader}>
+            <Icon
+              name="baby-face-outline"
+              size={20}
+              color={theme.colors.primary}
+            />
+            <Text
+              variant="titleSmall"
+              style={[
+                styles.dataBlockTitle,
+                { color: theme.colors.onBackground },
+              ]}
+            >
+              Baby Development
+            </Text>
+          </View>
+          <Text
+            variant="bodyMedium"
+            style={{
+              color: textPrimary,
+              marginTop: 8,
+              lineHeight: 22,
+              fontWeight: '500',
+            }}
+          >
+            {insight.babyDevelopment}
+          </Text>
+          <View style={[styles.innerHorizontalLine, { backgroundColor: borderGlass }]} />
+          <View style={styles.actionRow}>
+            <Icon name="star-outline" size={16} color={theme.colors.primary} />
+            <Text
+              variant="bodyMedium"
               style={{
                 color: theme.colors.primary,
+                marginLeft: 8,
+                flex: 1,
                 fontWeight: '700',
-                marginTop: 4,
               }}
             >
-              {insight.fertilityStatus}
+              {insight.milestone}
             </Text>
-            <Divider style={{ marginVertical: 12, backgroundColor: `${theme.colors.primary}30` }} />
-            <View style={styles.actionRow}>
-              <Icon name="alert-circle-outline" size={18} color={theme.colors.onPrimaryContainer} />
-              <Text
-                variant="bodyMedium"
-                style={{ color: theme.colors.onPrimaryContainer, marginLeft: 8, flex: 1 }}
-              >
-                {insight.actionItem}
-              </Text>
-            </View>
-          </Card.Content>
-        </Card>
-      )} */}
+          </View>
+        </View>
+      )}
 
-      {/* ─── Baby Development (Pregnancy only) ────────────────── */}
-      {/* {isPregnancy(insight) && (
-        <Card style={[styles.card, { backgroundColor: theme.colors.primaryContainer }]}>
-          <Card.Content style={styles.cardInner}>
-            <View style={styles.cardHeader}>
-              <Icon name="baby-face-outline" size={22} color={theme.colors.primary} />
-              <Text
-                variant="titleSmall"
-                style={{ color: theme.colors.onPrimaryContainer, fontWeight: '700', marginLeft: 10 }}
-              >
-                Baby Development
-              </Text>
-            </View>
-            <Text
-              variant="bodyLarge"
-              style={{
-                color: theme.colors.onPrimaryContainer,
-                marginTop: 6,
-                lineHeight: 24,
-              }}
-            >
-              {insight.babyDevelopment}
-            </Text>
-            <Divider style={{ marginVertical: 12, backgroundColor: `${theme.colors.primary}30` }} />
-            <View style={styles.actionRow}>
-              <Icon name="star-outline" size={18} color={theme.colors.primary} />
-              <Text
-                variant="bodyMedium"
-                style={{ color: theme.colors.onPrimaryContainer, marginLeft: 8, flex: 1, fontWeight: '600' }}
-              >
-                {insight.milestone}
-              </Text>
-            </View>
-          </Card.Content>
-        </Card>
-      )} */}
-
-      {/* ─── Collapsible Detail Sections ──────────────────────── */}
+      {/* ─── Dynamic Collapsible Section Matrix ─────────────────── */}
       <View style={styles.collapsibleGroup}>
-        {/* What's Happening in Your Body */}
+        {/* Module A: Biological State */}
         <Pressable
           onPress={() => toggleSection('body')}
           style={[
             styles.collapsibleButton,
             {
-              borderColor: phaseColor,
-              backgroundColor: expandedSections.body ? `${phaseColor}12` : 'transparent',
+              borderColor: expandedSections.body
+                ? phaseColor
+                : borderGlass,
+              backgroundColor: expandedSections.body
+                ? `${phaseColor}0A`
+                : surfaceCard,
             },
           ]}
         >
-          <View style={[styles.sectionIconCircle, { backgroundColor: `${phaseColor}18` }]}>
-            <Icon name="human" size={20} color={phaseColor} />
-          </View>
-          <Text
-            variant="titleSmall"
-            style={{ color: theme.colors.onSurface, fontWeight: '700', flex: 1, marginLeft: 10 }}
+          <View
+            style={[
+              styles.sectionIconCircle,
+              {
+                backgroundColor: expandedSections.body
+                  ? `${phaseColor}20`
+                  : surfaceVariant,
+              },
+            ]}
           >
+            <Icon
+              name="human"
+              size={18}
+              color={expandedSections.body ? phaseColor : textPrimary}
+            />
+          </View>
+          <Text variant="titleSmall" style={[styles.collapsibleButtonText, { color: textPrimary }]}>
             What's Happening In Your Body
           </Text>
           <Icon
             name={expandedSections.body ? 'chevron-up' : 'chevron-down'}
-            size={20}
-            color={theme.colors.onSurfaceVariant}
+            size={18}
+            color={textSecondary}
           />
         </Pressable>
         {expandedSections.body && (
-          <Card style={[styles.expandedCard, { backgroundColor: theme.colors.surface }]}>
-            <Card.Content style={styles.expandedCardInner}>
-              <Text
-                variant="bodyMedium"
-                style={{ color: theme.colors.onSurfaceVariant, lineHeight: 22 }}
-              >
-                {insight.biologicalState}
-              </Text>
-            </Card.Content>
-          </Card>
+          <View style={[styles.expandedContentBox, { backgroundColor: surfaceVariant, borderColor: borderGlass }]}>
+            <Text variant="bodyMedium" style={[styles.expandedContentText, { color: textPrimary }]}>
+              {insight.biologicalState}
+            </Text>
+          </View>
         )}
 
-        {/* What to Expect Today (Symptoms) */}
+        {/* Module B: Symptoms Expected */}
         <Pressable
           onPress={() => toggleSection('symptoms')}
           style={[
             styles.collapsibleButton,
             {
-              borderColor: phaseColor,
-              backgroundColor: expandedSections.symptoms ? `${phaseColor}12` : 'transparent',
+              borderColor: expandedSections.symptoms
+                ? phaseColor
+                : borderGlass,
+              backgroundColor: expandedSections.symptoms
+                ? `${phaseColor}0A`
+                : surfaceCard,
             },
           ]}
         >
-          <View style={[styles.sectionIconCircle, { backgroundColor: `${phaseColor}18` }]}>
-            <Icon name="clipboard-pulse-outline" size={20} color={phaseColor} />
-          </View>
-          <Text
-            variant="titleSmall"
-            style={{ color: theme.colors.onSurface, fontWeight: '700', flex: 1, marginLeft: 10 }}
+          <View
+            style={[
+              styles.sectionIconCircle,
+              {
+                backgroundColor: expandedSections.symptoms
+                  ? `${phaseColor}20`
+                  : surfaceVariant,
+              },
+            ]}
           >
+            <Icon
+              name="clipboard-pulse-outline"
+              size={18}
+              color={expandedSections.symptoms ? phaseColor : textPrimary}
+            />
+          </View>
+          <Text variant="titleSmall" style={[styles.collapsibleButtonText, { color: textPrimary }]}>
             What to Expect Today
           </Text>
           <Icon
             name={expandedSections.symptoms ? 'chevron-up' : 'chevron-down'}
-            size={20}
-            color={theme.colors.onSurfaceVariant}
+            size={18}
+            color={textSecondary}
           />
         </Pressable>
         {expandedSections.symptoms && (
-          <Card style={[styles.expandedCard, { backgroundColor: theme.colors.surface }]}>
-            <Card.Content style={styles.expandedCardInner}>
-              <View style={styles.chipRow}>
-                {symptomEntries.map(([key, value]) => (
-                  <Chip
-                    key={key}
-                    icon={() => (
-                      <Icon name="circle-medium" size={14} color={phaseColor} />
-                    )}
-                    textStyle={styles.chipText}
-                    style={[styles.chip, { backgroundColor: `${phaseColor}14` }]}
-                  >
-                    {key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ')}:{' '}
-                    <Text style={{ fontWeight: '700' }}>{value}</Text>
-                  </Chip>
-                ))}
-              </View>
-            </Card.Content>
-          </Card>
+          <View style={[styles.expandedContentBox, { backgroundColor: surfaceVariant, borderColor: borderGlass }]}>
+            <View style={styles.chipRow}>
+              {symptomEntries.map(([key, value]) => (
+                <View
+                  key={key}
+                  style={[
+                    styles.customPill,
+                    {
+                      backgroundColor: `${phaseColor}12`,
+                      borderColor: `${phaseColor}25`,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.customPillText, { color: textPrimary }]}>
+                    {key.charAt(0).toUpperCase() +
+                      key.slice(1).replace(/_/g, ' ')}
+                    :{' '}
+                    <Text style={{ color: phaseColor, fontWeight: '800' }}>
+                      {value}
+                    </Text>
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
         )}
 
-        {/* Care Routine */}
+        {/* Module C: Care Routines */}
         <Pressable
           onPress={() => toggleSection('care')}
           style={[
             styles.collapsibleButton,
             {
-              borderColor: theme.colors.primary,
-              backgroundColor: expandedSections.care ? `${theme.colors.primary}12` : 'transparent',
+              borderColor: expandedSections.care
+                ? theme.colors.primary
+                : borderGlass,
+              backgroundColor: expandedSections.care
+                ? `${theme.colors.primary}0A`
+                : surfaceCard,
             },
           ]}
         >
-          <View style={[styles.sectionIconCircle, { backgroundColor: `${theme.colors.primary}18` }]}>
-            <Icon name="lightbulb-on-outline" size={20} color={theme.colors.primary} />
-          </View>
-          <Text
-            variant="titleSmall"
-            style={{ color: theme.colors.onSurface, fontWeight: '700', flex: 1, marginLeft: 10 }}
+          <View
+            style={[
+              styles.sectionIconCircle,
+              {
+                backgroundColor: expandedSections.care
+                  ? `${theme.colors.primary}20`
+                  : surfaceVariant,
+              },
+            ]}
           >
+            <Icon
+              name="lightbulb-on-outline"
+              size={18}
+              color={expandedSections.care ? theme.colors.primary : textPrimary}
+            />
+          </View>
+          <Text variant="titleSmall" style={[styles.collapsibleButtonText, { color: textPrimary }]}>
             Care Routine
           </Text>
           <Icon
             name={expandedSections.care ? 'chevron-up' : 'chevron-down'}
-            size={20}
-            color={theme.colors.onSurfaceVariant}
+            size={18}
+            color={textSecondary}
           />
         </Pressable>
         {expandedSections.care && (
-          <Card style={[styles.expandedCard, { backgroundColor: theme.colors.surface }]}>
-            <Card.Content style={styles.expandedCardInner}>
-              {/* Diet */}
-              <View style={styles.routineItem}>
-                <View style={[styles.routineIconBox, { backgroundColor: '#4CAF5018' }]}>
-                  <Icon name="food-apple-outline" size={22} color="#4CAF50" />
-                </View>
-                <View style={styles.routineContent}>
-                  <Text variant="labelLarge" style={{ color: theme.colors.onSurface, fontWeight: '700' }}>
-                    Diet
-                  </Text>
-                  <Text
-                    variant="bodyMedium"
-                    style={{ color: theme.colors.onSurfaceVariant, marginTop: 2, lineHeight: 20 }}
-                  >
-                    {insight.careRoutine.diet}
-                  </Text>
-                </View>
+          <View style={[styles.expandedContentBox, { backgroundColor: surfaceVariant, borderColor: borderGlass }]}>
+            {/* Diet item sub-node */}
+            <View style={styles.routineItem}>
+              <View
+                style={[
+                  styles.routineIconBox,
+                  { backgroundColor: 'rgba(76, 175, 80, 0.1)' },
+                ]}
+              >
+                <Icon name="food-apple-outline" size={20} color="#4CAF50" />
               </View>
+              <View style={styles.routineContent}>
+                <Text style={[styles.routineItemTitle, { color: textPrimary }]}>Diet</Text>
+                <Text style={[styles.routineItemDescription, { color: textSecondary }]}>
+                  {insight.careRoutine.diet}
+                </Text>
+              </View>
+            </View>
 
-              <Divider style={styles.routineDivider} />
-
-              {/* Remedy */}
-              {insight.careRoutine.remedy && (
-                <>
-                  <View style={styles.routineItem}>
-                    <View style={[styles.routineIconBox, { backgroundColor: '#FF980018' }]}>
-                      <Icon name="hand-heart-outline" size={22} color="#FF9800" />
-                    </View>
-                    <View style={styles.routineContent}>
-                      <Text variant="labelLarge" style={{ color: theme.colors.onSurface, fontWeight: '700' }}>
-                        Remedy
-                      </Text>
-                      <Text
-                        variant="bodyMedium"
-                        style={{ color: theme.colors.onSurfaceVariant, marginTop: 2, lineHeight: 20 }}
-                      >
-                        {insight.careRoutine.remedy}
-                      </Text>
-                    </View>
+            {insight.careRoutine.remedy && (
+              <>
+                <View style={[styles.subDivider, { backgroundColor: borderGlass }]} />
+                <View style={styles.routineItem}>
+                  <View
+                    style={[
+                      styles.routineIconBox,
+                      { backgroundColor: 'rgba(255, 152, 0, 0.1)' },
+                    ]}
+                  >
+                    <Icon name="hand-heart-outline" size={20} color="#FF9800" />
                   </View>
-                  <Divider style={styles.routineDivider} />
-                </>
-              )}
+                  <View style={styles.routineContent}>
+                    <Text style={[styles.routineItemTitle, { color: textPrimary }]}>Remedy</Text>
+                    <Text style={[styles.routineItemDescription, { color: textSecondary }]}>
+                      {insight.careRoutine.remedy}
+                    </Text>
+                  </View>
+                </View>
+              </>
+            )}
 
-              {/* Activity */}
-              <View style={styles.routineItem}>
-                <View style={[styles.routineIconBox, { backgroundColor: '#2196F318' }]}>
-                  <Icon name="run" size={22} color="#2196F3" />
-                </View>
-                <View style={styles.routineContent}>
-                  <Text variant="labelLarge" style={{ color: theme.colors.onSurface, fontWeight: '700' }}>
-                    Activity
-                  </Text>
-                  <Text
-                    variant="bodyMedium"
-                    style={{ color: theme.colors.onSurfaceVariant, marginTop: 2, lineHeight: 20 }}
-                  >
-                    {insight.careRoutine.activity}
-                  </Text>
-                </View>
+            <View style={[styles.subDivider, { backgroundColor: borderGlass }]} />
+            <View style={styles.routineItem}>
+              <View
+                style={[
+                  styles.routineIconBox,
+                  { backgroundColor: 'rgba(33, 150, 243, 0.1)' },
+                ]}
+              >
+                <Icon name="run" size={20} color="#2196F3" />
               </View>
-            </Card.Content>
-          </Card>
+              <View style={styles.routineContent}>
+                <Text style={[styles.routineItemTitle, { color: textPrimary }]}>Activity</Text>
+                <Text style={[styles.routineItemDescription, { color: textSecondary }]}>
+                  {insight.careRoutine.activity}
+                </Text>
+              </View>
+            </View>
+          </View>
         )}
 
-        {/* ─── Hygiene Routine ──────────────────────────────────── */}
+        {/* Module D: Hygiene Routine */}
         {insight.hygiene && (
           <>
             <Pressable
@@ -386,72 +556,102 @@ export function SmartDailyInsight({ dayInCycle, appMode }: SmartDailyInsightProp
               style={[
                 styles.collapsibleButton,
                 {
-                  borderColor: '#009688',
-                  backgroundColor: expandedSections.hygiene ? '#00968812' : 'transparent',
+                  borderColor: expandedSections.hygiene
+                    ? '#009688'
+                    : borderGlass,
+                  backgroundColor: expandedSections.hygiene
+                    ? 'rgba(0, 150, 136, 0.05)'
+                    : surfaceCard,
                 },
               ]}
             >
-              <View style={[styles.sectionIconCircle, { backgroundColor: '#00968818' }]}>
-                <Icon name="shield-check-outline" size={20} color="#009688" />
-              </View>
-              <Text
-                variant="titleSmall"
-                style={{ color: theme.colors.onSurface, fontWeight: '700', flex: 1, marginLeft: 10 }}
+              <View
+                style={[
+                  styles.sectionIconCircle,
+                  {
+                    backgroundColor: expandedSections.hygiene
+                      ? 'rgba(0, 150, 136, 0.2)'
+                      : surfaceVariant,
+                  },
+                ]}
               >
+                <Icon
+                  name="shield-check-outline"
+                  size={18}
+                  color={expandedSections.hygiene ? '#009688' : textPrimary}
+                />
+              </View>
+              <Text variant="titleSmall" style={[styles.collapsibleButtonText, { color: textPrimary }]}>
                 Hygiene Routine
               </Text>
               <Icon
                 name={expandedSections.hygiene ? 'chevron-up' : 'chevron-down'}
-                size={20}
-                color={theme.colors.onSurfaceVariant}
+                size={18}
+                color={textSecondary}
               />
             </Pressable>
             {expandedSections.hygiene && (
-              <Card style={[styles.expandedCard, { backgroundColor: theme.colors.surface }]}>
-                <Card.Content style={styles.expandedCardInner}>
-                  <View style={styles.routineItem}>
-                    <View style={[styles.routineIconBox, { backgroundColor: '#00968818' }]}>
-                      <Icon name="hand-wash-outline" size={22} color="#009688" />
-                    </View>
-                    <View style={styles.routineContent}>
-                      <Text variant="labelLarge" style={{ color: theme.colors.onSurface, fontWeight: '700' }}>
-                        Hygiene Tips
-                      </Text>
-                      <Text
-                        variant="bodyMedium"
-                        style={{ color: theme.colors.onSurfaceVariant, marginTop: 2, lineHeight: 20 }}
-                      >
-                        {insight.hygiene}
-                      </Text>
-                    </View>
+              <View style={[styles.expandedContentBox, { backgroundColor: surfaceVariant, borderColor: borderGlass }]}>
+                <View style={styles.routineItem}>
+                  <View
+                    style={[
+                      styles.routineIconBox,
+                      { backgroundColor: 'rgba(0, 150, 136, 0.1)' },
+                    ]}
+                  >
+                    <Icon name="hand-wash-outline" size={20} color="#009688" />
                   </View>
-                </Card.Content>
-              </Card>
+                  <View style={styles.routineContent}>
+                    <Text style={[styles.routineItemTitle, { color: textPrimary }]}>Hygiene Tips</Text>
+                    <Text style={[styles.routineItemDescription, { color: textSecondary }]}>
+                      {insight.hygiene}
+                    </Text>
+                  </View>
+                </View>
+              </View>
             )}
           </>
         )}
       </View>
 
-      {/* ─── Daily Checklist ───────────────────────────────────── */}
+      {/* ─── Interactive Interactive Checklist Module ────────────── */}
       {insight.checklist && insight.checklist.length > 0 && (
-        <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content style={styles.cardInner}>
-            <View style={styles.cardHeader}>
-              <View style={[styles.sectionIconCircle, { backgroundColor: `${theme.colors.primary}18` }]}>
-                <Icon name="checkbox-marked-outline" size={20} color={theme.colors.primary} />
-              </View>
-              <Text
-                variant="titleSmall"
-                style={{ color: theme.colors.onSurface, fontWeight: '700', marginLeft: 10 }}
-              >
-                Daily Checklist
-              </Text>
-              <View style={{ flex: 1 }} />
-              <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                {Object.values(checked).filter(Boolean).length}/{insight.checklist.length}
-              </Text>
+        <View
+          style={[
+            styles.checklistCard,
+            { backgroundColor: surfaceCard, borderColor: borderGlass },
+          ]}
+        >
+          <View style={styles.cardHeader}>
+            <View
+              style={[
+                styles.sectionIconCircle,
+                { backgroundColor: surfaceVariant },
+              ]}
+            >
+              <Icon
+                name="checkbox-marked-outline"
+                size={18}
+                color={theme.colors.primary}
+              />
             </View>
+            <Text
+              variant="titleSmall"
+              style={[styles.dataBlockTitle, { color: textPrimary }]}
+            >
+              Daily Checklist
+            </Text>
+            <View style={{ flex: 1 }} />
+            <Text
+              variant="labelSmall"
+              style={{ color: textSecondary, fontWeight: '700' }}
+            >
+              {Object.values(checked).filter(Boolean).length}/
+              {insight.checklist.length}
+            </Text>
+          </View>
 
+          <View style={{ marginTop: 8 }}>
             {insight.checklist.map((item, index) => (
               <TouchableOpacity
                 key={index}
@@ -459,7 +659,7 @@ export function SmartDailyInsight({ dayInCycle, appMode }: SmartDailyInsightProp
                   styles.checklistItem,
                   {
                     backgroundColor: checked[index]
-                      ? `${theme.colors.primary}0A`
+                      ? `${surfaceVariant}80`
                       : 'transparent',
                   },
                 ]}
@@ -469,8 +669,8 @@ export function SmartDailyInsight({ dayInCycle, appMode }: SmartDailyInsightProp
                 <Checkbox
                   status={checked[index] ? 'checked' : 'unchecked'}
                   onPress={() => toggleCheck(index)}
-                  color={theme.colors.primary}
-                  uncheckedColor={theme.colors.onSurfaceVariant}
+                  color={phaseColor}
+                  uncheckedColor={textSecondary}
                 />
                 <Text
                   variant="bodyMedium"
@@ -478,9 +678,11 @@ export function SmartDailyInsight({ dayInCycle, appMode }: SmartDailyInsightProp
                     styles.checklistText,
                     {
                       color: checked[index]
-                        ? theme.colors.onSurfaceVariant
-                        : theme.colors.onSurface,
-                      textDecorationLine: checked[index] ? 'line-through' : 'none',
+                        ? textSecondary
+                        : textPrimary,
+                      textDecorationLine: checked[index]
+                        ? 'line-through'
+                        : 'none',
                     },
                   ]}
                 >
@@ -488,18 +690,16 @@ export function SmartDailyInsight({ dayInCycle, appMode }: SmartDailyInsightProp
                 </Text>
               </TouchableOpacity>
             ))}
-          </Card.Content>
-        </Card>
+          </View>
+        </View>
       )}
 
-      {/* ─── AI Disclaimer ─────────────────────────────────────── */}
+      {/* ─── Premium AI Disclaimer Legal Bar ───────────────────── */}
       <View style={styles.disclaimerRow}>
-        <Icon name="creation" size={14} color={theme.colors.onSurfaceVariant} />
-        <Text
-          variant="labelSmall"
-          style={{ color: theme.colors.onSurfaceVariant, marginLeft: 6, flex: 1, lineHeight: 16 }}
-        >
-          AI-generated insight — not personalised medical advice. Consult a doctor before taking any medication.
+        <Icon name="creation" size={13} color={textSecondary} />
+        <Text variant="labelSmall" style={[styles.disclaimerText, { color: textSecondary }]}>
+          AI-generated insight — not personalized medical advice. Consult a
+          doctor before making medical choices.
         </Text>
       </View>
     </View>
@@ -507,159 +707,180 @@ export function SmartDailyInsight({ dayInCycle, appMode }: SmartDailyInsightProp
 }
 
 // ---------------------------------------------------------------------------
-// Styles
+// Theme-friendly Stylesheet — colors moved to inline styles
 // ---------------------------------------------------------------------------
-
 const styles = StyleSheet.create({
   root: {
-    paddingHorizontal: 16,
-    gap: 16,
+    paddingHorizontal: 20,
+    gap: 14,
+    paddingBottom: 100,
   },
-
-  // Section title
-  sectionTitle: {
-    fontWeight: '700',
-    marginBottom: 0,
-  },
-
-  // Phase banner
-  phaseBanner: {
+  headerRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    borderRadius: 16,
+    marginTop: 10,
+    marginBottom: 2,
+  },
+  sectionTitle: { fontWeight: '900', letterSpacing: -0.5 },
+  viewAllButton: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  viewAllText: { fontSize: 13, fontWeight: '700' },
+
+  // Refactored Phase Banner Structural Layout Layer
+  phaseBannerCard: {
+    borderRadius: 24,
     padding: 16,
-    gap: 14,
+    borderWidth: 1,
   },
-  phaseIconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  probabilityBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  probabilityText: {
-    color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-
-  // Summary
-  summaryText: {
-    lineHeight: 24,
-    fontWeight: '400',
-  },
-
-  // Cards (used for every section)
-  card: {
-    borderRadius: 16,
-    elevation: 0,
-  },
-  cardInner: {
-    padding: 20,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-
-  // Small round icon backgrounds
-  sectionIconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  // Action row (fertility status, milestone)
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-
-  // Symptom Chips
-  chipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 12,
-  },
-  chip: {
-    borderRadius: 24,
-  },
-  chipText: {
-    fontSize: 13,
-  },
-
-  // Care Routine items
-  routineItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 12,
-    gap: 14,
-  },
-  routineIconBox: {
+  layoutFlexRow: { flexDirection: 'row', alignItems: 'center', width: '100%' },
+  orbGraphicBlock: {
     width: 44,
     height: 44,
-    borderRadius: 12,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  orbRing: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
   },
-  routineContent: {
-    flex: 1,
+  waveVector: { position: 'absolute', bottom: -2, zIndex: 4 },
+  typographyStack: { flex: 1, justifyContent: 'center' },
+  actionZoneBox: {
+    width: 105,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
-  routineDivider: {
-    marginLeft: 58, // align with text, past icon
-    opacity: 0.3,
+  gradientStatusPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  statusPillText: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: -0.2,
+    textTransform: 'uppercase',
   },
 
-  // Collapsible sections
-  collapsibleGroup: {
-    gap: 10,
+  summaryText: {
+    lineHeight: 22,
+    fontWeight: '400',
+    paddingHorizontal: 4,
+    marginTop: 2,
   },
+
+  // Complex Data Blocks
+  premiumDataBlock: {
+    borderRadius: 24,
+    padding: 18,
+    borderWidth: 1,
+  },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  dataBlockTitle: { fontWeight: '800', fontSize: 15, letterSpacing: -0.1 },
+  innerHorizontalLine: {
+    height: 1,
+    marginVertical: 14,
+  },
+  actionRow: { flexDirection: 'row', alignItems: 'flex-start' },
+
+  // Collapsible Core
+  collapsibleGroup: { gap: 8 },
   collapsibleButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1.2,
-    borderRadius: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    gap: 4,
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    gap: 10,
   },
-  expandedCard: {
-    borderRadius: 14,
-    elevation: 0,
+  collapsibleButtonText: {
+    fontWeight: '700',
+    flex: 1,
+    letterSpacing: -0.1,
+  },
+  sectionIconCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  expandedContentBox: {
+    borderRadius: 18,
     marginTop: -4,
-  },
-  expandedCardInner: {
     padding: 16,
+    borderWidth: 1,
+    gap: 12,
+  },
+  expandedContentText: { lineHeight: 22 },
+
+  // Symptoms Custom Architecture
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  customPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 0.5,
+  },
+  customPillText: { fontSize: 12, fontWeight: '500' },
+
+  // Care Routine Structure
+  routineItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  routineIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  routineContent: { flex: 1 },
+  routineItemTitle: { fontWeight: '700', fontSize: 14 },
+  routineItemDescription: {
+    fontSize: 13,
+    marginTop: 3,
+    lineHeight: 18,
+  },
+  subDivider: {
+    height: 1,
+    marginLeft: 50,
   },
 
-  // Checklist
+  // Checklist Core
+  checklistCard: {
+    borderRadius: 24,
+    padding: 16,
+    borderWidth: 1,
+  },
   checklistItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 12,
+    borderRadius: 14,
     paddingRight: 12,
-    marginTop: 4,
+    marginTop: 6,
+    height: 44,
   },
-  checklistText: {
-    flex: 1,
-    lineHeight: 20,
-  },
+  checklistText: { flex: 1, fontWeight: '500' },
 
-  // Disclaimer
+  // Legal Row
   disclaimerRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    paddingHorizontal: 4,
-    paddingTop: 4,
-    opacity: 0.7,
+    paddingHorizontal: 6,
+    marginTop: 4,
+    opacity: 0.6,
+  },
+  disclaimerText: {
+    marginLeft: 8,
+    flex: 1,
+    lineHeight: 15,
+    fontWeight: '400',
   },
 });

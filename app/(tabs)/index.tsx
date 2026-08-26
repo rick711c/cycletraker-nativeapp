@@ -1,19 +1,19 @@
-import { CycleRing } from "@/src/components/cycle/CycleRing";
+import { AnimeGrasslandCanvas } from "@/src/components/cycle/AnimeGrasslandCanvas";
 import { QuickActions } from "@/src/components/cycle/QuickActions";
 import { SmartDailyInsight } from "@/src/components/cycle/SmartDailyInsight";
-import { UpcomingEvents } from "@/src/components/cycle/UpcomingEvents";
-import Icon from "@/src/components/ui/Icon";
 import { useAppSelector } from "@/src/store";
 import { selectCycleStats, selectSettings } from "@/src/store/cycleSlice";
 import { AppMode } from "@/src/types/insight";
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Text, useTheme } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 
 export default function HomeScreen() {
-  const theme = useTheme();
   const stats = useAppSelector(selectCycleStats);
   const settings = useAppSelector(selectSettings);
+  const theme = useTheme();
+  const [scrollEnabled, setScrollEnabled] = useState(true);
+
   const appMode: AppMode =
     settings.goal === "conceive"
       ? "tryToConceive"
@@ -21,71 +21,55 @@ export default function HomeScreen() {
         ? "trackPregnancy"
         : "trackCycle";
 
-  return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: theme.colors.background }}
-      contentContainerStyle={styles.container}
-    >
-      <View style={styles.header}>
-        <View style={styles.brandContainer}>
-          <Icon icon="flower" size={28} color={theme.colors.primary} />
-          <Text variant="headlineSmall" style={styles.brandText}>
-            Flora
-          </Text>
-        </View>
-        <View style={styles.dateContainer}>
-          <Text
-            variant="bodySmall"
-            style={{ color: theme.colors.onSurfaceVariant }}
-          >
-            Today
-          </Text>
-          <Text
-            variant="bodyMedium"
-            style={[styles.dateText, { color: theme.colors.onSurface }]}
-          >
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "short",
-              month: "short",
-              day: "numeric",
-            })}
-          </Text>
-        </View>
-      </View>
+  // Fallback safe assignment for the next period countdown string or date tracking
+  const nextPeriodTarget = stats.nextPeriodDate || "";
 
-      <View style={styles.sectionPadding}>
-        <CycleRing
+  const handleDragStateChange = useCallback((isDragging: boolean) => {
+    setScrollEnabled(!isDragging);
+  }, []);
+
+  return (
+    <View style={[styles.viewportCanvas, { backgroundColor: theme.colors.background }]}>
+      <ScrollView
+        style={[styles.scrollView, { backgroundColor: theme.colors.background }]}
+        contentContainerStyle={styles.container}
+        bounces={false}
+        showsVerticalScrollIndicator={false}
+        scrollEnabled={scrollEnabled}
+      >
+        {/* 1. Unified upper viewport canvas (always dark hero) */}
+        <AnimeGrasslandCanvas
           dayInCycle={stats.dayInCycle}
           cycleLength={stats.averageCycleLength}
           currentPhase={stats.currentPhase}
           periodLength={stats.averagePeriodLength}
+          nextPeriodDate={nextPeriodTarget}
+          onPuppyDragStateChange={handleDragStateChange}
         />
-      </View>
 
-      <QuickActions />
-      <UpcomingEvents stats={stats} />
+        {/* 2. Self-contained action buttons */}
+        <QuickActions />
 
-      <View style={styles.insightContainer}>
-        <SmartDailyInsight dayInCycle={stats.dayInCycle} appMode={appMode} />
-      </View>
-    </ScrollView>
+        {/* 3. Cycle insight dashboard feeds */}
+        <View style={styles.insightContainer}>
+          <SmartDailyInsight dayInCycle={stats.dayInCycle} appMode={appMode} />
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { paddingBottom: 24 },
-  header: {
-    paddingHorizontal: 16,
-    paddingTop: 24,
-    paddingBottom: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  viewportCanvas: {
+    flex: 1,
   },
-  brandContainer: { flexDirection: "row", alignItems: "center", gap: 8 },
-  brandText: { fontWeight: "700" },
-  dateContainer: { alignItems: "flex-end" },
-  dateText: { fontWeight: "500" },
-  sectionPadding: { paddingVertical: 24 },
-  insightContainer: { marginTop: 24 },
+  scrollView: { 
+    flex: 1, 
+  },
+  container: { 
+    paddingBottom: 32,
+  },
+  insightContainer: { 
+    marginTop: 24,
+  },
 });

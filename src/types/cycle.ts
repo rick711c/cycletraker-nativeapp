@@ -44,6 +44,7 @@ export interface UserSettings {
   goal: "track" | "conceive" | "pregnancy";
   notificationsEnabled: boolean;
   appLockEnabled: boolean;
+  darkModeEnabled: boolean;
 }
 
 export interface CycleStats {
