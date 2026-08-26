@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { differenceInDays, format, parseISO } from 'date-fns';
+import * as Haptics from 'expo-haptics';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -79,6 +80,39 @@ function FloatingPetal({ index, accentColor }: { index: number; accentColor: str
 }
 
 // ==========================================
+// 💥 FLOATING IMPACT PARTICLE (punch feedback)
+// ==========================================
+function ImpactParticle({ emoji, offsetX }: { emoji: string; offsetX: number }) {
+  const floatY = useSharedValue(0);
+  const fadeOut = useSharedValue(1);
+  const scale = useSharedValue(0.3);
+
+  useEffect(() => {
+    scale.value = withSequence(
+      withSpring(1.4, { damping: 6, stiffness: 200 }),
+      withTiming(0.8, { duration: 300 }),
+    );
+    floatY.value = withTiming(-60, { duration: 650 });
+    fadeOut.value = withTiming(0, { duration: 650 });
+  }, []);
+
+  const particleStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: floatY.value },
+      { translateX: offsetX },
+      { scale: scale.value },
+    ],
+    opacity: fadeOut.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.impactParticle, particleStyle]}>
+      <Text style={styles.impactEmoji}>{emoji}</Text>
+    </Animated.View>
+  );
+}
+
+// ==========================================
 // 🐕 ULTRA-PREMIUM INTERACTIVE PUPPY
 // ==========================================
 function AdvancedPuppy({ isDark, landscapeFill1, landscapeFill2, puppyColors, onDragStateChange }: {
@@ -106,6 +140,59 @@ function AdvancedPuppy({ isDark, landscapeFill1, landscapeFill2, puppyColors, on
   const dragStartX = useSharedValue(0);
   const dragStartY = useSharedValue(0);
 
+  // Punch/hit reaction state
+  const punchSquish = useSharedValue(1);
+  const punchShake = useSharedValue(0);
+  const punchEyeDizzy = useSharedValue(1);
+  const [impactParticles, setImpactParticles] = useState<{ id: number; emoji: string; x: number }[]>([]);
+  let particleIdRef = 0;
+
+  const IMPACT_EMOJIS = ['💥', '⭐', '💢', '😵', '🌟', '💫'];
+
+  const triggerPunchReaction = useCallback(() => {
+    // Haptic feedback
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+
+    // Squish down and bounce back
+    punchSquish.value = withSequence(
+      withTiming(0.7, { duration: 60 }),
+      withSpring(1.1, { damping: 4, stiffness: 300 }),
+      withSpring(1, { damping: 10, stiffness: 200 }),
+    );
+
+    // Shake side-to-side
+    punchShake.value = withSequence(
+      withTiming(8, { duration: 40 }),
+      withTiming(-8, { duration: 40 }),
+      withTiming(5, { duration: 35 }),
+      withTiming(-5, { duration: 35 }),
+      withTiming(2, { duration: 30 }),
+      withTiming(0, { duration: 30 }),
+    );
+
+    // Dizzy eyes — squash then recover
+    punchEyeDizzy.value = withSequence(
+      withTiming(0.1, { duration: 50 }),
+      withTiming(1.4, { duration: 100 }),
+      withTiming(0.2, { duration: 80 }),
+      withTiming(1, { duration: 200 }),
+    );
+
+    // Ears go wild
+    earWiggle.value = withSequence(
+      withSpring(15), withSpring(-12), withSpring(8), withSpring(-4), withSpring(0),
+    );
+
+    // Spawn a floating impact particle
+    const emoji = IMPACT_EMOJIS[Math.floor(Math.random() * IMPACT_EMOJIS.length)];
+    const x = Math.random() * 60 - 30;
+    const newId = ++particleIdRef;
+    setImpactParticles(prev => [...prev, { id: newId, emoji, x }]);
+    setTimeout(() => {
+      setImpactParticles(prev => prev.filter(p => p.id !== newId));
+    }, 700);
+  }, []);
+
   useEffect(() => {
     breathe.value = withRepeat(withTiming(1, { duration: 1300 }), -1, true);
     tailWag.value = withRepeat(withSequence(withTiming(-10, { duration: 200 }), withTiming(10, { duration: 200 })), -1, true);
@@ -124,16 +211,21 @@ function AdvancedPuppy({ isDark, landscapeFill1, landscapeFill2, puppyColors, on
     };
   }, []);
 
-  const bodyStyle = useAnimatedProps(() => ({
-    transform: [{ translateY: interpolate(breathe.value, [0, 1], [0, -2.5]) }]
+  const bodyStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: interpolate(breathe.value, [0, 1], [0, -2.5]) },
+      { scaleY: punchSquish.value },
+      { translateX: punchShake.value },
+    ],
   }));
   const tailStyle = useAnimatedProps(() => ({ transform: [{ rotate: `${tailWag.value}deg` }] }));
   const leftEarStyle = useAnimatedProps(() => ({ transform: [{ rotate: `${-15 + earWiggle.value}deg` }] }));
   const rightEarStyle = useAnimatedProps(() => ({ transform: [{ rotate: `${15 - earWiggle.value}deg` }] }));
-  const eyeStyle = useAnimatedProps(() => ({ transform: [{ scaleY: eyeBlink.value }] }));
+  const eyeStyle = useAnimatedStyle(() => ({ transform: [{ scaleY: punchEyeDizzy.value * eyeBlink.value }] }));
 
   // Pan gesture for dragging the puppy
   const panGesture = Gesture.Pan()
+    .minDistance(10)
     .onStart(() => {
       dragStartX.value = translateX.value;
       dragStartY.value = translateY.value;
@@ -146,13 +238,21 @@ function AdvancedPuppy({ isDark, landscapeFill1, landscapeFill2, puppyColors, on
       translateY.value = dragStartY.value + event.translationY;
     })
     .onEnd(() => {
-      // Spring back to original position
       translateX.value = withSpring(0, { damping: 12, stiffness: 100 });
       translateY.value = withSpring(0, { damping: 12, stiffness: 100 });
       if (onDragStateChange) {
         runOnJS(onDragStateChange)(false);
       }
     });
+
+  // Tap gesture for punching
+  const tapGesture = Gesture.Tap()
+    .onEnd(() => {
+      runOnJS(triggerPunchReaction)();
+    });
+
+  // Compose: tap for punch, pan for drag — Race lets one win per interaction
+  const composedGesture = Gesture.Race(tapGesture, panGesture);
 
   const dragStyle = useAnimatedStyle(() => ({
     transform: [
@@ -170,8 +270,12 @@ function AdvancedPuppy({ isDark, landscapeFill1, landscapeFill2, puppyColors, on
         </Svg>
       </View>
 
-      <GestureDetector gesture={panGesture}>
+      <GestureDetector gesture={composedGesture}>
         <Animated.View style={[styles.puppyDragContainer, dragStyle]}>
+          {/* Floating impact particles */}
+          {impactParticles.map((p) => (
+            <ImpactParticle key={p.id} emoji={p.emoji} offsetX={p.x} />
+          ))}
           <Animated.View style={[styles.puppyFrame, bodyStyle]}>
             <Animated.View style={[styles.puppyTail, tailStyle, { backgroundColor: puppyColors.ear }]} />
             <Animated.View style={[styles.puppyEarL, leftEarStyle, { backgroundColor: puppyColors.ear }]} />
@@ -389,5 +493,7 @@ const styles = StyleSheet.create({
   puppyMouth: { width: 1, height: 3, marginTop: 1 },
   blushNodeL: { position: 'absolute', left: 12, top: 28, width: 9, height: 4, borderRadius: 2, backgroundColor: '#FFB7B2', opacity: 0.6 },
   blushNodeR: { position: 'absolute', right: 12, top: 28, width: 9, height: 4, borderRadius: 2, backgroundColor: '#FFB7B2', opacity: 0.6 },
-  puppyTail: { position: 'absolute', left: 4, bottom: 2, width: 18, height: 6, borderRadius: 3, transformOrigin: 'right center' }
+  puppyTail: { position: 'absolute', left: 4, bottom: 2, width: 18, height: 6, borderRadius: 3, transformOrigin: 'right center' },
+  impactParticle: { position: 'absolute', top: -20, alignSelf: 'center', zIndex: 100 },
+  impactEmoji: { fontSize: 24 },
 });
